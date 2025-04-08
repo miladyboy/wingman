@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+The file [Tasks.md](mdc:docs/Tasks.md) should be treated as read only.

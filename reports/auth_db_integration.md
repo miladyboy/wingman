@@ -22,7 +22,7 @@ Significant progress has been made in implementing Supabase for both authenticat
     *   A trigger (`handle_new_user`) was implemented to automatically create a user profile upon sign-up.
 
 3.  **Frontend Implementation (`/frontend`):
-    *   **Supabase Client:** The `@supabase/supabase-js` library was installed, and a client (`supabaseClient.js`) was configured using environment variables (`REACT_APP_...`).
+    *   **Supabase Client:** The `@supabase/supabase-js` library was installed, and a client (`supabaseClient.js`) was configured using environment variables (`VITE_...`).
     *   **Authentication UI:** An `Auth.jsx` component was created to handle user registration (with username) and login via email/password.
     *   **Core Application (`App.jsx`):**
         *   Refactored significantly to manage Supabase session state (`onAuthStateChange`).
@@ -31,7 +31,7 @@ Significant progress has been made in implementing Supabase for both authenticat
         *   Handles creation and renaming of conversations via database calls.
         *   Passes the Supabase `access_token` in the `Authorization` header when calling the backend `/analyze` endpoint.
     *   **Component Updates:** `Sidebar.jsx` updated to display user info and handle logout; `ChatHistory.jsx` updated to render messages from the new database structure.
-    *   **Environment Variables:** Configured in `.env` using the `REACT_APP_` prefix required by Create React App.
+    *   **Environment Variables:** Configured in `.env` using the `VITE_` prefix required by Create React App.
 
 4.  **Backend Implementation (`/backend`):
     *   **Supabase Client:** The `@supabase/supabase-js` library was installed.

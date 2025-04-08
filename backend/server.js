@@ -104,9 +104,14 @@ app.post('/analyze', async (req, res) => {
 
         const { history, newMessage } = req.body;
 
-        console.log("Received newMessage:", JSON.stringify(newMessage));
+        console.log("[Backend] Received /analyze request:", {
+            historyLength: history?.length ?? 0,
+            newMessageText: newMessage?.text,
+            hasImage: !!newMessage?.imageBase64
+        });
 
         if (!newMessage || ((!newMessage.text || newMessage.text.trim() === '') && !newMessage.imageBase64)) { // Check newMessage structure
+            console.warn("[Backend] Bad request: Missing text or image.");
             return res.status(400).json({ error: 'New message content (text or image) is required.' });
         }
 
@@ -116,12 +121,13 @@ app.post('/analyze', async (req, res) => {
 
         // Determine if it's the first user message in the thread
         const isInitialUserMessage = !history || history.filter(msg => msg.role === 'user').length === 0;
+        console.log("[Backend] Is initial user message:", isInitialUserMessage);
 
         // --- Handle Initial Message: Nickname & Image Description ---
         if (isInitialUserMessage) {
             if (newMessage.imageBase64) {
                 // 1. Generate Image Description & Nickname
-                console.log("Generating image description and nickname...");
+                console.log("[Backend] Initial message with image. Generating description and nickname...");
                 const descriptionPrompt = [{
                     role: "user",
                     content: [
@@ -134,66 +140,103 @@ app.post('/analyze', async (req, res) => {
                 }];
                 const descriptionAndNickname = await callOpenAI(descriptionPrompt, 100); // Lower max_tokens
                 // Basic parsing: Assume description is first, nickname is last line or similar. Needs refinement.
-                const lines = descriptionAndNickname.split('\\n');
-                generatedImageDescription = lines.slice(0, -1).join(' ').trim() || "Image received."; // Fallback description
-                generatedNickname = lines.pop().replace(/Nickname:?\\s*/i, '').trim() || "Mystery Girl"; // Fallback nickname
-                console.log("Generated Description:", generatedImageDescription);
-                console.log("Generated Nickname:", generatedNickname);
+                const lines = descriptionAndNickname.split('\n');
+
+                // Attempt to parse description and nickname more robustly
+                let parsedNickname = lines.find(line => line.toLowerCase().startsWith('nickname:'));
+                generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop().trim();
+                generatedNickname = generatedNickname || "Mystery Girl"; // Fallback nickname
+
+                // Assume description is the rest
+                generatedImageDescription = lines.filter(line => !line.toLowerCase().startsWith('nickname:') && line.trim() !== generatedNickname).join('\n').trim();
+                generatedImageDescription = generatedImageDescription || "Image received."; // Fallback description
+
+                console.log("[Backend] Generated Description:", generatedImageDescription);
+                console.log("[Backend] Generated Nickname:", generatedNickname);
 
                 // Prepare user message content for history, including the *description* not the image itself for history saving
-                 userMessageContent.push({ type: "text", text: newMessage.text ? `${newMessage.text} [Image Analysis: ${generatedImageDescription}]` : `[Image Analysis: ${generatedImageDescription}]` });
-                 // We still need to send the image for the *current* analysis call
-                 userMessageContent.push({
-                     type: "image_url",
-                     image_url: { url: `data:${newMessage.imageMimeType};base64,${newMessage.imageBase64}` }
-                 });
-
+                if (newMessage.text) {
+                    userMessageContent.push({ type: "text", text: newMessage.text });
+                }
+                // We still need to send the image for the *current* analysis call
+                userMessageContent.push({
+                    type: "image_url",
+                    image_url: { url: `data:${newMessage.imageMimeType};base64,${newMessage.imageBase64}` }
+                });
 
             } else {
                 // 2. Generate Nickname from text only
-                console.log("Generating nickname from text...");
+                console.log("[Backend] Initial message text-only. Generating nickname...");
                 const nicknamePrompt = [{
                     role: "user",
-                    content: `Based on the following initial message, suggest a short, catchy, SFW nickname for the person being discussed:\\n\\n"${newMessage.text}"\\n\\nNickname:`
+                    content: `Based on the following initial message, suggest a short, catchy, SFW nickname for the person being discussed:\n\n"${newMessage.text}"\n\nNickname:`
                 }];
                 generatedNickname = (await callOpenAI(nicknamePrompt, 20)).trim() || "Chat Pal"; // Fallback nickname
-                console.log("Generated Nickname:", generatedNickname);
+                console.log("[Backend] Generated Nickname:", generatedNickname);
                 userMessageContent.push({ type: "text", text: newMessage.text });
             }
-        } else {
-             // Not the initial message
-             if (newMessage.text) {
+        } else { // Not the initial message
+            console.log("[Backend] Subsequent message.");
+            generatedImageDescription = null; // Initialize for this scope
+            generatedNickname = null; // Nickname only generated for initial message
+
+            // Generate description if a subsequent image is provided
+            if (newMessage.imageBase64) {
+                console.log("[Backend] Subsequent message with image. Generating description...");
+                const descriptionPromptSubsequent = [{
+                    role: "user",
+                    content: [
+                        { type: "text", text: "Describe this image briefly for context in a chat analysis. Focus on the people, setting, and overall vibe." },
+                        {
+                            type: "image_url",
+                            image_url: { url: `data:${newMessage.imageMimeType};base64,${newMessage.imageBase64}` }
+                        }
+                    ]
+                }];
+                try {
+                    generatedImageDescription = await callOpenAI(descriptionPromptSubsequent, 100);
+                    generatedImageDescription = generatedImageDescription.trim() || "Image analyzed."; // Add fallback
+                    console.log("[Backend] Generated Subsequent Description:", generatedImageDescription);
+                } catch (descError) {
+                    console.error("[Backend] Error generating subsequent image description:", descError);
+                    generatedImageDescription = "Error analyzing image."; // Set error description
+                }
+            }
+
+            // Prepare user message content for the *suggestion* generation call
+            // This part remains largely the same, ensuring the image URL is passed for context
+            userMessageContent = []; // Reset for this scope
+            if (newMessage.text) {
                 userMessageContent.push({ type: "text", text: newMessage.text });
-             }
-             if (newMessage.imageBase64) {
-                // For subsequent messages, pass the image directly for analysis
-                // The frontend will be responsible for storing a description if needed later
-                console.log("Including subsequent image in payload...");
-                 userMessageContent.push({
-                     type: "image_url",
-                     image_url: { url: `data:${newMessage.imageMimeType};base64,${newMessage.imageBase64}` }
-                 });
-                 // Add a placeholder text if no text was provided with the subsequent image
-                 if (!newMessage.text) {
-                    // Insert placeholder text at the beginning if it doesn't exist
+            }
+            if (newMessage.imageBase64) {
+                console.log("[Backend] Including subsequent image URL in suggestion context payload...");
+                userMessageContent.push({
+                    type: "image_url",
+                    image_url: { url: `data:${newMessage.imageMimeType};base64,${newMessage.imageBase64}` }
+                });
+                // Add placeholder text if needed (as before)
+                if (!newMessage.text) {
                     if (!userMessageContent.some(item => item.type === 'text')) {
                         userMessageContent.unshift({ type: "text", text: "[Image provided]" });
                     } else {
-                         userMessageContent.find(item => item.type === 'text').text += " [Image provided]";
+                         const textItem = userMessageContent.find(item => item.type === 'text');
+                         if (textItem) textItem.text += " [Image provided]";
                     }
-                 }
-             }
+                }
+            }
         }
 
         // Ensure userMessageContent is not empty if only an image was sent in subsequent message
         if (userMessageContent.length === 0 && newMessage.imageBase64 && !isInitialUserMessage) {
-             userMessageContent.push({ type: "text", text: "[Image provided]" });
-             userMessageContent.push({
-                 type: "image_url",
-                 image_url: { url: `data:${newMessage.imageMimeType};base64,${newMessage.imageBase64}` }
-             });
+            userMessageContent.push({ type: "text", text: "[Image provided]" });
+            userMessageContent.push({
+                type: "image_url",
+                image_url: { url: `data:${newMessage.imageMimeType};base64,${newMessage.imageBase64}` }
+            });
         }
 
+        console.log("[Backend] Final user message content for suggestion generation:", JSON.stringify(userMessageContent));
 
         // --- Construct Full Conversation History for Suggestions ---
         const conversation = [
@@ -211,30 +254,30 @@ app.post('/analyze', async (req, res) => {
         ];
 
         // --- Generate Flirty Suggestions ---
-        console.log("Generating flirty suggestions...");
+        console.log("[Backend] Generating flirty suggestions...");
         const suggestionText = await callOpenAI(conversation, 300); // Default tokens for suggestions
 
         // Improved suggestion parsing
-         const suggestions = suggestionText.split(/\n\d\.\s+|\n\*\s+|\n-\s+|\n\n/)
-                                     .map(s => s.replace(/^\d\.\s*/, '').replace(/^[\*-]\s*/, '').trim()) // Remove numbering/bullets
-                                     .filter(s => s.length > 5 && s.length < 500); // Basic length filtering
+        const suggestions = suggestionText.split(/\n\d\.\s+|\n\*\s+|\n-\s+|\n\n/)
+                                    .map(s => s.replace(/^\d\.\s*/, '').replace(/^[\*-]\s*/, '').trim()) // Remove numbering/bullets
+                                    .filter(s => s.length > 5 && s.length < 500); // Basic length filtering
 
+        console.log('[Backend] Extracted suggestions:', suggestions);
 
-        console.log('Extracted suggestions:', suggestions);
+        const responsePayload = {
+            suggestions,
+            nickname: generatedNickname,
+            imageDescription: generatedImageDescription
+        };
+        console.log("[Backend] Sending response to frontend:", responsePayload);
 
         // Send suggestions (and potentially nickname/description) back to the client
-        res.json({
-            suggestions,
-            nickname: generatedNickname, // Will be null if not the first message
-            imageDescription: generatedImageDescription // Will be null if no image or not first message
-         });
+        res.json(responsePayload);
 
     } catch (error) {
-        console.error('Error in /analyze endpoint:', error); // Log the detailed error
-        res.status(500).json({
-            error: 'Failed to analyze content',
-            details: error.message // Send back a user-friendly error message
-        });
+        console.error('[Backend] Error during /analyze:', error);
+        // Ensure detailed error is sent back for easier debugging
+        res.status(500).json({ error: 'Failed to analyze message', details: error.message });
     }
 });
 

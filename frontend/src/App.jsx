@@ -176,12 +176,13 @@ function App() {
       return
     }
 
+    console.log('[Frontend] handleSendMessage called with text:', text, 'and imageFile:', imageFile);
+
     setLoading(true)
     setError(null)
 
     let imageBase64 = null
     let imageMimeType = null
-    let imageDescriptionForUserMessage = null
 
     if (imageFile) {
       try {
@@ -190,13 +191,14 @@ function App() {
           reader.onload = (event) => {
             imageBase64 = event.target.result.split(',')[1]
             imageMimeType = event.target.result.match(/:(.*?);/)[1]
+            console.log('[Frontend] Image processed:', { mimeType: imageMimeType, base64Length: imageBase64?.length });
             resolve()
           }
           reader.onerror = (error) => reject(error)
           reader.readAsDataURL(imageFile)
         })
       } catch (err) {
-        console.error("Error reading image file:", err)
+        console.error("[Frontend] Error reading image file:", err)
         setError("Failed to process the image. Please try again.")
         setLoading(false)
         return
@@ -208,21 +210,32 @@ function App() {
       conversation_id: activeConversationId,
       sender: 'user',
       content: userMessageContent,
+      image_description: null
     }
 
     const payload = {
-      history: [],
+      history: messages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.content
+      })),
       newMessage: {
         text: text || '',
         imageBase64: imageBase64,
         imageMimeType: imageMimeType
       },
     }
-    console.log("Sending payload with text:", payload.newMessage.text)
+    console.log("[Frontend] Sending payload to backend:", {
+      historyLength: payload.history.length,
+      newMessageText: payload.newMessage.text,
+      hasImage: !!payload.newMessage.imageBase64
+    });
 
     let backendResponseData = null
     try {
-      const response = await fetch('http://localhost:3001/analyze', {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      console.log(`[Frontend] Sending request to backend URL: ${backendUrl}/analyze`);
+
+      const response = await fetch(`${backendUrl}/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -233,20 +246,23 @@ function App() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown backend error' }))
-        console.error('Backend failed:', errorData)
+        console.error('[Frontend] Backend failed:', { status: response.status, data: errorData })
         throw new Error(errorData.details || errorData.error || `Backend Error: ${response.statusText}`)
       }
       backendResponseData = await response.json()
+      console.log('[Frontend] Received response from backend:', backendResponseData);
 
-      if (!text && backendResponseData.imageDescription) {
+      if (!text && imageFile && backendResponseData.imageDescription) {
+        console.log('[Frontend] Updating user message content with image description.');
         userMessageForDb.content = `[Image Analysis: ${backendResponseData.imageDescription}]`
         userMessageForDb.image_description = backendResponseData.imageDescription
       } else if (backendResponseData.imageDescription) {
+        console.log('[Frontend] Storing image description alongside user text.');
         userMessageForDb.image_description = backendResponseData.imageDescription
       }
 
     } catch (error) {
-      console.error('Error sending message to backend:', error)
+      console.error('[Frontend] Error sending message to backend:', error)
       setError(`Backend communication error: ${error.message}.`)
       setLoading(false)
       return
@@ -260,6 +276,8 @@ function App() {
         content: assistantMessageContent,
       }
 
+      console.log('[Frontend] Preparing to insert messages into Supabase:', { userMsg: userMessageForDb, aiMsg: assistantMessageForDb });
+
       const { data: insertedMessages, error: insertError } = await supabase
         .from('messages')
         .insert([userMessageForDb, assistantMessageForDb])
@@ -267,7 +285,9 @@ function App() {
 
       if (insertError) throw insertError
 
-      if (insertedMessages) {
+      console.log('[Frontend] Messages inserted successfully:', insertedMessages);
+
+      if (insertedMessages && insertedMessages.length > 0) {
         setMessages(prevMessages => [...prevMessages, ...insertedMessages])
       } else {
         console.warn("Messages inserted but not returned, might need manual refetch")

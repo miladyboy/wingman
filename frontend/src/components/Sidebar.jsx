@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { PencilIcon, CheckIcon, XMarkIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/solid';
 
-function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread }) {
+function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, user, onLogout }) {
   const [editingThreadId, setEditingThreadId] = useState(null);
   const [editText, setEditText] = useState('');
 
@@ -103,10 +103,22 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         )}
       </nav>
 
-      {/* Footer (Optional) */}
-      {/* <div className="p-4 border-t border-gray-700 text-xs text-gray-500">
-        Wingman v1.0
-      </div> */}
+      {/* --- User Info & Logout --- */}
+      <div className="p-4 border-t border-gray-700 mt-auto">
+        {user && (
+          <div className="text-sm text-gray-400 mb-2 truncate" title={user.email}>
+            Logged in as: {user.username || user.email} {/* Display username or email */}
+          </div>
+        )}
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out text-sm"
+        >
+          <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
+          Logout
+        </button>
+      </div>
+      {/* --- End User Info & Logout --- */}
     </div>
   );
 }

@@ -28,9 +28,7 @@ The project is a React application designed to generate flirty response suggesti
 
 ## Repository Details
 - **Repository Name**: wingman
-- **Repository Link**: [GitHub Repository](#) https://github.com/miladyboy/wingman
-
-## Next Steps
+- **Repository Link**: [GitHub Repository](#) https://github.com/miladya
 1. **Core Feature**: Multi-step conversation. The user should be able to keep talking to the AI to refine the advice, or even send future pictures of the same girl and get new advice.  
 
 This report should provide a comprehensive overview for the next developer to continue building and enhancing the application. If there are any specific areas that need further clarification or focus, please let me know!

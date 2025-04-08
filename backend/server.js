@@ -4,9 +4,36 @@ const axios = require('axios');
 // const multer = require('multer'); // Removed multer
 // const fs = require('fs'); // Removed fs
 const cors = require('cors');
+// --- Supabase Backend Setup ---
+const { createClient } = require('@supabase/supabase-js');
+// --- End Supabase Backend Setup ---
 
 // Load environment variables
 dotenv.config();
+
+// --- Supabase Backend Setup ---
+// Initialize Supabase Admin Client (use environment variables)
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.warn('Supabase URL or Service Role Key not found in .env. Backend Supabase operations may fail.');
+  // Depending on requirements, you might want to throw an error here if Supabase is critical
+  // throw new Error('Supabase URL and Service Role Key must be provided in backend environment variables');
+}
+
+// Initialize client ONLY if variables are present
+const supabaseAdmin = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+        // Important: Prevent Supabase client from persisting sessions server-side
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false
+    }
+}) : null;
+
+console.log(`Supabase Admin Client ${supabaseAdmin ? 'Initialized' : 'NOT Initialized (Missing ENV vars)'}`);
+// --- End Supabase Backend Setup ---
 
 const app = express();
 const port = 3001;
@@ -57,11 +84,27 @@ async function callOpenAI(messages, max_tokens = 300, model = "gpt-4o") {
 }
 
 // POST endpoint to analyze conversation history and new message
-app.post('/analyze', async (req, res) => { // Removed multer middleware
+app.post('/analyze', async (req, res) => {
     try {
-        const { history, newMessage } = req.body; // Get history and newMessage from body
+        // --- Extract Auth Token ---
+        const authHeader = req.headers.authorization;
+        let userAccessToken = null;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            userAccessToken = authHeader.split(' ')[1];
+            console.log("Received user access token."); // Log token presence
+            // You could potentially verify the token here using supabaseAdmin.auth.getUser(userAccessToken)
+            // But only if you need user identity *on the backend* for this specific request.
+            // For now, we just acknowledge it's received.
+        } else {
+            console.warn("No authorization token provided by frontend.");
+            // Depending on security requirements, you might reject the request here:
+            // return res.status(401).json({ error: 'Authorization token required.' });
+        }
+        // --- End Extract Auth Token ---
 
-        console.log("Received newMessage:", JSON.stringify(newMessage)); // Log for debugging
+        const { history, newMessage } = req.body;
+
+        console.log("Received newMessage:", JSON.stringify(newMessage));
 
         if (!newMessage || ((!newMessage.text || newMessage.text.trim() === '') && !newMessage.imageBase64)) { // Check newMessage structure
             return res.status(400).json({ error: 'New message content (text or image) is required.' });

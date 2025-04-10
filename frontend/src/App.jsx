@@ -170,78 +170,40 @@ function App() {
     }
   }
 
-  const handleSendMessage = useCallback(async (text, imageFile) => {
-    if (!activeConversationId || !session) {
+  const handleSendMessage = useCallback(async (formData) => {
+    const currentConversationId = activeConversationId;
+    formData.append('conversationId', currentConversationId);
+
+    if (!currentConversationId || !session) {
       setError("Please select or start a conversation first.")
       return
     }
 
-    console.log('[Frontend] handleSendMessage called with text:', text, 'and imageFile:', imageFile);
+    console.log('[Frontend] handleSendMessage called with FormData:');
+    for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value instanceof File ? `${value.name} (${value.size} bytes)` : value);
+    }
+    const historyJson = JSON.stringify(messages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content
+    })));
+    formData.append('historyJson', historyJson);
+    console.log('  historyJson:', historyJson);
 
     setLoading(true)
     setError(null)
 
-    let imageBase64 = null
-    let imageMimeType = null
-
-    if (imageFile) {
-      try {
-        const reader = new FileReader()
-        await new Promise((resolve, reject) => {
-          reader.onload = (event) => {
-            imageBase64 = event.target.result.split(',')[1]
-            imageMimeType = event.target.result.match(/:(.*?);/)[1]
-            console.log('[Frontend] Image processed:', { mimeType: imageMimeType, base64Length: imageBase64?.length });
-            resolve()
-          }
-          reader.onerror = (error) => reject(error)
-          reader.readAsDataURL(imageFile)
-        })
-      } catch (err) {
-        console.error("[Frontend] Error reading image file:", err)
-        setError("Failed to process the image. Please try again.")
-        setLoading(false)
-        return
-      }
-    }
-
-    const userMessageContent = text || (imageFile ? '[Image Sent]' : '')
-    const userMessageForDb = {
-      conversation_id: activeConversationId,
-      sender: 'user',
-      content: userMessageContent,
-      image_description: null
-    }
-
-    const payload = {
-      history: messages.map(m => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.content
-      })),
-      newMessage: {
-        text: text || '',
-        imageBase64: imageBase64,
-        imageMimeType: imageMimeType
-      },
-    }
-    console.log("[Frontend] Sending payload to backend:", {
-      historyLength: payload.history.length,
-      newMessageText: payload.newMessage.text,
-      hasImage: !!payload.newMessage.imageBase64
-    });
-
     let backendResponseData = null
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-      console.log(`[Frontend] Sending request to backend URL: ${backendUrl}/analyze`);
+      console.log(`[Frontend] Sending FormData request to backend URL: ${backendUrl}/analyze`);
 
       const response = await fetch(`${backendUrl}/analyze`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify(payload),
+        body: formData,
       })
 
       if (!response.ok) {
@@ -252,13 +214,9 @@ function App() {
       backendResponseData = await response.json()
       console.log('[Frontend] Received response from backend:', backendResponseData);
 
-      if (!text && imageFile && backendResponseData.imageDescription) {
-        console.log('[Frontend] Updating user message content with image description.');
-        userMessageForDb.content = `[Image Analysis: ${backendResponseData.imageDescription}]`
-        userMessageForDb.image_description = backendResponseData.imageDescription
-      } else if (backendResponseData.imageDescription) {
-        console.log('[Frontend] Storing image description alongside user text.');
-        userMessageForDb.image_description = backendResponseData.imageDescription
+      if (!backendResponseData || !backendResponseData.suggestions || !backendResponseData.savedMessage) {
+         console.error("[Frontend] Invalid backend response structure:", backendResponseData);
+         throw new Error("Received incomplete data from backend.");
       }
 
     } catch (error) {
@@ -269,55 +227,68 @@ function App() {
     }
 
     try {
+      const savedUserMessage = { ...backendResponseData.savedMessage };
+      savedUserMessage.imageUrls = backendResponseData.imageUrls || [];
+
       const assistantMessageContent = backendResponseData.suggestions.join('\n\n---\n\n')
       const assistantMessageForDb = {
-        conversation_id: activeConversationId,
+        conversation_id: savedUserMessage.conversation_id,
         sender: 'ai',
         content: assistantMessageContent,
       }
 
-      console.log('[Frontend] Preparing to insert messages into Supabase:', { userMsg: userMessageForDb, aiMsg: assistantMessageForDb });
+      console.log('[Frontend] Preparing to insert AI message into Supabase:', assistantMessageForDb);
+      console.log('[Frontend] Adding user message (from backend response) and AI message to local state.');
 
-      const { data: insertedMessages, error: insertError } = await supabase
+      const { data: insertedAiMessages, error: insertError } = await supabase
         .from('messages')
-        .insert([userMessageForDb, assistantMessageForDb])
+        .insert([assistantMessageForDb])
         .select()
 
       if (insertError) throw insertError
 
-      console.log('[Frontend] Messages inserted successfully:', insertedMessages);
+      console.log('[Frontend] AI message inserted successfully:', insertedAiMessages);
 
-      if (insertedMessages && insertedMessages.length > 0) {
-        setMessages(prevMessages => [...prevMessages, ...insertedMessages])
+      const messagesToAdd = [savedUserMessage];
+      if (insertedAiMessages && insertedAiMessages.length > 0) {
+          messagesToAdd.push(...insertedAiMessages);
       } else {
-        console.warn("Messages inserted but not returned, might need manual refetch")
+          console.warn("AI Message inserted but not returned, AI response might not show until refresh");
       }
+      setMessages(prevMessages => [...prevMessages, ...messagesToAdd]);
 
-      const firstMessage = messages.length === 0 && (!insertedMessages || insertedMessages.length === 0)
+      const firstMessage = messages.length === 0;
       if (firstMessage && backendResponseData.nickname) {
+        console.log(`[Frontend] Updating conversation ${currentConversationId} title to: ${backendResponseData.nickname}`);
         const { error: updateError } = await supabase
           .from('conversations')
           .update({ title: backendResponseData.nickname, updated_at: new Date().toISOString() })
-          .eq('id', activeConversationId)
+          .eq('id', currentConversationId)
 
-        if (updateError) throw updateError
-
-        setConversations(prev => prev.map(c =>
-          c.id === activeConversationId ? { ...c, title: backendResponseData.nickname, updated_at: new Date().toISOString() } : c
-        ))
+        if (updateError) {
+            console.error("[Frontend] Error updating conversation title:", updateError);
+        } else {
+            setConversations(prev => prev.map(c =>
+              c.id === currentConversationId ? { ...c, title: backendResponseData.nickname, updated_at: new Date().toISOString() } : c
+            ))
+        }
       } else {
+        console.log(`[Frontend] Updating conversation ${currentConversationId} timestamp.`);
         const { error: updateTsError } = await supabase
           .from('conversations')
           .update({ updated_at: new Date().toISOString() })
-          .eq('id', activeConversationId)
-        if (updateTsError) console.warn("Failed to explicitly update timestamp:", updateTsError)
-        setConversations(prev => prev.map(c =>
-          c.id === activeConversationId ? { ...c, updated_at: new Date().toISOString() } : c
-        ))
+          .eq('id', currentConversationId)
+        if (updateTsError) {
+            console.warn("[Frontend] Failed to explicitly update timestamp:", updateTsError);
+        } else {
+            setConversations(prev => prev.map(c =>
+              c.id === currentConversationId ? { ...c, updated_at: new Date().toISOString() } : c
+            ))
+        }
       }
     } catch (error) {
-      console.error('Error saving messages or updating conversation:', error)
-      setError(`Failed to save message or update conversation: ${error.message}`)
+      console.error('Error saving AI message or updating conversation:', error)
+      setError(`Failed to save AI response or update conversation: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -379,6 +350,7 @@ function App() {
               role: m.sender,
               content: m.content,
               imageDescription: m.image_description,
+              imageUrls: m.imageUrls || [],
               timestamp: new Date(m.created_at).getTime()
             }))} />
           ) : (

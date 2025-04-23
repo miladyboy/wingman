@@ -6,6 +6,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const fileInputRef = useRef(null);
+  const formRef = useRef(null);
 
   useEffect(() => {
     const currentPreviewUrls = imagePreviews.map(p => p.url);
@@ -62,6 +63,15 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     setText(event.target.value);
   };
 
+  const handleTextareaKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (formRef.current) {
+        formRef.current.requestSubmit();
+      }
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -92,7 +102,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
 
   return (
     <div className="p-4 bg-white rounded-lg border border-gray-200">
-      <form onSubmit={handleSubmit} className="flex flex-col">
+      <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col">
         {imagePreviews.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
             {imagePreviews.map((preview) => (
@@ -119,6 +129,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
         <textarea
           value={text}
           onChange={handleTextChange}
+          onKeyDown={handleTextareaKeyDown}
           className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 mb-3 resize-none"
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
           rows="3"

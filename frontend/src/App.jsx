@@ -205,6 +205,7 @@ function App() {
     let backendResponseData = null
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        
       console.log(`[Frontend] Sending FormData request to backend URL: ${backendUrl}/analyze`);
 
       const response = await fetch(`${backendUrl}/analyze`, {

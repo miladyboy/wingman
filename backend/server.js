@@ -49,7 +49,18 @@ const upload = multer({
     limits: { fileSize: 10 * 1024 * 1024 } // Example: Limit file size to 10MB
 });
 
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    const allowedOrigins = ['https://www.getharem.com', 'http://localhost:5173'];
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' })); // Add JSON middleware and increase limit for base64 images
 // ADDED: Middleware for URL-encoded data (needed alongside multipart)
 app.use(express.urlencoded({ extended: true }));

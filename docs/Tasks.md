@@ -24,7 +24,7 @@ To-Do
 [ ] Name editing is not working.
 
 Doing
-[ ] Launch
+[ ] Deploy the site on a custom domain.
 
 Done
 [x] Remove the image description from the bot reply.
@@ -33,3 +33,4 @@ Done
 [x] Store actual photos in the database and display them in the chat. (Mid)
 [x] The images doesn't display in the chat after a refresh (Bug)
 
+Wishlist

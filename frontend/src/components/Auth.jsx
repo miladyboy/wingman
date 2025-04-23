@@ -14,9 +14,13 @@ export default function Auth() {
 
   const handleAuth = async (event) => {
     event.preventDefault();
+    console.log(`[Frontend] API Base: ${apiBase}`);
     setLoading(true);
     setInviteError('');
+    console.log(`[Frontend] Sending invite code to backend URL: ${apiBase}/api/validate-invite-code`);
+
     if (isRegistering) {
+
       // Validate invite code first
       try {
         const response = await fetch(`${apiBase}/api/validate-invite-code`, {

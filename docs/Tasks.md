@@ -17,18 +17,18 @@ To-Do
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 [ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] Agregar un favicon
-[ ] Add a custom nickname to the thread based on the initial message and image. (Small)
-[ ] Name editing is not working.
 [ ] Add shadcn components
 [ ] Make it so that Fran can use the product.
-[ ] Remove the image description from the bot reply.
 [ ] Agregar automated testing al menos al backend (testing)
+[ ] Add a custom nickname to the thread based on the initial message and image. (Small)
+[ ] Name editing is not working.
 
 Doing
-[ ] The images doesn't display in the chat after a refresh (Bug)
 
 Done
+[x] Remove the image description from the bot reply.
 [x] Save image description info for all uploaded photos. (Hard)
 [x] Check if multiple image uploads are working. (Mid)
 [x] Store actual photos in the database and display them in the chat. (Mid)
+[x] The images doesn't display in the chat after a refresh (Bug)
 

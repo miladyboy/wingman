@@ -55,15 +55,6 @@ function ChatHistory({ history }) {
                    })}
                  </div>
               )}
-
-              {/* Optionally display image description if present */}
-              {message.imageDescription && (
-                // MODIFIED: Styling for description when images are present or not
-                <p className={`text-xs italic mt-1 opacity-80 ${message.imageUrls && message.imageUrls.length > 0 ? 'text-center' : ''}`}>
-                  [Analyzed Image: {message.imageDescription}]
-                </p>
-              )}
-
               {/* Optional: Timestamp - using timestamp passed from App.jsx */}
               {/* <p className={`text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-400'} text-right`}>
                 {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

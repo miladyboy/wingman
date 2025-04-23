@@ -20,9 +20,11 @@ To-Do
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)
 [ ] Name editing is not working.
 [ ] Add shadcn components
+[ ] Make it so that Fran can use the product.
+[ ] Remove the image description from the bot reply.
 
 Doing
-
+[ ] The images doesn't display in the chat after a refresh (Bug)
 
 Done
 [x] Save image description info for all uploaded photos. (Hard)

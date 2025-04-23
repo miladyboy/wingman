@@ -24,6 +24,7 @@ To-Do
 [ ] Name editing is not working.
 
 Doing
+[ ] Launch
 
 Done
 [x] Remove the image description from the bot reply.

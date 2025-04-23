@@ -446,6 +446,43 @@ app.post('/analyze', upload.array('images', 5), async (req, res) => {
     }
 });
 
+// POST /api/validate-invite-code
+app.post('/api/validate-invite-code', async (req, res) => {
+    const { code, user_id } = req.body;
+    if (!code) {
+        return res.status(400).json({ valid: false, error: 'Invite code is required.' });
+    }
+    if (!supabaseAdmin) {
+        return res.status(500).json({ valid: false, error: 'Supabase not configured.' });
+    }
+    try {
+        // 1. Check if code exists and is unused
+        const { data: invite, error } = await supabaseAdmin
+            .from('invite_codes')
+            .select('*')
+            .eq('code', code)
+            .is('used_by', null)
+            .single();
+        if (error || !invite) {
+            return res.status(400).json({ valid: false, error: 'Invalid or already used invite code.' });
+        }
+        // 2. Mark as used (if user_id provided)
+        let updateResult = null;
+        if (user_id) {
+            const { error: updateError } = await supabaseAdmin
+                .from('invite_codes')
+                .update({ used_by: user_id, used_at: new Date().toISOString() })
+                .eq('id', invite.id);
+            if (updateError) {
+                return res.status(500).json({ valid: false, error: 'Failed to mark invite code as used.' });
+            }
+        }
+        return res.json({ valid: true });
+    } catch (e) {
+        return res.status(500).json({ valid: false, error: 'Server error.' });
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

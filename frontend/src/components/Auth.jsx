@@ -5,20 +5,45 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false); // Toggle between login/register
-  const [username, setUsername] = useState(''); // Only for registration
+  const [isRegistering, setIsRegistering] = useState(false); 
+  const [username, setUsername] = useState(''); 
+  const [inviteCode, setInviteCode] = useState(''); 
+  const [inviteError, setInviteError] = useState(''); 
+
+  const apiBase = import.meta.env.VITE_BACKEND_URL || '';
 
   const handleAuth = async (event) => {
     event.preventDefault();
     setLoading(true);
+    setInviteError('');
+    if (isRegistering) {
+      // Validate invite code first
+      try {
+        const response = await fetch(`${apiBase}/api/validate-invite-code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: inviteCode })
+        });
+        const result = await response.json();
+        if (!result.valid) {
+          setInviteError(result.error || 'Invalid invite code.');
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        setInviteError('Error validating invite code.');
+        setLoading(false);
+        return;
+      }
+    }
     const { data, error } = isRegistering
       ? await supabase.auth.signUp({
           email: email,
           password: password,
           options: {
             data: {
-              // Pass username in options.data for the trigger
               username: username,
+              invite_code: inviteCode,
             },
           },
         })
@@ -45,6 +70,7 @@ export default function Auth() {
         </p>
         <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}> {/* Styling */}
            {isRegistering && (
+             <>
              <div>
                 <label htmlFor="username" style={{ display: 'block', marginBottom: '5px' }}>Username</label>
                 <input
@@ -59,6 +85,21 @@ export default function Auth() {
                     style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} // Styling
                 />
              </div>
+             <div>
+                <label htmlFor="inviteCode" style={{ display: 'block', marginBottom: '5px' }}>Invite Code</label>
+                <input
+                  id="inviteCode"
+                  className="inputField"
+                  type="text"
+                  placeholder="Enter your invite code"
+                  value={inviteCode}
+                  required={true}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+                />
+                {inviteError && <div style={{ color: 'red', marginTop: '5px' }}>{inviteError}</div>}
+             </div>
+             </>
            )}
            <div>
             <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email</label>

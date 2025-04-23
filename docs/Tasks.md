@@ -22,6 +22,7 @@ To-Do
 [ ] Add shadcn components
 [ ] Make it so that Fran can use the product.
 [ ] Remove the image description from the bot reply.
+[ ] Agregar automated testing al menos al backend (testing)
 
 Doing
 [ ] The images doesn't display in the chat after a refresh (Bug)

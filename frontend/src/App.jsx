@@ -119,12 +119,21 @@ function App() {
 
         const { data, error } = await supabase
           .from('messages')
-          .select('id, sender, content, image_description, created_at')
+          .select(`id, sender, content, image_description, created_at, ChatMessageImages(storage_path)`)
           .eq('conversation_id', activeConversationId)
           .order('created_at', { ascending: true })
 
         if (error) throw error
-        setMessages(data || [])
+
+        const { supabaseUrl } = await import('./supabaseClient');
+        const bucketUrl = `${supabaseUrl}/storage/v1/object/public/chat-images/`;
+
+        const messagesWithImages = (data || []).map(msg => ({
+          ...msg,
+          imageUrls: (msg.ChatMessageImages || []).map(img => bucketUrl + img.storage_path)
+        }));
+
+        setMessages(messagesWithImages)
       } catch (error) {
         console.error('Error fetching messages:', error)
         setError(`Could not fetch messages for this conversation. ${error.message}`)

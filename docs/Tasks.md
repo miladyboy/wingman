@@ -22,9 +22,12 @@ To-Do
 [ ] Pressing enter in the chat input should send the message. (Small)
 [ ] Add shadcn components
 [ ] Create a landing page.
+[ ] Remove or improve the App component test.
+[ ] Setup CI environment
 
 Doing
-[ ] Setup my initial testing. Both E2E and Unit.
+[ ] Setup Husky
+[ ] Setup E2E testing
 
 Done
 [x] Remove the image description from the bot reply.
@@ -34,3 +37,4 @@ Done
 [x] The images doesn't display in the chat after a refresh (Bug)
 [x] Deploy the site on a custom domain.
 [x] Make it so that Fran can use the product.
+[x] Setup my initial Unit testing.

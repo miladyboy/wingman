@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Don't stop debugging and iterating solutions until it works. Don't stop to ask the user confirmation. Only stop when the task is solved.

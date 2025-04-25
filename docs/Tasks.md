@@ -1,13 +1,13 @@
-To-Do
+To-Do (Critical)
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
 [ ] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
 [ ] Make image upload a drag-and-drop zone too. (Small)
 [ ] Make image work with cmd + v (small) 
 [ ] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
 [ ] Add Stripe integration for payments.
-[ ] Create a landing page.
-[ ] Add shadcn components for better styling
+[ ] Pasar app a typescript.
 
+To-Do (Rest)
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
 [ ] Registering should give some feedback and a notice to verify email. (Small)
 [ ] Upload user chats to mimic their style. (Mid)
@@ -26,7 +26,8 @@ To-Do
 [ ] Setup E2E testing
 
 Doing
-
+[ ] Create a landing page.
+[ ] Add shadcn components for better styling
 
 Done
 [x] Setup Husky

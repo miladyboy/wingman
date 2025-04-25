@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 // SuggestionsComponent might not be needed anymore if AI response is plain text
 // import SuggestionsComponent from './SuggestionsComponent';
 
@@ -23,43 +24,45 @@ function ChatHistory({ history }) {
 
         return (
           <div key={message.id || index} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className={`rounded-lg px-4 py-2 max-w-lg lg:max-w-xl shadow-md break-words ${ // Added break-words
+            <Card
+              className={`max-w-lg lg:max-w-xl shadow-md break-words ${
                 isUser
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-800'
+                  ? 'ml-auto bg-blue-500 text-white border-blue-400'
+                  : 'bg-white text-gray-800 border-gray-200'
               }`}
             >
-              {/* Display content directly */}
-              {message.content && (
-                <div className="whitespace-pre-wrap">
-                   {message.content}
-                </div>
-              )}
+              <CardContent className="p-4">
+                {/* Display content directly */}
+                {message.content && (
+                  <div className="whitespace-pre-wrap">
+                    {message.content}
+                  </div>
+                )}
 
-              {/* ADDED: Display images if imageUrls array exists */}
-              {message.imageUrls && message.imageUrls.length > 0 && (
-                 <div className={`mt-2 flex flex-wrap gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
-                   {message.imageUrls.map((url, imgIndex) => {
-                     // REMOVED: Log inside the image map
-                     // console.log(`[ChatHistory] Rendering image ${imgIndex} for message ${message.id || index} with URL:`, url);
-                     return (
-                       <a key={imgIndex} href={url} target="_blank" rel="noopener noreferrer" className="block">
-                         <img
-                           src={url}
-                           alt={`Uploaded image ${imgIndex + 1}`}
-                           className="max-w-[150px] max-h-[150px] sm:max-w-[200px] sm:max-h-[200px] rounded object-cover border border-gray-300 hover:opacity-90 transition-opacity"
-                         />
-                       </a>
-                     );
-                   })}
-                 </div>
-              )}
-              {/* Optional: Timestamp - using timestamp passed from App.jsx */}
-              {/* <p className={`text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-400'} text-right`}>
-                {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </p> */}
-            </div>
+                {/* ADDED: Display images if imageUrls array exists */}
+                {message.imageUrls && message.imageUrls.length > 0 && (
+                  <div className={`mt-2 flex flex-wrap gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                    {message.imageUrls.map((url, imgIndex) => {
+                      // REMOVED: Log inside the image map
+                      // console.log(`[ChatHistory] Rendering image ${imgIndex} for message ${message.id || index} with URL:`, url);
+                      return (
+                        <a key={imgIndex} href={url} target="_blank" rel="noopener noreferrer" className="block">
+                          <img
+                            src={url}
+                            alt={`Uploaded image ${imgIndex + 1}`}
+                            className="max-w-[150px] max-h-[150px] sm:max-w-[200px] sm:max-h-[200px] rounded object-cover border border-gray-300 hover:opacity-90 transition-opacity"
+                          />
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* Optional: Timestamp - using timestamp passed from App.jsx */}
+                {/* <p className={`text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-400'} text-right`}>
+                  {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p> */}
+              </CardContent>
+            </Card>
           </div>
         );
       })}

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { PencilIcon, CheckIcon, XMarkIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/solid';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, user, onLogout }) {
   const [editingThreadId, setEditingThreadId] = useState(null);
@@ -34,12 +36,12 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
     <div className="w-64 bg-gray-800 text-white flex flex-col h-full shadow-lg">
       {/* Header / New Chat Button */}
       <div className="p-4 border-b border-gray-700">
-        <button
+        <Button
           onClick={onNewThread}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out"
+          className="w-full font-bold"
         >
           + New Chat
-        </button>
+        </Button>
       </div>
 
       {/* Thread List */}
@@ -56,30 +58,34 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
           >
             {editingThreadId === thread.id ? (
               // --- Editing State ---
-              <div className="flex-1 flex items-center mr-1">
-                <input
+              <div className="flex-1 flex items-center mr-1 gap-1">
+                <Input
                   type="text"
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="flex-grow bg-gray-600 text-white px-2 py-1 rounded mr-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
+                  className="flex-grow bg-gray-600 text-white px-2 py-1 rounded mr-1 text-sm"
                   autoFocus
-                  onBlur={handleCancelEdit} // Cancel if clicked outside while editing (simple approach)
+                  onBlur={handleCancelEdit}
                 />
-                <button
+                <Button
+                  size="icon"
+                  variant="ghost"
                   onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }}
-                  className="p-1 text-green-400 hover:text-green-300"
+                  className="text-green-400 hover:text-green-300"
                   aria-label="Save name"
                 >
                   <CheckIcon className="h-4 w-4" />
-                </button>
-                <button
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
                   onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }}
-                  className="p-1 text-red-400 hover:text-red-300"
+                  className="text-red-400 hover:text-red-300"
                   aria-label="Cancel rename"
                 >
                   <XMarkIcon className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             ) : (
               // --- Display State ---
@@ -87,13 +93,15 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                 <span className="flex-1 truncate text-sm" title={thread.name}>
                   {thread.name}
                 </span>
-                <button
+                <Button
+                  size="icon"
+                  variant="ghost"
                   onClick={(e) => { e.stopPropagation(); handleStartEdit(thread); }}
-                  className="p-1 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  className="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                   aria-label="Rename chat"
                 >
                   <PencilIcon className="h-4 w-4" />
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -107,16 +115,16 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
       <div className="p-4 border-t border-gray-700 mt-auto">
         {user && (
           <div className="text-sm text-gray-400 mb-2 truncate" title={user.email}>
-            Logged in as: {user.username || user.email} {/* Display username or email */}
+            Logged in as: {user.username || user.email}
           </div>
         )}
-        <button
+        <Button
           onClick={onLogout}
-          className="w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out text-sm"
+          className="w-full flex items-center justify-center font-bold text-sm bg-red-600 hover:bg-red-700"
         >
           <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
           Logout
-        </button>
+        </Button>
       </div>
       {/* --- End User Info & Logout --- */}
     </div>

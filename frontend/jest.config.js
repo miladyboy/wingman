@@ -9,5 +9,6 @@ export default {
     moduleNameMapper: {
       '\\.(svg)$': '<rootDir>/__mocks__/svgMock.js',
       '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+      '^@/(.*)$': '<rootDir>/src/$1',
     },
   };

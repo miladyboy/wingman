@@ -349,10 +349,6 @@ function App() {
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Test shadcn/ui Button integration */}
-        <div className="p-4 bg-white border-b border-gray-200 flex justify-end">
-          <Button variant="default" size="default">shadcn/ui Button</Button>
-        </div>
         {activeConversation && (
           <div className="bg-white p-4 border-b border-gray-300 shadow-sm flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-800">{activeConversation.title}</h2>

@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PaperClipIcon, PhotoIcon, XCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 const UploadComponent = ({ onSendMessage, disabled }) => {
   const [text, setText] = useState('');
@@ -112,28 +115,30 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
                   alt={`Preview ${preview.name}`}
                   className="object-cover w-full h-full"
                 />
-                <button
+                <Button
                   type="button"
                   onClick={() => handleRemoveImage(preview.id)}
+                  size="icon"
+                  variant="ghost"
                   className="absolute top-0.5 right-0.5 bg-black/50 text-white rounded-full p-0.5 hover:bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity"
                   aria-label={`Remove image ${preview.name}`}
                   disabled={disabled}
                 >
                   <XCircleIcon className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
         )}
 
-        <textarea
+        <Textarea
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleTextareaKeyDown}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 mb-3 resize-none"
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
-          rows="3"
+          rows={3}
           disabled={disabled}
+          className="mb-3"
         />
 
         <div className="flex items-center justify-between">
@@ -147,26 +152,27 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             multiple
             disabled={disabled}
           />
-          <button
+          <Label htmlFor="file-input" className="sr-only">Attach image(s)</Label>
+          <Button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className={`p-2 text-gray-500 hover:text-indigo-600 rounded-full ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            size="icon"
+            variant="ghost"
+            className="text-gray-500 hover:text-indigo-600"
             disabled={disabled}
             aria-label="Attach image(s)"
           >
             <PhotoIcon className="h-6 w-6" />
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="submit"
-            className={`bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-md flex items-center gap-2 transition-colors ${
-              disabled ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className="font-semibold flex items-center gap-2"
             disabled={disabled || (selectedFiles.length === 0 && !text.trim())}
           >
             Send
             <PaperAirplaneIcon className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </form>
     </div>

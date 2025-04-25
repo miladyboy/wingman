@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -9,6 +14,7 @@ export default function Auth() {
   const [username, setUsername] = useState(''); 
   const [inviteCode, setInviteCode] = useState(''); 
   const [inviteError, setInviteError] = useState(''); 
+  const [formError, setFormError] = useState('');
 
   const apiBase = import.meta.env.VITE_BACKEND_URL || '';
 
@@ -16,9 +22,9 @@ export default function Auth() {
     event.preventDefault();
     setLoading(true);
     setInviteError('');
+    setFormError('');
 
     if (isRegistering) {
-
       // Validate invite code first
       try {
         const response = await fetch(`${apiBase}/api/validate-invite-code`, {
@@ -55,7 +61,7 @@ export default function Auth() {
         });
 
     if (error) {
-      alert(error.error_description || error.message);
+      setFormError(error.error_description || error.message);
     } else {
       // Login/Signup successful, App.jsx will detect session change
       console.log(isRegistering ? 'Signup successful!' : 'Login successful!', data);
@@ -64,86 +70,95 @@ export default function Auth() {
   };
 
   return (
-    <div className="row flex-center flex" style={{ padding: '20px', maxWidth: '400px', margin: '40px auto', border: '1px solid #ccc', borderRadius: '8px' }}> {/* Basic Styling */}
-      <div className="col-6 form-widget" aria-live="polite">
-        <h1 className="header" style={{ textAlign: 'center', marginBottom: '20px' }}>{isRegistering ? 'Register' : 'Sign In'}</h1>
-        <p className="description" style={{ textAlign: 'center', marginBottom: '20px', color: '#555' }}>
-          {isRegistering ? 'Create a new account' : 'Sign in to your account'} via email and password
-        </p>
-        <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}> {/* Styling */}
-           {isRegistering && (
-             <>
-             <div>
-                <label htmlFor="username" style={{ display: 'block', marginBottom: '5px' }}>Username</label>
-                <input
+    <div className="flex justify-center items-center min-h-screen bg-muted">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center">{isRegistering ? 'Register' : 'Sign In'}</CardTitle>
+          <CardDescription className="text-center">
+            {isRegistering ? 'Create a new account' : 'Sign in to your account'} via email and password
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {formError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{formError}</AlertDescription>
+            </Alert>
+          )}
+          <form onSubmit={handleAuth} className="flex flex-col gap-4">
+            {isRegistering && (
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
                     id="username"
-                    className="inputField"
                     type="text"
                     placeholder="Your username (min 3 chars)"
                     value={username}
-                    required={true}
-                    minLength="3" // Add minLength based on DB constraint
+                    required
+                    minLength={3}
                     onChange={(e) => setUsername(e.target.value)}
-                    style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} // Styling
-                />
-             </div>
-             <div>
-                <label htmlFor="inviteCode" style={{ display: 'block', marginBottom: '5px' }}>Invite Code</label>
-                <input
-                  id="inviteCode"
-                  className="inputField"
-                  type="text"
-                  placeholder="Enter your invite code"
-                  value={inviteCode}
-                  required={true}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
-                />
-                {inviteError && <div style={{ color: 'red', marginTop: '5px' }}>{inviteError}</div>}
-             </div>
-             </>
-           )}
-           <div>
-            <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email</label>
-            <input
-              id="email"
-              className="inputField"
-              type="email"
-              placeholder="Your email"
-              value={email}
-              required={true}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} // Styling
-            />
-          </div>
-           <div>
-            <label htmlFor="password" style={{ display: 'block', marginBottom: '5px' }}>Password</label>
-            <input
-              id="password"
-              className="inputField"
-              type="password"
-              placeholder="Your password (min 6 chars)"
-              value={password}
-              required={true}
-              minLength="6" // Default Supabase minimum
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} // Styling
-            />
-          </div>
-          <div>
-            <button type="submit" className="button block" disabled={loading} style={{ width: '100%', padding: '10px', border: 'none', borderRadius: '4px', background: '#007bff', color: 'white', cursor: 'pointer', fontSize: '16px' }}> {/* Styling */}
-              {loading ? <span>Loading...</span> : <span>{isRegistering ? 'Register' : 'Sign In'}</span>}
-            </button>
-          </div>
-        </form>
-        <button
-          onClick={() => setIsRegistering(!isRegistering)}
-          className="button-link"
-          style={{ background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer', marginTop: '20px', display: 'block', textAlign: 'center' }} // Styling
-        >
-          {isRegistering ? 'Already have an account? Sign In' : 'Need an account? Register'}
-        </button>
-      </div>
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="inviteCode">Invite Code</Label>
+                  <Input
+                    id="inviteCode"
+                    type="text"
+                    placeholder="Enter your invite code"
+                    value={inviteCode}
+                    required
+                    onChange={(e) => setInviteCode(e.target.value)}
+                  />
+                  {inviteError && (
+                    <Alert variant="destructive" className="mt-2">
+                      <AlertDescription>{inviteError}</AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              </>
+            )}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Your email"
+                value={email}
+                required
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Your password (min 6 chars)"
+                value={password}
+                required
+                minLength={6}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="w-full mt-2" disabled={loading}>
+              {loading ? 'Loading...' : isRegistering ? 'Register' : 'Sign In'}
+            </Button>
+          </form>
+          <Button
+            variant="link"
+            type="button"
+            onClick={() => {
+              setIsRegistering(!isRegistering);
+              setFormError("");
+              setInviteError("");
+            }}
+            className="w-full mt-4"
+          >
+            {isRegistering ? 'Already have an account? Sign In' : 'Need an account? Register'}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 } 

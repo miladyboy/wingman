@@ -79,9 +79,6 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     event.preventDefault();
 
     if (disabled || (selectedFiles.length === 0 && !text.trim())) {
-      if (selectedFiles.length === 0 && !text.trim()) {
-        alert('Please enter text or upload an image.');
-      }
       return;
     }
 

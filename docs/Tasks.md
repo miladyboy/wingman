@@ -5,9 +5,9 @@ To-Do (Critical)
 [ ] Make image work with cmd + v (small) 
 [ ] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
 [ ] Add Stripe integration for payments.
-[ ] Pasar app a typescript.
 
 To-Do (Rest)
+[ ] Pasar app a typescript.
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
 [ ] Registering should give some feedback and a notice to verify email. (Small)
 [ ] Upload user chats to mimic their style. (Mid)
@@ -27,7 +27,6 @@ To-Do (Rest)
 
 Doing
 [ ] Create a landing page.
-[ ] Add shadcn components for better styling
 
 Done
 [x] Setup Husky
@@ -41,3 +40,4 @@ Done
 [x] Setup my initial Unit testing.
 [x] Save actual images in the database and display them in the UI on the right. (Hard)
 [x] Pressing enter in the chat input should send the message. (Small)
+[x] Add shadcn components for better styling

@@ -4,7 +4,7 @@ console.error = function (...args) {
   const msg = args[0];
   if (
     typeof msg === 'string' &&
-    (msg.includes('An empty string') || msg.includes('Not implemented: window.alert'))
+    (msg.includes('An empty string'))
   ) {
     return;
   }

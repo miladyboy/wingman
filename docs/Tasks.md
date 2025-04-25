@@ -5,6 +5,7 @@ To-Do (Critical)
 [ ] Make image work with cmd + v (small) 
 [ ] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
 [ ] Add Stripe integration for payments.
+[ ] Name editing is not working.
 
 To-Do (Rest)
 [ ] Pasar app a typescript.
@@ -20,11 +21,9 @@ To-Do (Rest)
 [ ] Agregar un favicon
 [ ] Agregar automated testing a alguna parte del backend (testing)
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)
-[ ] Name editing is not working.
 [ ] Remove or improve the App component test.
 [ ] Setup CI environment
 [ ] Setup E2E testing
-[ ] Remove unused App.js file
 
 Doing
 
@@ -43,3 +42,4 @@ Done
 [x] Add shadcn components for better styling
 [x] Create a landing page.
 [x] Add routing to the app.
+[x] Remove unused App.js file

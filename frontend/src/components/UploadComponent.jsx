@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { PaperClipIcon, PhotoIcon, XCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -25,27 +26,39 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     };
   }, [imagePreviews]);
 
-  const handleFileChange = (event) => {
-    const files = Array.from(event.target.files);
+  const addFiles = useCallback((files) => {
     if (!files.length) return;
-
     const newFiles = [];
     const newPreviews = [];
-
     files.forEach((file, index) => {
-      const previewId = `${Date.now()}-${index}`;
+      const previewId = `${Date.now()}-${Math.random()}-${index}`;
       const previewUrl = URL.createObjectURL(file);
       newFiles.push(file);
       newPreviews.push({ url: previewUrl, id: previewId, name: file.name });
     });
-
     setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
     setImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+  }, []);
 
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    addFiles(files);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
+
+  const onDrop = useCallback((acceptedFiles) => {
+    addFiles(acceptedFiles);
+  }, [addFiles]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'image/*': [] },
+    multiple: true,
+    disabled,
+    noClick: true, // We use our own button for file input
+  });
 
   const handleRemoveImage = (previewIdToRemove) => {
     setImagePreviews(prevPreviews => {
@@ -128,6 +141,12 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           </div>
         )}
 
+        {/* Textarea as Dropzone */}
+        <div
+          {...getRootProps()}
+          className={`mb-3 relative rounded-lg transition-colors ${isDragActive ? 'border-2 border-indigo-500 bg-indigo-50' : ''}`}
+        >
+          <input {...getInputProps()} />
         <Textarea
           value={text}
           onChange={handleTextChange}
@@ -135,8 +154,14 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
           rows={3}
           disabled={disabled}
-          className="mb-3"
-        />
+            className={`w-full ${isDragActive ? 'border-indigo-500 bg-indigo-50' : ''}`}
+          />
+          {isDragActive && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-indigo-600 font-medium text-lg">Drop images here…</span>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center justify-between">
           <input

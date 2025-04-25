@@ -1,6 +1,7 @@
 {
   "devDependencies": {
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "vitest": "^3.1.2"
   },
   "scripts": {
     "prepare": "husky"
@@ -8,6 +9,7 @@
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.8",
     "lucide-react": "^0.503.0",
+    "react-dropzone": "^14.3.8",
     "react-router-dom": "^7.5.2"
   }
 }

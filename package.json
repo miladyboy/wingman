@@ -4,5 +4,9 @@
   },
   "scripts": {
     "prepare": "husky"
+  },
+  "dependencies": {
+    "@radix-ui/react-accordion": "^1.2.8",
+    "lucide-react": "^0.503.0"
   }
 }

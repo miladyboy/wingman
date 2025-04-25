@@ -4,6 +4,7 @@ import ChatHistory from './components/ChatHistory'
 import Sidebar from './components/Sidebar'
 import { supabase } from './supabaseClient'
 import Auth from './components/Auth'
+import LandingPage from './components/LandingPage'
 import './index.css'
 import { Button } from "@/components/ui/button"
 
@@ -16,6 +17,7 @@ function App() {
   const [error, setError] = useState(null)
   const [messages, setMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -333,7 +335,11 @@ function App() {
   }, [session, conversations])
 
   if (!session) {
-    return <Auth />
+    if (showAuth) {
+      return <Auth />;
+    } else {
+      return <LandingPage onRequestAccess={() => setShowAuth(true)} />;
+    }
   }
 
   return (

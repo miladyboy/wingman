@@ -26,10 +26,10 @@ To-Do
 [ ] Setup CI environment
 
 Doing
-[ ] Setup Husky
 [ ] Setup E2E testing
 
 Done
+[x] Setup Husky
 [x] Remove the image description from the bot reply.
 [x] Save image description info for all uploaded photos. (Hard)
 [x] Check if multiple image uploads are working. (Mid)

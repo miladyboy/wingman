@@ -24,9 +24,9 @@ To-Do (Rest)
 [ ] Remove or improve the App component test.
 [ ] Setup CI environment
 [ ] Setup E2E testing
+[ ] Remove unused App.js file
 
 Doing
-[ ] Create a landing page.
 
 Done
 [x] Setup Husky
@@ -41,3 +41,5 @@ Done
 [x] Save actual images in the database and display them in the UI on the right. (Hard)
 [x] Pressing enter in the chat input should send the message. (Small)
 [x] Add shadcn components for better styling
+[x] Create a landing page.
+[x] Add routing to the app.

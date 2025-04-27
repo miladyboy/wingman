@@ -1,8 +1,7 @@
 To-Do (Critical)
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
-[ ] Make image upload a drag-and-drop zone too. (Small)
 [ ] Make image work with cmd + v (small) 
-[ ] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
+
 [ ] Add Stripe integration for payments.
 
 To-Do (Rest)
@@ -19,14 +18,16 @@ To-Do (Rest)
 [ ] Agregar un favicon
 [ ] Agregar automated testing a alguna parte del backend (testing)
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)
-[ ] Remove or improve the App component test.
 [ ] Setup CI environment
 [ ] Setup E2E testing
 [ ] Fix automated test suite
 
 Doing
+[ ] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
 
 Done
+[x] Make image upload a drag-and-drop zone too. (Small)
+[x] Remove or improve the App component test.
 [x] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
 [x] Setup Husky
 [x] Remove the image description from the bot reply.

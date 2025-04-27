@@ -1,11 +1,9 @@
 To-Do (Critical)
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
-[ ] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
 [ ] Make image upload a drag-and-drop zone too. (Small)
 [ ] Make image work with cmd + v (small) 
 [ ] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
 [ ] Add Stripe integration for payments.
-[ ] Name editing is not working.
 
 To-Do (Rest)
 [ ] Pasar app a typescript.
@@ -24,8 +22,11 @@ To-Do (Rest)
 [ ] Remove or improve the App component test.
 [ ] Setup CI environment
 [ ] Setup E2E testing
+[ ] Fix automated test suite
 
 Doing
+[ ] Name editing is not working.
+[ ] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
 
 Done
 [x] Setup Husky

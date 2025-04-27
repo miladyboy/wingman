@@ -3,4 +3,11 @@ description:
 globs: 
 alwaysApply: false
 ---
-Don't stop debugging and iterating solutions until it works. Don't stop to ask the user confirmation. Only stop when the task is solved.
+Keep iterating and debugging autonomously until the task is fully solved end-to-end. Do not pause to request confirmation or exit early for any reason. If database work is needed, proactively use the appropriate tools—e.g., Supabase MCP—without waiting for further instructions.
+
+
+
+
+
+
+

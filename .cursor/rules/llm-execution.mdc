@@ -1,0 +1,61 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# LLM Execution Rulebook
+
+## 1. Autonomous Iteration
+
+Keep iterating and debugging **autonomously** until the task is completely solved end-to-end.  
+- **Never** pause to request confirmation or exit early.  
+- If database work is required, proactively use the appropriate tools—e.g. **Supabase MCP**—without waiting for further instructions.
+
+---
+
+## 2. Clarification Before Execution
+
+If **anything** is unclear, ask as many clarifying questions as needed **before** starting; do not proceed until you are 100 % certain of the requirements.
+
+---
+
+## 3. Proactive Dependency Installation
+
+Whenever you introduce a new dependency:  
+1. **Immediately install** it with the correct package-manager command (`npm install <package>`, `pip install <package>`, etc.).  
+2. Verify the installation succeeds **before** moving on.
+
+---
+
+## 4. Debugging Protocol
+
+1. List the **4–5 most plausible root-cause hypotheses** in order of likelihood.  
+2. Focus initial effort on the **top two** hypotheses.  
+3. Instrument the code with clear, descriptive `console.log` (or equivalent) statements at key checkpoints to expose state and control flow.  
+4. Keep iterating—re-run, observe, and adjust—until the error is definitively fixed.  
+5. Only after verifying the fix, **remove the temporary logging** and finalize the solution.
+
+---
+
+## 5. Development Server Management
+
+> **Absolute rule:** **Never `cd` into sub-directories to launch a server.**  
+> Always launch servers from the repo root with `npm run dev --prefix <dir>`.
+
+### 5.1 Front-End (port 3001)
+
+| Step | Command / Action | Notes |
+|------|------------------|-------|
+| **Start** | `npm run dev --prefix frontend` | **Do not `cd` into `frontend/`; use `--prefix`.** |
+| **Check existing instance** | `lsof -i :3001` | If the listed process belongs to the current project, keep using it. |
+| **Kill stale process** | `kill -9 <PID>` | Only if the port 3001 process is unrelated or frozen. |
+| **Re-launch** | Re-run the start command **after** ensuring port 3001 is free. |
+
+### 5.2 Back-End (port 8081)
+
+| Step | Command / Action | Notes |
+|------|------------------|-------|
+| **Start** | `npm run dev --prefix backend` | **Do not `cd` into `backend/`; use `--prefix`.** |
+| **Check existing instance** | `lsof -i :8081` | If the listed process belongs to the current project, keep using it. |
+| **Kill stale process** | `kill -9 <PID>` | Only if the port 8081 process is unrelated or frozen. |
+| **Re-launch** | Re-run the start command **after** ensuring port 8081 is free. |

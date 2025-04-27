@@ -23,9 +23,9 @@ To-Do (Rest)
 [ ] Setup CI environment
 [ ] Setup E2E testing
 [ ] Fix automated test suite
+[ ] Name editing is not working.
 
 Doing
-[ ] Name editing is not working.
 [ ] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
 
 Done

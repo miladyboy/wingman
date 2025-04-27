@@ -66,7 +66,6 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   onKeyDown={handleKeyDown}
                   className="flex-grow bg-gray-600 text-white px-2 py-1 rounded mr-1 text-sm"
                   autoFocus
-                  onBlur={handleCancelEdit}
                 />
                 <Button
                   size="icon"

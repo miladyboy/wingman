@@ -2,6 +2,8 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { callOpenAI } = require('../services/openaiService');
 const { supabaseAdmin } = require('../services/supabaseService');
+const systemPrompt = require('../prompts/systemPrompt');
+const userPrompt = require('../prompts/userPrompt');
 
 function parseAnalyzeRequest(req) {
     const { historyJson, newMessageText, conversationId } = req.body;
@@ -237,18 +239,30 @@ exports.analyze = async (req, res) => {
             await updateMessageWithImageDescription(savedMessage.id, generatedImageDescription);
             savedMessage.image_description = generatedImageDescription;
         }
+        // --- Refactored prompt construction ---
+        // Stringify history for userPrompt
+        const historyString = (history || []).map(msg => {
+            return msg.imageDescription
+                ? `${msg.content}\n[Image Description: ${msg.imageDescription}]`
+                : msg.content;
+        }).join('\n---\n');
         const conversation = [
             {
                 role: "system",
-                content: "You are a flirty wingman AI. Your goal is to help the user craft witty, engaging, and flirty replies in their conversations. Analyze the provided chat history and the latest message (including any image descriptions or context from images provided via URL). Suggest 2-3 distinct replies. Keep the tone appropriate to the conversation's vibe. Be aware of context and adapt."
+                content: systemPrompt()
             },
+            // Keep history as separate messages for context
             ...(history || []).map(msg => ({
                 role: msg.role,
                 content: msg.imageDescription ? `${msg.content}\n[Image Description: ${msg.imageDescription}]` : msg.content
             })),
             {
                 role: "user",
-                content: finalUserMessageContent
+                content: userPrompt({
+                    history: historyString,
+                    message: newMessageText,
+                    imageDescription: generatedImageDescription
+                })
             }
         ];
         const suggestions = await generateSuggestions(conversation);
@@ -263,3 +277,5 @@ exports.analyze = async (req, res) => {
         res.status(500).json({ error: 'Failed to analyze message', details: error.message });
     }
 }; 
+
+exports.parseAnalyzeRequest = parseAnalyzeRequest;

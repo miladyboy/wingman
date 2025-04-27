@@ -1,9 +1,3 @@
-To-Do (Critical)
-[ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
-[ ] Make image work with cmd + v (small) 
-
-[ ] Add Stripe integration for payments.
-
 To-Do (Rest)
 [ ] Pasar app a typescript.
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
@@ -13,17 +7,19 @@ To-Do (Rest)
 [ ] Integrate Cypress or Playwright for automated E2E testing. (Hard)
 [ ] Integrate Taskmaster for task management.
 [ ] If I'm uploading Tinder photos, extract and save tags/info from the description and profile.
-[ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
-[ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] Agregar un favicon
 [ ] Agregar automated testing a alguna parte del backend (testing)
-[ ] Add a custom nickname to the thread based on the initial message and image. (Small)
+[ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
 [ ] Setup CI environment
 [ ] Setup E2E testing
 [ ] Fix automated test suite
+[ ] Make image work with cmd + v (small) 
+[ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
+[ ] Add Stripe integration for payments.
 
 Doing
-
+[ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
+[ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 
 Done
 [x] Make image upload a drag-and-drop zone too. (Small)

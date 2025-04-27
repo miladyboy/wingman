@@ -2,7 +2,7 @@ const OpenAI = require('openai');
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function callOpenAI(messages, max_tokens = 300, model = "gpt-4o") {
+async function callOpenAI(messages, max_tokens = 500, model = "gpt-4o") {
     try {
         const response = await openai.chat.completions.create({
             model,

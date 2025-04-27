@@ -30,7 +30,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// TODO: Import and use routes here
 const analyzeRoutes = require('./routes/analyze');
 app.use('/analyze', analyzeRoutes);
 const inviteRoutes = require('./routes/invite');

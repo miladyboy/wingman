@@ -50,7 +50,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
           <div
             key={thread.id}
             className={`group flex items-center justify-between p-2 rounded cursor-pointer transition duration-150 ease-in-out ${
-              activeThreadId === thread.id
+              activeThreadId && activeThreadId === thread.id
                 ? 'bg-gray-700'
                 : 'hover:bg-gray-700/50'
             }`}

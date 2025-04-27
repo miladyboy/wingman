@@ -118,9 +118,10 @@ function AppRouter() {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (!activeConversationId || !session) {
-        setMessages([])
-        return
+      if (!activeConversationId || !session || activeConversationId === 'new') {
+        setMessages([]);
+        setError(null);
+        return;
       }
 
       setLoadingMessages(true)
@@ -166,44 +167,46 @@ function AppRouter() {
     fetchMessages()
   }, [activeConversationId, session])
 
-  const handleNewThread = async () => {
-    if (!session) {
-      setError("Please log in to start a new conversation.")
-      return
-    }
-    setLoading(true)
-    setError(null)
-    try {
-      const initialTitle = `New Chat ${conversations.length + 1}`
-      const { data, error } = await supabase
-        .from('conversations')
-        .insert({ user_id: session.user.id, title: initialTitle })
-        .select()
-        .single()
-
-      if (error) throw error
-
-      if (data) {
-        setConversations(prevConversations => [data, ...prevConversations])
-        setActiveConversationId(data.id)
-      } else {
-        throw new Error("Failed to create conversation: No data returned.")
-      }
-    } catch (error) {
-      console.error("Error creating new conversation:", error)
-      setError(`Could not start a new conversation: ${error.message}`)
-    } finally {
-      setLoading(false)
-    }
+  const handleNewThread = () => {
+    setActiveConversationId('new');
+    setMessages([]);
+    setError(null);
   }
 
   const handleSendMessage = useCallback(async (formData) => {
-    const currentConversationId = activeConversationId;
+    let currentConversationId = activeConversationId;
+    if (currentConversationId === 'new') {
+      // Create the conversation first
+      setLoading(true);
+      setError(null);
+      try {
+        const initialTitle = `New Chat ${conversations.length + 1}`;
+        const { data, error } = await supabase
+          .from('conversations')
+          .insert({ user_id: session.user.id, title: initialTitle })
+          .select()
+          .single();
+        if (error) throw error;
+        if (data) {
+          setConversations(prevConversations => [data, ...prevConversations]);
+          setActiveConversationId(data.id);
+          currentConversationId = data.id;
+        } else {
+          throw new Error("Failed to create conversation: No data returned.");
+        }
+      } catch (error) {
+        console.error("Error creating new conversation:", error);
+        setError(`Could not start a new conversation: ${error.message}`);
+        setLoading(false);
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
     formData.append('conversationId', currentConversationId);
-
     if (!currentConversationId || !session) {
-      setError("Please select or start a conversation first.")
-      return
+      setError("Please select or start a conversation first.");
+      return;
     }
 
     console.log('[Frontend] handleSendMessage called with FormData:');

@@ -17,13 +17,14 @@ export default function MainApp({
   handleSendMessage,
   supabase
 }) {
+  const isNewChat = activeConversationId === 'new';
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar
-        threads={conversations.map(c => ({ id: c.id, name: c.title }))}
-        activeThreadId={activeConversationId}
+        threads={isNewChat ? conversations.map(c => ({ id: c.id, name: c.title })) : conversations.map(c => ({ id: c.id, name: c.title }))}
+        activeThreadId={isNewChat ? null : activeConversationId}
         onSelectThread={setActiveConversationId}
         onNewThread={handleNewThread}
         onRenameThread={handleRenameThread}
@@ -39,7 +40,11 @@ export default function MainApp({
         )}
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-          {activeConversationId ? (
+          {isNewChat ? (
+            <div className="text-center text-gray-500 pt-10">
+              Start your new conversation by sending a message.
+            </div>
+          ) : activeConversationId ? (
             <ChatHistory history={messages.map(m => ({
               role: m.sender,
               content: m.content,
@@ -66,11 +71,11 @@ export default function MainApp({
           )}
         </div>
 
-        {activeConversationId && (
+        {isNewChat || activeConversationId ? (
           <div className="p-4 border-t border-gray-300 bg-white">
             <UploadComponent onSendMessage={handleSendMessage} disabled={loading} />
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

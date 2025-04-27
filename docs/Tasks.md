@@ -23,12 +23,11 @@ To-Do (Rest)
 [ ] Setup CI environment
 [ ] Setup E2E testing
 [ ] Fix automated test suite
-[ ] Name editing is not working.
 
 Doing
-[ ] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
 
 Done
+[x] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
 [x] Setup Husky
 [x] Remove the image description from the bot reply.
 [x] Save image description info for all uploaded photos. (Hard)
@@ -44,3 +43,4 @@ Done
 [x] Create a landing page.
 [x] Add routing to the app.
 [x] Remove unused App.js file
+[x] Name editing is not working.

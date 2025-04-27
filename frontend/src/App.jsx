@@ -352,6 +352,65 @@ function AppRouter() {
     }
   }, [session, conversations])
 
+  // Delete a conversation and all related data (images, messages, conversation)
+  const handleDeleteConversation = useCallback(async (conversationId) => {
+    if (!window.confirm('Are you sure you want to delete this conversation and all its messages and images? This cannot be undone.')) return;
+    setLoading(true);
+    setError(null);
+    try {
+      // 1. Fetch all messages for the conversation
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select('id')
+        .eq('conversation_id', conversationId);
+      if (messagesError) throw messagesError;
+      const messageIds = (messagesData || []).map(m => m.id);
+
+      // 2. Fetch all image records for those messages
+      let imageRecords = [];
+      if (messageIds.length > 0) {
+        const { data: imagesData, error: imagesError } = await supabase
+          .from('ChatMessageImages')
+          .select('id, storage_path')
+          .in('message_id', messageIds);
+        if (imagesError) throw imagesError;
+        imageRecords = imagesData || [];
+      }
+
+      // 3. Delete images from Supabase Storage
+      for (const img of imageRecords) {
+        if (img.storage_path) {
+          await supabase.storage.from('chat-images').remove([img.storage_path]);
+        }
+      }
+
+      // 4. Delete image records from ChatMessageImages (CASCADE on message delete, but safe to do)
+      if (messageIds.length > 0 && imageRecords.length > 0) {
+        await supabase.from('ChatMessageImages').delete().in('message_id', messageIds);
+      }
+
+      // 5. Delete messages
+      if (messageIds.length > 0) {
+        await supabase.from('messages').delete().in('id', messageIds);
+      }
+
+      // 6. Delete the conversation
+      await supabase.from('conversations').delete().eq('id', conversationId);
+
+      // 7. Update frontend state
+      setConversations(prev => prev.filter(c => c.id !== conversationId));
+      if (activeConversationId === conversationId) {
+        setActiveConversationId(null);
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      setError('Failed to delete conversation: ' + (error.message || error));
+    } finally {
+      setLoading(false);
+    }
+  }, [activeConversationId]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -374,6 +433,7 @@ function AppRouter() {
               setActiveConversationId={setActiveConversationId}
               handleNewThread={handleNewThread}
               handleRenameThread={handleRenameThread}
+              handleDeleteConversation={handleDeleteConversation}
               messages={messages}
               loading={loading}
               loadingMessages={loadingMessages}

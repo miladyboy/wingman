@@ -3,7 +3,7 @@ import { PencilIcon, CheckIcon, XMarkIcon, ArrowLeftOnRectangleIcon } from '@her
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, user, onLogout }) {
+function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, onDeleteThread, user, onLogout }) {
   const [editingThreadId, setEditingThreadId] = useState(null);
   const [editText, setEditText] = useState('');
 
@@ -100,6 +100,15 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   aria-label="Rename chat"
                 >
                   <PencilIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={(e) => { e.stopPropagation(); onDeleteThread && onDeleteThread(thread.id); }}
+                  className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-1"
+                  aria-label="Delete chat"
+                >
+                  <span role="img" aria-label="Delete">🗑️</span>
                 </Button>
               </>
             )}

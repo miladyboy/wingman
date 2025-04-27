@@ -10,6 +10,7 @@ export default function MainApp({
   setActiveConversationId,
   handleNewThread,
   handleRenameThread,
+  handleDeleteConversation,
   messages,
   loading,
   loadingMessages,
@@ -28,6 +29,7 @@ export default function MainApp({
         onSelectThread={setActiveConversationId}
         onNewThread={handleNewThread}
         onRenameThread={handleRenameThread}
+        onDeleteThread={handleDeleteConversation}
         user={profile}
         onLogout={() => supabase.auth.signOut()}
       />

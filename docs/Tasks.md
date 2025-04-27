@@ -23,7 +23,7 @@ To-Do (Rest)
 [ ] Fix automated test suite
 
 Doing
-[ ] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
+
 
 Done
 [x] Make image upload a drag-and-drop zone too. (Small)
@@ -45,3 +45,4 @@ Done
 [x] Add routing to the app.
 [x] Remove unused App.js file
 [x] Name editing is not working.
+[x] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)

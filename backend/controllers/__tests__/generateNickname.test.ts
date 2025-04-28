@@ -1,23 +1,17 @@
 import { generateNickname } from '../analyzeController';
-
-jest.mock('../../services/openaiService', () => ({
-  callOpenAI: jest.fn()
-}));
-import { callOpenAI } from '../../services/openaiService';
+import { OpenAIService } from '../../services/openaiService';
 
 describe('generateNickname', () => {
-  afterEach(() => jest.clearAllMocks());
-
   it('returns trimmed nickname from OpenAI', async () => {
-    (callOpenAI as jest.Mock).mockResolvedValue('Cool Nickname\n');
-    const result = await generateNickname('Hello world');
+    const mockOpenai = { callOpenAI: jest.fn().mockResolvedValue('Cool Nickname\n') } as unknown as OpenAIService;
+    const result = await generateNickname('Hello world', mockOpenai);
     expect(result).toBe('Cool Nickname');
-    expect(callOpenAI).toHaveBeenCalled();
+    expect(mockOpenai.callOpenAI).toHaveBeenCalled();
   });
 
   it('returns default nickname if OpenAI returns empty', async () => {
-    (callOpenAI as jest.Mock).mockResolvedValue('   ');
-    const result = await generateNickname('Hello world');
+    const mockOpenai = { callOpenAI: jest.fn().mockResolvedValue('   ') } as unknown as OpenAIService;
+    const result = await generateNickname('Hello world', mockOpenai);
     expect(result).toBe('Chat Pal');
   });
 }); 

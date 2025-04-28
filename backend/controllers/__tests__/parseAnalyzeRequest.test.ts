@@ -63,26 +63,36 @@ describe('parseAnalyzeRequest', () => {
     });
   });
 
-  it('handles empty req.body gracefully', () => {
+  it('throws if newMessageText is missing', () => {
+    const req = {
+      body: {
+        conversationId: 'abc'
+      },
+      files: []
+    } as any;
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText and conversationId are required');
+  });
+
+  it('throws if conversationId is missing', () => {
+    const req = {
+      body: {
+        newMessageText: 'hello'
+      },
+      files: []
+    } as any;
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText and conversationId are required');
+  });
+
+  it('throws if both newMessageText and conversationId are missing', () => {
     const req = {
       body: {},
       files: []
     } as any;
-    expect(parseAnalyzeRequest(req)).toEqual({
-      history: [],
-      newMessageText: undefined,
-      conversationId: undefined,
-      files: []
-    });
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText and conversationId are required');
   });
 
-  it('handles completely empty req', () => {
+  it('throws if req is completely empty', () => {
     const req = {} as any;
-    expect(parseAnalyzeRequest(req)).toEqual({
-      history: [],
-      newMessageText: undefined,
-      conversationId: undefined,
-      files: []
-    });
+    expect(() => parseAnalyzeRequest(req)).toThrow();
   });
 }); 

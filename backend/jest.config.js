@@ -17,4 +17,5 @@ module.exports = {
     '!**/__tests__/**'
   ],
   coverageDirectory: './coverage',
+  setupFiles: ['./jest.setup.js'],
 }; 

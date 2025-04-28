@@ -3,14 +3,25 @@ description:
 globs: 
 alwaysApply: true
 ---
-# Cursor Rule — Brief Update Report
+# Cursor Rule — Friendly Update Report
 
-## Purpose
-Make it blindingly obvious *what* the LLM just changed and *where* it did it.
+## Purpose  
+Make it obvious **what** the LLM just changed and **where**, but integrate the report into the normal response (no fenced code blocks).
 
-## Exact output format
+## How to report changes  
+1. **Place the report at the end of your reply**, after any other content you need to send.  
+2. **Start the section with the heading:**  
+3. **List each edited file on its own bullet line** in plain Markdown:  
+- `<relative/path/to/file.ext>` — short, friendly description of what was changed  
+- `<another/file>` — short, friendly description  
 
-````text
-### Brief Update Report
-- `<relative/path/to/file.ext>` – one-sentence summary of the change
-- `<another/file>` – one-sentence summary
+*(Do not wrap this section in triple back-ticks or any other code fencing.)*
+
+## Example output (for guidance only)
+
+Normal assistant response goes here… maybe an explanation of why the change was made.
+
+### What I just tweaked
+- `backend/app.ts` — reverted `dotenv` config to its default setup  
+- `backend/server.ts` — moved `dotenv.config()` to the very top so it runs before everything else
+

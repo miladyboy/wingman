@@ -4,7 +4,7 @@ import cors from 'cors';
 import analyzeRoutes from './routes/analyze';
 import inviteRoutes from './routes/invite';
 
-// Load environment variables
+// Load environment variables from .env
 dotenv.config();
 
 const app: Express = express();

@@ -16,6 +16,8 @@ To-Do (Rest)
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 [ ] Add Stripe integration for payments.
 [ ] Fix the deployment as it's failing for some reason in vercel and render.
+[ ] Build the next version of my task manager.
+[ ] Need to handle large images because it times out with 400 error. Make images smaller maybe.
 
 Doing
 [ ] Test the entire backend

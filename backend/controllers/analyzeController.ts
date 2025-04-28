@@ -306,4 +306,4 @@ export async function analyze(req: Request, res: Response): Promise<void> {
     }
 }
 
-export { parseAnalyzeRequest };
+export { parseAnalyzeRequest, generateNickname };

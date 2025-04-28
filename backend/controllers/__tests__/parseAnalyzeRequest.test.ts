@@ -1,4 +1,4 @@
-const { parseAnalyzeRequest } = require('../analyzeController');
+import { parseAnalyzeRequest } from '../analyzeController';
 
 describe('parseAnalyzeRequest', () => {
   it('parses valid historyJson', () => {
@@ -9,7 +9,7 @@ describe('parseAnalyzeRequest', () => {
         conversationId: 'abc'
       },
       files: [{ name: 'file1.png' }]
-    };
+    } as any;
     expect(parseAnalyzeRequest(req)).toEqual({
       history: [{ role: 'user', content: 'hi' }],
       newMessageText: 'hello',
@@ -25,7 +25,7 @@ describe('parseAnalyzeRequest', () => {
         conversationId: 'abc'
       },
       files: []
-    };
+    } as any;
     expect(parseAnalyzeRequest(req)).toEqual({
       history: [],
       newMessageText: 'hello',
@@ -42,7 +42,7 @@ describe('parseAnalyzeRequest', () => {
         conversationId: 'abc'
       },
       files: []
-    };
+    } as any;
     expect(() => parseAnalyzeRequest(req)).toThrow('Invalid history JSON');
   });
 
@@ -54,7 +54,7 @@ describe('parseAnalyzeRequest', () => {
         conversationId: 'abc'
       }
       // files is undefined
-    };
+    } as any;
     expect(parseAnalyzeRequest(req)).toEqual({
       history: [{ role: 'user', content: 'hi' }],
       newMessageText: 'hello',
@@ -67,7 +67,7 @@ describe('parseAnalyzeRequest', () => {
     const req = {
       body: {},
       files: []
-    };
+    } as any;
     expect(parseAnalyzeRequest(req)).toEqual({
       history: [],
       newMessageText: undefined,
@@ -77,7 +77,7 @@ describe('parseAnalyzeRequest', () => {
   });
 
   it('handles completely empty req', () => {
-    const req = {};
+    const req = {} as any;
     expect(parseAnalyzeRequest(req)).toEqual({
       history: [],
       newMessageText: undefined,

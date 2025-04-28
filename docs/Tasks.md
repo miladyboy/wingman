@@ -9,19 +9,21 @@ To-Do (Rest)
 [ ] Agregar un favicon
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
 [ ] Setup CI environment
-[ ] Setup E2E testing
 [ ] Fix automated test suite
 [ ] Make image work with cmd + v (small) 
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
 [ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 [ ] Add Stripe integration for payments.
-[ ] Add a complete project rule teaching the LLM to use Github.
+[ ] Fix the deployment as it's failing for some reason in vercel and render.
 
 Doing
-[ ] Test the entire backend.
+[ ] Test the entire backend
+[ ] Setup E2E testing
+[ ] Fix frontend tests
 
 Done
+[x] Add a complete project rule teaching the LLM to use Github.
 [x] Agregar automated testing a alguna parte del backend (testing)
 [x] Make image upload a drag-and-drop zone too. (Small)
 [x] Remove or improve the App component test.

@@ -25,6 +25,4 @@ async function callOpenAI(
   }
 }
 
-export { callOpenAI };
-// For CommonJS compatibility (required by existing JS files)
-module.exports = { callOpenAI }; 
+export { callOpenAI }; 

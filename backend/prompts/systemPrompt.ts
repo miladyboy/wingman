@@ -7,6 +7,4 @@ function systemPrompt(): string {
   );
 }
 
-export default systemPrompt;
-// For CommonJS compatibility
-module.exports = systemPrompt; 
+export default systemPrompt; 

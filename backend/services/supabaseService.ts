@@ -20,6 +20,4 @@ const supabaseAdmin: SupabaseClient | null =
 
 console.log(`Supabase Admin Client ${supabaseAdmin ? 'Initialized' : 'NOT Initialized (Missing ENV vars)'}`);
 
-export { supabaseAdmin };
-// For CommonJS compatibility (required by existing JS files)
-module.exports = { supabaseAdmin }; 
+export { supabaseAdmin }; 

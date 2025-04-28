@@ -1,19 +1,13 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const multer = require('multer');
+import express, { Express } from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import analyzeRoutes from './routes/analyze';
+import inviteRoutes from './routes/invite';
 
 // Load environment variables
 dotenv.config();
 
-const app = express();
-
-// Set up multer for file uploads (memory storage)
-const storage = multer.memoryStorage();
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }
-});
+const app: Express = express();
 
 // CORS middleware
 app.use(cors({
@@ -30,9 +24,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-const analyzeRoutes = require('./routes/analyze');
 app.use('/analyze', analyzeRoutes);
-const inviteRoutes = require('./routes/invite');
 app.use('/api/validate-invite-code', inviteRoutes);
 
-module.exports = app; 
+export default app;

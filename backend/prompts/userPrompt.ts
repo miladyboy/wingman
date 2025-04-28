@@ -21,6 +21,4 @@ function userPrompt({ history, message, imageDescription }: UserPromptParams): s
   return prompt.trim();
 }
 
-export default userPrompt;
-// For CommonJS compatibility
-module.exports = userPrompt; 
+export default userPrompt; 

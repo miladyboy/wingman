@@ -1,23 +1,54 @@
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const { callOpenAI } = require('../services/openaiService');
-const { supabaseAdmin } = require('../services/supabaseService');
-const systemPrompt = require('../prompts/systemPrompt');
-const userPrompt = require('../prompts/userPrompt');
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import { Request, Response } from 'express';
+import { callOpenAI } from '../services/openaiService';
+import { supabaseAdmin } from '../services/supabaseService';
+import systemPrompt from '../prompts/systemPrompt';
+import userPrompt from '../prompts/userPrompt';
 
-function parseAnalyzeRequest(req) {
-    const { historyJson, newMessageText, conversationId } = req.body;
-    let history = [];
+// Type definitions
+interface AnalyzeRequestBody {
+    historyJson?: string;
+    newMessageText?: string;
+    conversationId?: string;
+}
+
+interface UploadedFile {
+    originalname: string;
+    mimetype: string;
+    buffer: Buffer;
+    size: number;
+}
+
+interface MessageRecord {
+    id: string;
+    conversation_id: string;
+    sender: string;
+    content: string | null;
+    image_description?: string;
+}
+
+interface ImageRecord {
+    message_id: string;
+    storage_path: string;
+    filename: string;
+    content_type: string;
+    filesize: number;
+}
+
+function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[] } {
+    const { historyJson, newMessageText, conversationId } = req.body as AnalyzeRequestBody;
+    let history: any[] = [];
     try {
         history = historyJson ? JSON.parse(historyJson) : [];
     } catch (e) {
         throw new Error('Invalid history JSON');
     }
-    const files = req.files || [];
+    const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
     return { history, newMessageText, conversationId, files };
 }
 
-async function getUserIdFromAuthHeader(authHeader, supabaseAdmin) {
+async function getUserIdFromAuthHeader(authHeader: string | undefined, supabaseAdmin: any): Promise<string | null> {
     if (authHeader && authHeader.startsWith('Bearer ')) {
         const userAccessToken = authHeader.split(' ')[1];
         try {
@@ -34,7 +65,7 @@ async function getUserIdFromAuthHeader(authHeader, supabaseAdmin) {
     return null;
 }
 
-async function saveMessageStub(conversationId, newMessageText) {
+async function saveMessageStub(conversationId: string, newMessageText: string): Promise<MessageRecord> {
     const messageData = {
         conversation_id: conversationId,
         sender: 'user',
@@ -51,13 +82,13 @@ async function saveMessageStub(conversationId, newMessageText) {
         }
         throw new Error(`Failed to save message stub: ${messageError.message}`);
     }
-    return newMessageRecord;
+    return newMessageRecord as MessageRecord;
 }
 
-async function uploadFilesToStorage(files, savedMessage, userId) {
-    let imageRecords = [];
-    let imageUrlsForOpenAI = [];
-    let imageUrlsForFrontend = [];
+async function uploadFilesToStorage(files: UploadedFile[], savedMessage: MessageRecord, userId: string | null): Promise<{ imageRecords: ImageRecord[]; imageUrlsForOpenAI: string[]; imageUrlsForFrontend: string[] }> {
+    let imageRecords: ImageRecord[] = [];
+    let imageUrlsForOpenAI: string[] = [];
+    let imageUrlsForFrontend: string[] = [];
     for (const file of files) {
         const fileExt = path.extname(file.originalname);
         const fileNameWithoutExt = path.basename(file.originalname, fileExt);
@@ -92,7 +123,7 @@ async function uploadFilesToStorage(files, savedMessage, userId) {
     return { imageRecords, imageUrlsForOpenAI, imageUrlsForFrontend };
 }
 
-async function saveImageRecords(imageRecords) {
+async function saveImageRecords(imageRecords: ImageRecord[]): Promise<void> {
     if (imageRecords.length > 0) {
         const { error: imageDbError } = await supabaseAdmin
             .from('ChatMessageImages')
@@ -103,7 +134,7 @@ async function saveImageRecords(imageRecords) {
     }
 }
 
-async function generateNickname(newMessageText) {
+async function generateNickname(newMessageText: string): Promise<string> {
     const nicknamePrompt = [{
         role: "user",
         content: `Based on the following initial message, suggest a short, catchy, SFW nickname for the person being discussed:\n\n"${newMessageText}"\n\nNickname:`
@@ -112,7 +143,7 @@ async function generateNickname(newMessageText) {
     return result.trim() || "Chat Pal";
 }
 
-async function generateImageDescriptionAndNickname(finalUserMessageContent) {
+async function generateImageDescriptionAndNickname(finalUserMessageContent: any[]): Promise<{ nickname: string; imageDescription: string }> {
     const descriptionPromptContent = [...finalUserMessageContent];
     descriptionPromptContent.unshift({ type: "text", text: "Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe. Then, suggest a short, catchy, SFW nickname for the girl based *only* on the image(s)." });
     const descriptionPrompt = [{
@@ -122,14 +153,14 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent) {
     const descriptionAndNickname = await callOpenAI(descriptionPrompt, 100);
     const lines = descriptionAndNickname.split('\n');
     let parsedNickname = lines.find(line => line.toLowerCase().startsWith('nickname:'));
-    const generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop().trim();
+    const generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop()?.trim() || '';
     const nickname = generatedNickname || "Mystery Girl";
     const generatedImageDescription = lines.filter(line => !line.toLowerCase().startsWith('nickname:') && line.trim() !== nickname).join('\n').trim();
     const imageDescription = generatedImageDescription || "Image(s) received.";
     return { nickname, imageDescription };
 }
 
-async function generateImageDescription(finalUserMessageContent) {
+async function generateImageDescription(finalUserMessageContent: any[]): Promise<string> {
     const descPromptContentSubsequent = [...finalUserMessageContent];
     descPromptContentSubsequent.unshift({ type: "text", text: "Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe." });
     const descriptionPromptSubsequent = [{
@@ -144,7 +175,7 @@ async function generateImageDescription(finalUserMessageContent) {
     }
 }
 
-async function updateMessageWithImageDescription(messageId, imageDescription) {
+async function updateMessageWithImageDescription(messageId: string, imageDescription: string): Promise<boolean> {
     const { error: updateError } = await supabaseAdmin
         .from('messages')
         .update({ image_description: imageDescription })
@@ -152,43 +183,47 @@ async function updateMessageWithImageDescription(messageId, imageDescription) {
     return !updateError;
 }
 
-async function generateSuggestions(conversation) {
+async function generateSuggestions(conversation: any[]): Promise<string[]> {
     const suggestionText = await callOpenAI(conversation, 300);
     return suggestionText.split(/\n\d\.\s+|\n\*\s+|\n-\s+|\n\n/)
         .map(s => s.replace(/^\d\.\s*/, '').replace(/^[\*-]\s*/, '').trim())
         .filter(s => s.length > 5 && s.length < 500);
 }
 
-exports.analyze = async (req, res) => {
+export async function analyze(req: Request, res: Response): Promise<void> {
     try {
         // --- Extract Auth Token ---
         const userId = await getUserIdFromAuthHeader(req.headers.authorization, supabaseAdmin);
 
         // --- Extract Text and Files ---
-        let history, newMessageText, conversationId, files;
+        let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[];
         try {
             ({ history, newMessageText, conversationId, files } = parseAnalyzeRequest(req));
-        } catch (err) {
-            return res.status(400).json({ error: err.message });
+        } catch (err: any) {
+            res.status(400).json({ error: err.message });
+            return;
         }
 
         if ((!newMessageText || newMessageText.trim() === '') && files.length === 0) {
-            return res.status(400).json({ error: 'New message content (text or image files) is required.' });
+            res.status(400).json({ error: 'New message content (text or image files) is required.' });
+            return;
         }
         if (!supabaseAdmin) {
-            return res.status(500).json({ error: 'Backend Supabase client not configured.' });
+            res.status(500).json({ error: 'Backend Supabase client not configured.' });
+            return;
         }
 
-        let savedMessage = null;
-        let imageRecords = [];
-        let imageUrlsForOpenAI = [];
-        let imageUrlsForFrontend = [];
+        let savedMessage: MessageRecord | null = null;
+        let imageRecords: ImageRecord[] = [];
+        let imageUrlsForOpenAI: string[] = [];
+        let imageUrlsForFrontend: string[] = [];
 
         // --- Save the Message Stub (without AI response yet) ---
         try {
             savedMessage = await saveMessageStub(conversationId, newMessageText);
-        } catch (dbError) {
-            return res.status(500).json({ error: 'Database operation failed.', details: dbError.message });
+        } catch (dbError: any) {
+            res.status(500).json({ error: 'Database operation failed.', details: dbError.message });
+            return;
         }
 
         // --- Upload Files to Supabase Storage & Prepare Records ---
@@ -199,16 +234,17 @@ exports.analyze = async (req, res) => {
             imageUrlsForFrontend = uploadResult.imageUrlsForFrontend;
             try {
                 await saveImageRecords(imageRecords);
-            } catch (imageDbError) {
-                return res.status(500).json({ error: imageDbError.message });
+            } catch (imageDbError: any) {
+                res.status(500).json({ error: imageDbError.message });
+                return;
             }
         }
 
         // --- Prepare for OpenAI Analysis ---
-        let generatedNickname = null;
-        let generatedImageDescription = null;
-        let finalUserMessageContent = [];
-        const isInitialUserMessage = !history || history.filter(msg => msg.role === 'user').length === 0;
+        let generatedNickname: string | null = null;
+        let generatedImageDescription: string | null = null;
+        let finalUserMessageContent: any[] = [];
+        const isInitialUserMessage = !history || history.filter((msg: any) => msg.role === 'user').length === 0;
         if (newMessageText && newMessageText.trim() !== '') {
             finalUserMessageContent.push({ type: "text", text: newMessageText });
         }
@@ -241,7 +277,7 @@ exports.analyze = async (req, res) => {
         }
         // --- Refactored prompt construction ---
         // Stringify history for userPrompt
-        const historyString = (history || []).map(msg => {
+        const historyString = (history || []).map((msg: any) => {
             return msg.imageDescription
                 ? `${msg.content}\n[Image Description: ${msg.imageDescription}]`
                 : msg.content;
@@ -252,10 +288,10 @@ exports.analyze = async (req, res) => {
                 content: systemPrompt()
             },
             // Keep history as separate messages for context
-            ...(history || []).map(msg => ({
+            ...((history || []).map((msg: any) => ({
                 role: msg.role,
                 content: msg.imageDescription ? `${msg.content}\n[Image Description: ${msg.imageDescription}]` : msg.content
-            })),
+            })) as any[]),
             {
                 role: "user",
                 content: userPrompt({
@@ -273,9 +309,9 @@ exports.analyze = async (req, res) => {
             imageUrls: imageUrlsForFrontend
         };
         res.json(responsePayload);
-    } catch (error) {
+    } catch (error: any) {
         res.status(500).json({ error: 'Failed to analyze message', details: error.message });
     }
-}; 
+}
 
-exports.parseAnalyzeRequest = parseAnalyzeRequest;
+export { parseAnalyzeRequest };

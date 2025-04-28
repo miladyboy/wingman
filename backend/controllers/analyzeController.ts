@@ -5,6 +5,8 @@ import { callOpenAI } from '../services/openaiService';
 import { supabaseAdmin } from '../services/supabaseService';
 import systemPrompt from '../prompts/systemPrompt';
 import userPrompt from '../prompts/userPrompt';
+// Import OpenAI types if available
+import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 
 // Type definitions
 interface AnalyzeRequestBody {
@@ -44,6 +46,9 @@ function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: st
     } catch (e) {
         throw new Error('Invalid history JSON');
     }
+    if (!newMessageText || !conversationId) {
+        throw new Error('newMessageText and conversationId are required');
+    }
     const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
     return { history, newMessageText, conversationId, files };
 }
@@ -71,11 +76,7 @@ async function saveMessageStub(conversationId: string, newMessageText: string): 
         sender: 'user',
         content: newMessageText || null,
     };
-    const { data: newMessageRecord, error: messageError } = await supabaseAdmin
-        .from('messages')
-        .insert(messageData)
-        .select()
-        .single();
+    const { data: newMessageRecord, error: messageError } = await supabaseAdmin!.from('messages').insert(messageData).select().single();
     if (messageError) {
         if (messageError.code === '23503') {
             throw new Error(`Invalid conversation ID: ${conversationId}. Cannot save message.`);
@@ -96,18 +97,14 @@ async function uploadFilesToStorage(files: UploadedFile[], savedMessage: Message
         const uniqueFileName = `${safeFileNameBase}-${uuidv4()}${fileExt}`;
         const storageDirPath = userId ? `public/${userId}/${savedMessage.id}` : `public/${savedMessage.id}`;
         const storagePath = `${storageDirPath}/${uniqueFileName}`;
-        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-            .from('chat-images')
-            .upload(storagePath, file.buffer, {
-                contentType: file.mimetype,
-                cacheControl: '3600',
-            });
+        const { data: uploadData, error: uploadError } = await supabaseAdmin!.storage.from('chat-images').upload(storagePath, file.buffer, {
+            contentType: file.mimetype,
+            cacheControl: '3600',
+        });
         if (uploadError) {
             continue;
         }
-        const { data: urlData } = supabaseAdmin.storage
-            .from('chat-images')
-            .getPublicUrl(uploadData.path);
+        const { data: urlData } = supabaseAdmin!.storage.from('chat-images').getPublicUrl(uploadData.path);
         if (urlData?.publicUrl) {
             imageUrlsForOpenAI.push(urlData.publicUrl);
             imageUrlsForFrontend.push(urlData.publicUrl);
@@ -125,9 +122,7 @@ async function uploadFilesToStorage(files: UploadedFile[], savedMessage: Message
 
 async function saveImageRecords(imageRecords: ImageRecord[]): Promise<void> {
     if (imageRecords.length > 0) {
-        const { error: imageDbError } = await supabaseAdmin
-            .from('ChatMessageImages')
-            .insert(imageRecords);
+        const { error: imageDbError } = await supabaseAdmin!.from('ChatMessageImages').insert(imageRecords);
         if (imageDbError) {
             throw new Error('Failed to save image references: ' + imageDbError.message);
         }
@@ -135,51 +130,48 @@ async function saveImageRecords(imageRecords: ImageRecord[]): Promise<void> {
 }
 
 async function generateNickname(newMessageText: string): Promise<string> {
-    const nicknamePrompt = [{
-        role: "user",
+    const nicknamePrompt: ChatCompletionMessageParam[] = [{
+        role: 'user',
         content: `Based on the following initial message, suggest a short, catchy, SFW nickname for the person being discussed:\n\n"${newMessageText}"\n\nNickname:`
     }];
     const result = await callOpenAI(nicknamePrompt, 20);
-    return result.trim() || "Chat Pal";
+    return result.trim() || 'Chat Pal';
 }
 
 async function generateImageDescriptionAndNickname(finalUserMessageContent: any[]): Promise<{ nickname: string; imageDescription: string }> {
     const descriptionPromptContent = [...finalUserMessageContent];
-    descriptionPromptContent.unshift({ type: "text", text: "Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe. Then, suggest a short, catchy, SFW nickname for the girl based *only* on the image(s)." });
-    const descriptionPrompt = [{
-        role: "user",
-        content: descriptionPromptContent
+    descriptionPromptContent.unshift({ type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe. Then, suggest a short, catchy, SFW nickname for the girl based *only* on the image(s).' });
+    const descriptionPrompt: ChatCompletionMessageParam[] = [{
+        role: 'user',
+        content: descriptionPromptContent as any // OpenAI SDK expects string, but our code uses array for multimodal; keep as any for now
     }];
     const descriptionAndNickname = await callOpenAI(descriptionPrompt, 100);
     const lines = descriptionAndNickname.split('\n');
     let parsedNickname = lines.find(line => line.toLowerCase().startsWith('nickname:'));
     const generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop()?.trim() || '';
-    const nickname = generatedNickname || "Mystery Girl";
+    const nickname = generatedNickname || 'Mystery Girl';
     const generatedImageDescription = lines.filter(line => !line.toLowerCase().startsWith('nickname:') && line.trim() !== nickname).join('\n').trim();
-    const imageDescription = generatedImageDescription || "Image(s) received.";
+    const imageDescription = generatedImageDescription || 'Image(s) received.';
     return { nickname, imageDescription };
 }
 
 async function generateImageDescription(finalUserMessageContent: any[]): Promise<string> {
     const descPromptContentSubsequent = [...finalUserMessageContent];
-    descPromptContentSubsequent.unshift({ type: "text", text: "Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe." });
-    const descriptionPromptSubsequent = [{
-        role: "user",
-        content: descPromptContentSubsequent
+    descPromptContentSubsequent.unshift({ type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe.' });
+    const descriptionPromptSubsequent: ChatCompletionMessageParam[] = [{
+        role: 'user',
+        content: descPromptContentSubsequent as any // see above note
     }];
     try {
         let generatedImageDescription = await callOpenAI(descriptionPromptSubsequent, 100);
-        return generatedImageDescription.trim() || "Image(s) analyzed.";
+        return generatedImageDescription.trim() || 'Image(s) analyzed.';
     } catch (descError) {
-        return "Error analyzing image(s).";
+        return 'Error analyzing image(s).';
     }
 }
 
 async function updateMessageWithImageDescription(messageId: string, imageDescription: string): Promise<boolean> {
-    const { error: updateError } = await supabaseAdmin
-        .from('messages')
-        .update({ image_description: imageDescription })
-        .eq('id', messageId);
+    const { error: updateError } = await supabaseAdmin!.from('messages').update({ image_description: imageDescription }).eq('id', messageId);
     return !updateError;
 }
 
@@ -246,15 +238,15 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         let finalUserMessageContent: any[] = [];
         const isInitialUserMessage = !history || history.filter((msg: any) => msg.role === 'user').length === 0;
         if (newMessageText && newMessageText.trim() !== '') {
-            finalUserMessageContent.push({ type: "text", text: newMessageText });
+            finalUserMessageContent.push({ type: 'text', text: newMessageText });
         }
         if (imageUrlsForOpenAI.length > 0) {
             if (finalUserMessageContent.length === 0) {
-                finalUserMessageContent.push({ type: "text", text: "[Image(s) provided]" });
+                finalUserMessageContent.push({ type: 'text', text: '[Image(s) provided]' });
             }
             imageUrlsForOpenAI.forEach(url => {
                 finalUserMessageContent.push({
-                    type: "image_url",
+                    type: 'image_url',
                     image_url: { url: url }
                 });
             });
@@ -284,7 +276,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         }).join('\n---\n');
         const conversation = [
             {
-                role: "system",
+                role: 'system',
                 content: systemPrompt()
             },
             // Keep history as separate messages for context
@@ -293,11 +285,11 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                 content: msg.imageDescription ? `${msg.content}\n[Image Description: ${msg.imageDescription}]` : msg.content
             })) as any[]),
             {
-                role: "user",
+                role: 'user',
                 content: userPrompt({
                     history: historyString,
                     message: newMessageText,
-                    imageDescription: generatedImageDescription
+                    imageDescription: generatedImageDescription ?? undefined
                 })
             }
         ];

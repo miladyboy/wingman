@@ -42,7 +42,7 @@ interface ImageRecord {
 }
 
 function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[] } {
-    const { historyJson, newMessageText, conversationId } = req.body as AnalyzeRequestBody;
+    const { historyJson, newMessageText, conversationId } = (req.body || {}) as AnalyzeRequestBody;
     let history: any[] = [];
     try {
         history = historyJson ? JSON.parse(historyJson) : [];

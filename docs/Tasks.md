@@ -20,7 +20,6 @@ To-Do (Rest)
 
 Doing
 [ ] Test the entire backend.
-[ ] Pasar backend a typescript.
 
 Done
 [x] Agregar automated testing a alguna parte del backend (testing)
@@ -44,3 +43,4 @@ Done
 [x] Remove unused App.js file
 [x] Name editing is not working.
 [x] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
+[x] Pasar backend a typescript.

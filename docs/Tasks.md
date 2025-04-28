@@ -1,5 +1,4 @@
 To-Do (Rest)
-[ ] Pasar app a typescript.
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
 [ ] Registering should give some feedback and a notice to verify email. (Small)
 [ ] Upload user chats to mimic their style. (Mid)
@@ -8,20 +7,22 @@ To-Do (Rest)
 [ ] Integrate Taskmaster for task management.
 [ ] If I'm uploading Tinder photos, extract and save tags/info from the description and profile.
 [ ] Agregar un favicon
-[ ] Agregar automated testing a alguna parte del backend (testing)
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
 [ ] Setup CI environment
 [ ] Setup E2E testing
 [ ] Fix automated test suite
 [ ] Make image work with cmd + v (small) 
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
-[ ] Add Stripe integration for payments.
-
-Doing
 [ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
+[ ] Add Stripe integration for payments.
+[ ] Pasar app a typescript.
+
+Doing
+[ ] Test the entire backend.
 
 Done
+[x] Agregar automated testing a alguna parte del backend (testing)
 [x] Make image upload a drag-and-drop zone too. (Small)
 [x] Remove or improve the App component test.
 [x] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)

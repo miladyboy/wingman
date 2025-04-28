@@ -16,10 +16,11 @@ To-Do (Rest)
 [ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 [ ] Add Stripe integration for payments.
-[ ] Pasar app a typescript.
+[ ] Add a complete project rule teaching the LLM to use Github.
 
 Doing
 [ ] Test the entire backend.
+[ ] Pasar backend a typescript.
 
 Done
 [x] Agregar automated testing a alguna parte del backend (testing)

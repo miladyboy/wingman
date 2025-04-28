@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Cursor Rule — Git Auto-Commit After Each Iteration
+
+## Purpose
+Capture every batch of file changes in version control with a clear, atomic commit.
+
+## When to apply
+**Immediately after** completing a single “iteration” of work (i.e., once you finish generating or editing files in one response).
+
+## Required actions
+1. **Stage all files** touched in this iteration:
+   ```
+   git add <each/changed/file>       # include new, modified, and deleted files
+   git add -u                        # ensure deletions are staged
+   ```
+   Use the exact relative paths of every affected file.
+
+2. **Create a commit** with a concise, conventional message:
+   ```
+   git commit -m "<type>: <imperative summary>
+
+   • <file-1> – <one-sentence summary>
+   • <file-2> – <one-sentence summary>
+   ..."
+   ```
+   - `<type>` is one of: `feat`, `fix`, `docs`, `chore`, etc.
+   - The summary line must be **≤ 50 characters**.
+   - Underneath, bullet-point each file changed, **≤ 15 words per summary**.
+
+3. **Do not push** to any remote repository. Pushing is a manual, separate action.
+
+## Example
+Suppose you updated `src/api/login.ts` and `README.md`:
+
+```
+git add src/api/login.ts README.md
+git commit -m "feat: add JWT validation to login
+
+• src/api/login.ts – Added JWT validation
+• README.md – Clarified setup steps"
+```

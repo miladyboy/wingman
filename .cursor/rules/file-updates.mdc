@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rule — Brief Update Report
+
+## Purpose
+Make it blindingly obvious *what* the LLM just changed and *where* it did it.
+
+## Exact output format
+
+````text
+### Brief Update Report
+- `<relative/path/to/file.ext>` – one-sentence summary of the change
+- `<another/file>` – one-sentence summary

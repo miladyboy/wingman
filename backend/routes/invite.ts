@@ -1,8 +1,8 @@
 import express, { Router } from 'express';
 const router: Router = express.Router();
 
-const inviteController = require('../controllers/inviteController');
+import { validateInviteCode } from '../controllers/inviteController';
 
-router.post('/', inviteController.validateInviteCode);
+router.post('/', validateInviteCode as any);
 
 export default router; 

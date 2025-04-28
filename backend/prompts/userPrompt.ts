@@ -1,4 +1,10 @@
-module.exports = function userPrompt({ history, message, imageDescription }) {
+type UserPromptParams = {
+  history?: string;
+  message?: string;
+  imageDescription?: string;
+};
+
+function userPrompt({ history, message, imageDescription }: UserPromptParams): string {
   let prompt = "";
 
   if (history) {
@@ -13,4 +19,8 @@ module.exports = function userPrompt({ history, message, imageDescription }) {
 
   // Add more dynamic logic as needed
   return prompt.trim();
-}; 
+}
+
+export default userPrompt;
+// For CommonJS compatibility
+module.exports = userPrompt; 

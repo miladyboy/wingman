@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Description:
+After every code or test file change, the AI must:
+- Check for unused imports, variables, functions, or classes.
+- Remove any unused code unless it is required for future planned work (and document this).
+- Prefer to run a linter (e.g., eslint, ts-unused-exports, etc.) if available, and act on its findings.
+- Report all removals in the “What I just tweaked” section.

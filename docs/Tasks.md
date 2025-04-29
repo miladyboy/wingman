@@ -1,28 +1,30 @@
 To-Do (Rest)
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
-[ ] Registering should give some feedback and a notice to verify email. (Small)
 [ ] Upload user chats to mimic their style. (Mid)
 [ ] Build a React Native app for mobile. (Hard)
 [ ] Integrate Cypress or Playwright for automated E2E testing. (Hard)
-[ ] Integrate Taskmaster for task management.
 [ ] If I'm uploading Tinder photos, extract and save tags/info from the description and profile.
 [ ] Agregar un favicon
-[ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
 [ ] Setup CI environment
-[ ] Fix automated test suite
 [ ] Make image work with cmd + v (small) 
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
-[ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
-[ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 [ ] Add Stripe integration for payments.
-[ ] Fix the deployment as it's failing for some reason in vercel and render.
 [ ] Build the next version of my task manager.
-[ ] Need to handle large images because it times out with 400 error. Make images smaller maybe.
-
-Doing
 [ ] Test the entire backend
 [ ] Setup E2E testing
 [ ] Fix frontend tests
+[ ] Tell it to use Tailwind for styling. 
+[ ] Generate a style guide or template.
+
+Today
+[ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
+[ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
+[ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
+[ ] Registering should give some feedback and a notice to verify email. (Small)
+[ ] Need to handle large images because it times out with 400 error. Make images smaller maybe.
+
+Doing
+[ ] Fix the deployment as it's failing for some reason in vercel and render.
 
 Done
 [x] Add a complete project rule teaching the LLM to use Github.

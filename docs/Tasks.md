@@ -15,8 +15,6 @@ To-Do (Rest)
 [ ] Fix frontend tests
 [ ] Tell it to use Tailwind for styling. 
 [ ] Generate a style guide or template.
-
-Today
 [ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)

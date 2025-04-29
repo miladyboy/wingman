@@ -1,8 +1,10 @@
 {
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "husky": "^9.1.7"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "start:all": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\""
   }
 }

@@ -1,0 +1,56 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+### Cursor Rule — Dependency Installation in a Monorepo
+
+**Scope**  
+You are working in a monorepo that has two top-level folders:
+
+
+Each folder maintains its own `package.json`.
+
+---
+
+#### Standard workflow
+
+| Task | Command | Notes |
+|------|---------|-------|
+| Install a dependency for **backend** only | `npm install --prefix backend <package>` | Never `cd` into `/backend`; always use `--prefix`. |
+| Install a dependency for **frontend** only | `npm install --prefix frontend <package>` | Same rule: stay at the repo root and use `--prefix`. |
+
+---
+
+#### Root-level installs (exceptional)
+
+Root installs are **strongly discouraged**. They are permitted **only** when a tool must operate across the entire repo (e.g., Husky git hooks).
+
+Before installing anything at the root, you **must**:
+
+1. Post a brief justification in the chat explaining  
+   - **why** the package cannot live inside `/backend` or `/frontend`, and  
+   - **how** it benefits both sides of the monorepo.  
+2. Wait for explicit approval (or at minimum ensure there is no objection).  
+3. Then run `npm install <package>` at the repo root.
+
+If these conditions are not met, default to folder-scoped installation.
+
+---
+
+**Quick checklist for every install**
+
+1. Does the package belong solely to backend? → use `--prefix backend`.  
+2. Does it belong solely to frontend? → use `--prefix frontend`.  
+3. Does it truly need to be shared by both? → follow the root-install protocol above.  
+4. Document your decision in the chat.
+
+Follow this rule **exactly**; avoid assumptions or shortcuts.
+
+
+
+
+
+You are working in a monorepo with separate /backend and /frontend folders. You should install their dependencies in their respective folders with `npm install --prefix frontend` or `npm install --prefix frontend` 
+
+It's rare that you have to install a dependency in the root directoy. Justify it clearly when you do and with its rationale in the chat. It should only be used for tools like Husky that run both in frontend and backend.

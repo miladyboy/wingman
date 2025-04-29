@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Request, Response } from 'express';
 import { OpenAIService } from '../services/openaiService';
@@ -189,6 +189,10 @@ export async function analyze(req: Request, res: Response): Promise<void> {
     try {
         // --- Extract Auth Token ---
         const userId = await getUserIdFromAuthHeader(req.headers.authorization, supabaseAdmin);
+        if (!userId) {
+            res.status(401).json({ error: 'Unauthorized: user authentication required.' });
+            return;
+        }
 
         // --- Extract Text and Files ---
         let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[];

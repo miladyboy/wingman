@@ -6,23 +6,23 @@ import { CheckCircle2, UserPlus, Image, Sparkles, Brain } from "lucide-react";
 
 export default function LandingPage({ onRequestAccess }) {
   return (
-    <main className="bg-black min-h-screen font-sans">
+    <main className="bg-background min-h-screen font-sans text-foreground">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-black via-[#0a0a23] to-[#1a1a2e] text-white py-24 px-4 text-center">
+      <section className="bg-background text-foreground py-24 px-4 text-center border-b border-border">
         <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
           Master the Game. Stay in Control.
         </h1>
-        <p className="text-lg md:text-2xl mb-8 max-w-xl mx-auto opacity-80">
+        <p className="text-lg md:text-2xl mb-8 max-w-xl mx-auto opacity-80 text-muted-foreground">
           Unlock elite dating strategy with private, AI-powered guidance.<br />
           Discreet. Tactical. Unmatched.
         </p>
-        <Button size="lg" className="bg-gradient-to-r from-blue-900 to-indigo-800 text-white shadow-lg hover:from-indigo-800 hover:to-blue-900" onClick={onRequestAccess}>
+        <Button size="lg" className="bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90" onClick={onRequestAccess}>
           Request Access
         </Button>
       </section>
 
       {/* The Harem Advantage */}
-      <section className="bg-[#10101a] text-white py-16 px-4">
+      <section className="bg-card text-foreground py-16 px-4 border-b border-border">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-semibold mb-6 text-center">The Harem Advantage</h2>
           <ul className="space-y-5">
@@ -34,7 +34,7 @@ export default function LandingPage({ onRequestAccess }) {
               'Designed for men who demand results, privacy, and an edge.',
             ].map((adv, i) => (
               <li key={i} className="flex items-start gap-3">
-                <CheckCircle2 className="text-indigo-400 mt-1" />
+                <CheckCircle2 className="text-primary mt-1" />
                 <span className="text-lg">{adv}</span>
               </li>
             ))}
@@ -43,26 +43,26 @@ export default function LandingPage({ onRequestAccess }) {
       </section>
 
       {/* How It Works */}
-      <section className="bg-[#181828] text-white py-16 px-4">
+      <section className="bg-accent text-foreground py-16 px-4 border-b border-border">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-semibold mb-8 text-center">How It Works</h2>
           <div className="flex flex-col md:flex-row gap-8 justify-center">
             {[
               {
-                icon: <UserPlus className="w-8 h-8 text-indigo-400" />, title: "Create a Thread", desc: "Start a private case file for each connection."
+                icon: <UserPlus className="w-8 h-8 text-primary" />, title: "Create a Thread", desc: "Start a private case file for each connection."
               },
               {
-                icon: <Image className="w-8 h-8 text-indigo-400" />, title: "Upload a Photo or Chat", desc: "Add a social photo or your chat history—just drop it in."
+                icon: <Image className="w-8 h-8 text-primary" />, title: "Upload a Photo or Chat", desc: "Add a social photo or your chat history—just drop it in."
               },
               {
-                icon: <Sparkles className="w-8 h-8 text-indigo-400" />, title: "Get Personalized Strategy", desc: "Instantly receive tailored advice and next moves from your AI strategist."
+                icon: <Sparkles className="w-8 h-8 text-primary" />, title: "Get Personalized Strategy", desc: "Instantly receive tailored advice and next moves from your AI strategist."
               },
             ].map((step, i) => (
-              <Card key={i} className="bg-[#23233a] border-none shadow-lg flex-1">
+              <Card key={i} className="bg-card border border-border shadow-lg flex-1">
                 <CardContent className="flex flex-col items-center py-8">
                   {step.icon}
                   <h3 className="text-xl font-bold mt-4 mb-2">{step.title}</h3>
-                  <p className="text-base opacity-80 text-center">{step.desc}</p>
+                  <p className="text-base opacity-80 text-center text-muted-foreground">{step.desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -71,11 +71,11 @@ export default function LandingPage({ onRequestAccess }) {
       </section>
 
       {/* AI-Driven Strategy */}
-      <section className="bg-gradient-to-b from-[#181828] to-[#10101a] text-white py-16 px-4">
+      <section className="bg-background text-foreground py-16 px-4 border-b border-border">
         <div className="max-w-2xl mx-auto text-center">
-          <Brain className="w-12 h-12 mx-auto text-indigo-400 mb-4" />
+          <Brain className="w-12 h-12 mx-auto text-primary mb-4" />
           <h2 className="text-3xl font-semibold mb-4">AI-Driven Strategy</h2>
-          <p className="text-lg opacity-90">
+          <p className="text-lg opacity-90 text-muted-foreground">
             Harem's AI isn't just smart—it's tactical.<br />
             It reads between the lines, senses shifts in mood, and calculates the perfect timing for your next move.<br />
             Whether you need to escalate, cool off, or re-engage, Harem's advice is always discreet, always on your side, and always tailored to your style.
@@ -84,7 +84,7 @@ export default function LandingPage({ onRequestAccess }) {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-[#10101a] text-white py-16 px-4">
+      <section className="bg-card text-foreground py-16 px-4 border-b border-border">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-semibold mb-8 text-center">What Users Say</h2>
           <div className="flex flex-col md:flex-row gap-8">
@@ -102,10 +102,10 @@ export default function LandingPage({ onRequestAccess }) {
                 name: "Daniel, 27",
               },
             ].map((t, i) => (
-              <Card key={i} className="bg-[#181828] border-none shadow-lg flex-1">
+              <Card key={i} className="bg-accent border border-border shadow-lg flex-1">
                 <CardContent className="py-8 px-6 flex flex-col items-center">
                   <p className="text-lg italic mb-4">"{t.quote}"</p>
-                  <span className="text-indigo-300 font-semibold">{t.name}</span>
+                  <span className="text-primary font-semibold">{t.name}</span>
                 </CardContent>
               </Card>
             ))}
@@ -114,7 +114,7 @@ export default function LandingPage({ onRequestAccess }) {
       </section>
 
       {/* FAQ */}
-      <section className="bg-[#181828] text-white py-16 px-4">
+      <section className="bg-accent text-foreground py-16 px-4 border-b border-border">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-semibold mb-8 text-center">FAQ</h2>
           <Accordion type="single" collapsible>
@@ -134,7 +134,7 @@ export default function LandingPage({ onRequestAccess }) {
             ].map((faq, i) => (
               <AccordionItem key={i} value={`faq-${i}`}>
                 <AccordionTrigger className="text-lg">{faq.q}</AccordionTrigger>
-                <AccordionContent className="text-base opacity-80">{faq.a}</AccordionContent>
+                <AccordionContent className="text-base opacity-80 text-muted-foreground">{faq.a}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -142,9 +142,9 @@ export default function LandingPage({ onRequestAccess }) {
       </section>
 
       {/* Final CTA */}
-      <section className="bg-gradient-to-r from-[#0a0a23] to-[#181828] text-white py-20 px-4 text-center">
+      <section className="bg-background text-foreground py-20 px-4 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-6">Level up your game. Join Harem today.</h2>
-        <Button size="lg" className="bg-gradient-to-r from-blue-900 to-indigo-800 text-white shadow-lg hover:from-indigo-800 hover:to-blue-900" onClick={onRequestAccess}>
+        <Button size="lg" className="bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90" onClick={onRequestAccess}>
           Request Access
         </Button>
       </section>

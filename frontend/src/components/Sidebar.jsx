@@ -33,9 +33,9 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
   };
 
   return (
-    <div className="w-64 bg-gray-800 text-white flex flex-col h-full shadow-lg">
+    <div className="w-64 bg-background text-foreground flex flex-col h-full shadow-lg border-r border-border">
       {/* Header / New Chat Button */}
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4 border-b border-border">
         <Button
           onClick={onNewThread}
           className="w-full font-bold"
@@ -49,11 +49,11 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         {threads.map((thread) => (
           <div
             key={thread.id}
-            className={`group flex items-center justify-between p-2 rounded cursor-pointer transition duration-150 ease-in-out ${
-              activeThreadId && activeThreadId === thread.id
-                ? 'bg-gray-700'
-                : 'hover:bg-gray-700/50'
-            }`}
+            className={`group flex items-center justify-between p-2 rounded cursor-pointer transition duration-150 ease-in-out
+              ${activeThreadId && activeThreadId === thread.id
+                ? 'bg-primary/20'
+                : 'hover:bg-accent/30'}
+            `}
             onClick={() => editingThreadId !== thread.id && onSelectThread(thread.id)} // Don't select if editing
           >
             {editingThreadId === thread.id ? (
@@ -64,14 +64,14 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="flex-grow bg-gray-600 text-white px-2 py-1 rounded mr-1 text-sm"
+                  className="flex-grow bg-input text-foreground px-2 py-1 rounded mr-1 text-sm border border-border"
                   autoFocus
                 />
                 <Button
                   size="icon"
                   variant="ghost"
                   onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }}
-                  className="text-green-400 hover:text-green-300"
+                  className="text-green-500 hover:text-green-400"
                   aria-label="Save name"
                 >
                   <CheckIcon className="h-4 w-4" />
@@ -80,7 +80,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   size="icon"
                   variant="ghost"
                   onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }}
-                  className="text-red-400 hover:text-red-300"
+                  className="text-red-500 hover:text-red-400"
                   aria-label="Cancel rename"
                 >
                   <XMarkIcon className="h-4 w-4" />
@@ -96,7 +96,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   size="icon"
                   variant="ghost"
                   onClick={(e) => { e.stopPropagation(); handleStartEdit(thread); }}
-                  className="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                   aria-label="Rename chat"
                 >
                   <PencilIcon className="h-4 w-4" />
@@ -105,7 +105,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   size="icon"
                   variant="ghost"
                   onClick={(e) => { e.stopPropagation(); onDeleteThread && onDeleteThread(thread.id); }}
-                  className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-1"
+                  className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-1"
                   aria-label="Delete chat"
                 >
                   <span role="img" aria-label="Delete">🗑️</span>
@@ -115,20 +115,20 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
           </div>
         ))}
         {threads.length === 0 && (
-           <p className="text-center text-gray-500 text-sm mt-4 px-2">No chats yet.</p>
+           <p className="text-center text-muted-foreground text-sm mt-4 px-2">No chats yet.</p>
         )}
       </nav>
 
       {/* --- User Info & Logout --- */}
-      <div className="p-4 border-t border-gray-700 mt-auto">
+      <div className="p-4 border-t border-border mt-auto">
         {user && (
-          <div className="text-sm text-gray-400 mb-2 truncate" title={user.email}>
+          <div className="text-sm text-muted-foreground mb-2 truncate" title={user.email}>
             Logged in as: {user.username || user.email}
           </div>
         )}
         <Button
           onClick={onLogout}
-          className="w-full flex items-center justify-center font-bold text-sm bg-red-600 hover:bg-red-700"
+          className="w-full flex items-center justify-center font-bold text-sm bg-destructive hover:bg-destructive/80 text-destructive-foreground"
         >
           <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
           Logout

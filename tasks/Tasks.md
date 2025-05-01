@@ -1,4 +1,6 @@
 To-Do (Rest)
+[ ] Agregar para que recuerde tu sesion opcionalmente
+[ ] Agregar Dark/Light theme
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
 [ ] Upload user chats to mimic their style. (Mid)
 [ ] Build a React Native app for mobile. (Hard)
@@ -13,19 +15,19 @@ To-Do (Rest)
 [ ] Test the entire backend
 [ ] Setup E2E testing
 [ ] Fix frontend tests
-[ ] Tell it to use Tailwind for styling. 
-[ ] Generate a style guide or template.
 [ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
 [ ] Registering should give some feedback and a notice to verify email. (Small)
 [ ] Need to handle large images because it times out with 400 error. Make images smaller maybe.
-[ ] Mejorar el "procesing" ese que aparece mientras el bot piensa. Es demasiado robotico.
 [ ] Add "global data" preferences for the guy, what they're looking for, ways to connect to the girls with commonalities.
 [ ] The last chat you interacted with should move to the top on the left.
+[ ] Hacer que el bot responda en Markdown.
+[ ] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
 
 Doing
-
+[ ] Improve all the styling of the site.
+[ ] Perfect the landing content. 
 
 Done
 [x] Implementar API de streaming
@@ -53,3 +55,6 @@ Done
 [x] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
 [x] Pasar backend a typescript.
 [x] Fix the deployment as it's failing for some reason in vercel and render.
+[x] Generate a style guide or template
+[x] Sacarle las bubbles de text a la respuesta del agente.
+[x] Mejorar el "procesing" ese que aparece mientras el bot piensa. Es demasiado robotico.

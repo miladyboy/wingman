@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { PaperClipIcon, PhotoIcon, XCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { PhotoIcon, XCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -114,12 +114,12 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg border border-gray-200">
+    <div className="p-4 bg-card rounded-lg border border-border">
       <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col">
         {imagePreviews.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
             {imagePreviews.map((preview) => (
-              <div key={preview.id} className="relative group w-24 h-24 border border-gray-200 rounded overflow-hidden">
+              <div key={preview.id} className="relative group w-24 h-24 border border-border rounded overflow-hidden">
                 <img
                   src={preview.url}
                   alt={`Preview ${preview.name}`}
@@ -130,7 +130,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
                   onClick={() => handleRemoveImage(preview.id)}
                   size="icon"
                   variant="ghost"
-                  className="absolute top-0.5 right-0.5 bg-black/50 text-white rounded-full p-0.5 hover:bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-0.5 right-0.5 bg-background/80 text-foreground rounded-full p-0.5 hover:bg-background/90 opacity-0 group-hover:opacity-100 transition-opacity"
                   aria-label={`Remove image ${preview.name}`}
                   disabled={disabled}
                 >
@@ -144,7 +144,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
         {/* Textarea as Dropzone */}
         <div
           {...getRootProps()}
-          className={`mb-3 relative rounded-lg transition-colors ${isDragActive ? 'border-2 border-indigo-500 bg-indigo-50' : ''}`}
+          className={`mb-3 relative rounded-lg transition-colors border border-border ${isDragActive ? 'border-primary bg-primary/10' : ''}`}
         >
           <input {...getInputProps()} />
         <Textarea
@@ -154,11 +154,11 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
           rows={3}
           disabled={disabled}
-            className={`w-full ${isDragActive ? 'border-indigo-500 bg-indigo-50' : ''}`}
+            className={`w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 ${isDragActive ? 'bg-primary/10' : ''}`}
           />
           {isDragActive && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-indigo-600 font-medium text-lg">Drop images here…</span>
+              <span className="text-primary font-medium text-lg">Drop images here…</span>
             </div>
           )}
         </div>
@@ -180,7 +180,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             onClick={() => fileInputRef.current?.click()}
             size="icon"
             variant="ghost"
-            className="text-gray-500 hover:text-indigo-600"
+            className="text-muted-foreground hover:text-primary"
             disabled={disabled}
             aria-label="Attach image(s)"
           >
@@ -189,7 +189,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
 
           <Button
             type="submit"
-            className="font-semibold flex items-center gap-2"
+            className="font-semibold flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={disabled || (selectedFiles.length === 0 && !text.trim())}
           >
             Send

@@ -2,6 +2,7 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import ChatHistory from './ChatHistory';
 import UploadComponent from './UploadComponent';
+import LoadingDots from './LoadingDots';
 
 export default function MainApp({
   profile,
@@ -22,9 +23,9 @@ export default function MainApp({
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-background">
       <Sidebar
-        threads={isNewChat ? conversations.map(c => ({ id: c.id, name: c.title })) : conversations.map(c => ({ id: c.id, name: c.title }))}
+        threads={isNewChat ? conversations.map(c => ({ id: c.id, name: c.title })) : conversations.map(c => ({ id: c.id, name: c.title }) )}
         activeThreadId={isNewChat ? null : activeConversationId}
         onSelectThread={setActiveConversationId}
         onNewThread={handleNewThread}
@@ -36,14 +37,14 @@ export default function MainApp({
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeConversation && (
-          <div className="bg-white p-4 border-b border-gray-300 shadow-sm flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-800">{activeConversation.title}</h2>
+          <div className="bg-card p-4 border-b border-border shadow-sm flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-foreground">{activeConversation.title}</h2>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
           {isNewChat ? (
-            <div className="text-center text-gray-500 pt-10">
+            <div className="text-center text-muted-foreground pt-10">
               Start your new conversation by sending a message.
             </div>
           ) : activeConversationId ? (
@@ -55,18 +56,28 @@ export default function MainApp({
               timestamp: new Date(m.created_at).getTime()
             }))} />
           ) : (
-            <div className="text-center text-gray-500 pt-10">
+            <div className="text-center text-muted-foreground pt-10">
               Select a conversation or start a new one.
             </div>
           )}
           {loadingMessages && (
-            <div className="text-center py-4 text-gray-600">Loading messages...</div>
+            <div className="text-center py-4 text-muted-foreground">Loading messages...</div>
           )}
-          {loading && !loadingMessages && (
-            <div className="text-center py-4 text-gray-600">Processing...</div>
-          )}
+          {loading && !loadingMessages && (() => {
+            // Find the latest agent message (role/sender !== 'user')
+            const lastAgentMsg = [...messages].reverse().find(m => (m.role !== 'user' && m.sender !== 'user'));
+            const agentHasContent = lastAgentMsg && lastAgentMsg.content && lastAgentMsg.content.trim().length > 0;
+            if (agentHasContent) return null;
+            return (
+              <div className="flex justify-start">
+                <div className="max-w-lg lg:max-w-xl px-4 py-3 text-foreground">
+                  <LoadingDots />
+                </div>
+              </div>
+            );
+          })()}
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded relative mb-4" role="alert">
               <strong className="font-bold">Error: </strong>
               <span className="block sm:inline">{error}</span>
             </div>
@@ -74,7 +85,7 @@ export default function MainApp({
         </div>
 
         {isNewChat || activeConversationId ? (
-          <div className="p-4 border-t border-gray-300 bg-white">
+          <div className="p-4 border-t border-border bg-card">
             <UploadComponent onSendMessage={handleSendMessage} disabled={loading} />
           </div>
         ) : null}

@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import UploadComponent from './components/UploadComponent'
-import ChatHistory from './components/ChatHistory'
-import Sidebar from './components/Sidebar'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { supabase } from './supabaseClient'
 import Auth from './components/Auth'
 import LandingPage from './components/LandingPage'
 import MainApp from './components/MainApp'
 import './index.css'
-import { Button } from "@/components/ui/button"
 
 function RequireAuth({ session, children }) {
   const location = useLocation();

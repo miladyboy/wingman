@@ -70,26 +70,28 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-muted">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">{isRegistering ? 'Register' : 'Sign In'}</CardTitle>
-          <CardDescription className="text-center">
+    <div className="flex justify-center items-center min-h-screen bg-background">
+      <Card className="w-full max-w-md border border-accent shadow-xl bg-card">
+        <CardHeader className="bg-primary rounded-t-xl p-6 mb-2 shadow-md">
+          <CardTitle className="text-center text-2xl font-sans text-primary-foreground">
+            {isRegistering ? 'Register' : 'Sign In'}
+          </CardTitle>
+          <CardDescription className="text-center text-primary-foreground mt-1">
             {isRegistering ? 'Create a new account' : 'Sign in to your account'} via email and password
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="py-6 px-6 flex flex-col gap-4">
           {formError && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="mb-2">
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{formError}</AlertDescription>
             </Alert>
           )}
-          <form onSubmit={handleAuth} className="flex flex-col gap-4">
+          <form onSubmit={handleAuth} className="flex flex-col gap-5">
             {isRegistering && (
               <>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="username">Username</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="username" className="text-foreground font-medium">Username</Label>
                   <Input
                     id="username"
                     type="text"
@@ -98,10 +100,11 @@ export default function Auth() {
                     required
                     minLength={3}
                     onChange={(e) => setUsername(e.target.value)}
+                    className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="inviteCode">Invite Code</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="inviteCode" className="text-foreground font-medium">Invite Code</Label>
                   <Input
                     id="inviteCode"
                     type="text"
@@ -109,6 +112,7 @@ export default function Auth() {
                     value={inviteCode}
                     required
                     onChange={(e) => setInviteCode(e.target.value)}
+                    className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
                   />
                   {inviteError && (
                     <Alert variant="destructive" className="mt-2">
@@ -118,8 +122,8 @@ export default function Auth() {
                 </div>
               </>
             )}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Email</Label>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email" className="text-foreground font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -127,10 +131,11 @@ export default function Auth() {
                 value={email}
                 required
                 onChange={(e) => setEmail(e.target.value)}
+                className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password" className="text-foreground font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -139,9 +144,10 @@ export default function Auth() {
                 required
                 minLength={6}
                 onChange={(e) => setPassword(e.target.value)}
+                className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
               />
             </div>
-            <Button type="submit" className="w-full mt-2" disabled={loading}>
+            <Button type="submit" className="w-full mt-2 bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90 transition-colors duration-200" disabled={loading}>
               {loading ? 'Loading...' : isRegistering ? 'Register' : 'Sign In'}
             </Button>
           </form>
@@ -153,7 +159,7 @@ export default function Auth() {
               setFormError("");
               setInviteError("");
             }}
-            className="w-full mt-4"
+            className="w-full mt-2 text-primary underline-offset-4 hover:underline"
           >
             {isRegistering ? 'Already have an account? Sign In' : 'Need an account? Register'}
           </Button>

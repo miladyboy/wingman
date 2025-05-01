@@ -281,33 +281,46 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                 ? `${msg.content}\n[Image Description: ${msg.imageDescription}]`
                 : msg.content;
         }).join('\n---\n');
-        const conversation = [
-            {
-                role: 'system',
-                content: systemPrompt()
-            },
-            // Keep history as separate messages for context
-            ...((history || []).map((msg: any) => ({
-                role: msg.role,
-                content: msg.imageDescription ? `${msg.content}\n[Image Description: ${msg.imageDescription}]` : msg.content
-            })) as any[]),
-            {
-                role: 'user',
-                content: userPrompt({
-                    history: historyString,
-                    message: newMessageText,
-                    imageDescription: generatedImageDescription ?? undefined
-                })
+        const prompt = [
+            systemPrompt(),
+            userPrompt({
+                history: historyString,
+                message: newMessageText,
+                imageDescription: generatedImageDescription ?? undefined
+            })
+        ].join('\n\n');
+
+        // --- Stream OpenAI response to client ---
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.flushHeaders();
+
+        let aiResponseBuffer = '';
+        try {
+            await openaiClient.streamChatCompletion(prompt, (text) => {
+                aiResponseBuffer += text;
+                res.write(`data: ${JSON.stringify({ text, done: false })}\n\n`);
+            });
+            res.write(`data: ${JSON.stringify({ text: '', done: true })}\n\n`);
+            // Save the full AI message to the database
+            if (savedMessage && aiResponseBuffer.trim()) {
+                try {
+                    await supabaseAdmin.from('messages').insert({
+                        conversation_id: savedMessage.conversation_id,
+                        sender: 'ai',
+                        content: aiResponseBuffer.trim(),
+                    });
+                } catch (saveErr) {
+                    // Log but do not interrupt the client
+                    console.error('Failed to save AI message:', saveErr);
+                }
             }
-        ];
-        const suggestions = await generateSuggestions(conversation);
-        const responsePayload = {
-            suggestions,
-            nickname: generatedNickname,
-            savedMessage: savedMessage,
-            imageUrls: imageUrlsForFrontend
-        };
-        res.json(responsePayload);
+            res.end();
+        } catch (err) {
+            res.write(`data: ${JSON.stringify({ text: 'Error streaming response', done: true })}\n\n`);
+            res.end();
+        }
     } catch (error: any) {
         res.status(500).json({ error: 'Failed to analyze message', details: error.message });
     }

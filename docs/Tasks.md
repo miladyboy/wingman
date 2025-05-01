@@ -20,11 +20,15 @@ To-Do (Rest)
 [ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
 [ ] Registering should give some feedback and a notice to verify email. (Small)
 [ ] Need to handle large images because it times out with 400 error. Make images smaller maybe.
+[ ] Mejorar el "procesing" ese que aparece mientras el bot piensa. Es demasiado robotico.
+[ ] Add "global data" preferences for the guy, what they're looking for, ways to connect to the girls with commonalities.
+[ ] The last chat you interacted with should move to the top on the left.
 
 Doing
-[ ] Fix the deployment as it's failing for some reason in vercel and render.
+
 
 Done
+[x] Implementar API de streaming
 [x] Add a complete project rule teaching the LLM to use Github.
 [x] Agregar automated testing a alguna parte del backend (testing)
 [x] Make image upload a drag-and-drop zone too. (Small)
@@ -48,3 +52,4 @@ Done
 [x] Name editing is not working.
 [x] I should be able to delete a conversation and it should delete everything in the database. (Small)(Important)
 [x] Pasar backend a typescript.
+[x] Fix the deployment as it's failing for some reason in vercel and render.

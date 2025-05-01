@@ -176,7 +176,6 @@ function AppRouter() {
   const handleSendMessage = useCallback(async (formData) => {
     let currentConversationId = activeConversationId;
     if (currentConversationId === 'new') {
-      // Create the conversation first
       setLoading(true);
       setError(null);
       try {
@@ -195,7 +194,6 @@ function AppRouter() {
           throw new Error("Failed to create conversation: No data returned.");
         }
       } catch (error) {
-        console.error("Error creating new conversation:", error);
         setError(`Could not start a new conversation: ${error.message}`);
         setLoading(false);
         return;
@@ -209,121 +207,118 @@ function AppRouter() {
       return;
     }
 
-    console.log('[Frontend] handleSendMessage called with FormData:');
-    for (let [key, value] of formData.entries()) {
-        console.log(`  ${key}:`, value instanceof File ? `${value.name} (${value.size} bytes)` : value);
+    // Optimistically add the user message to the UI immediately
+    const optimisticId = `user-${Date.now()}`;
+    const optimisticImageUrls = [];
+    if (formData.getAll('images').length > 0) {
+      // Create object URLs for previews
+      for (const file of formData.getAll('images')) {
+        if (file instanceof File) {
+          optimisticImageUrls.push(URL.createObjectURL(file));
+        }
+      }
     }
+    const optimisticUserMessage = {
+      id: optimisticId,
+      sender: 'user',
+      content: formData.get('newMessageText'),
+      imageUrls: optimisticImageUrls,
+      optimistic: true,
+    };
+    setMessages(prevMessages => [...prevMessages, optimisticUserMessage]);
+
     const historyJson = JSON.stringify(messages.map(m => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content
+      role: m.sender === 'user' ? 'user' : 'assistant',
+      content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content
     })));
     formData.append('historyJson', historyJson);
-    console.log('  historyJson:', historyJson);
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
-    let backendResponseData = null
+    let assistantMessageId = `ai-${Date.now()}`;
+    let assistantMessageContent = '';
+    let streamingError = null;
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-        
-      console.log(`[Frontend] Sending FormData request to backend URL: ${backendUrl}/analyze`);
-
       const response = await fetch(`${backendUrl}/analyze`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: formData,
-      })
-
+      });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown backend error' }))
-        console.error('[Frontend] Backend failed:', { status: response.status, data: errorData })
-        throw new Error(errorData.details || errorData.error || `Backend Error: ${response.statusText}`)
+        const errorData = await response.json().catch(() => ({ error: 'Unknown backend error' }));
+        throw new Error(errorData.details || errorData.error || `Backend Error: ${response.statusText}`);
       }
-      backendResponseData = await response.json()
-      console.log('[Frontend] Received response from backend:', backendResponseData);
-
-      if (!backendResponseData || !backendResponseData.suggestions || !backendResponseData.savedMessage) {
-         console.error("[Frontend] Invalid backend response structure:", backendResponseData);
-         throw new Error("Received incomplete data from backend.");
-      }
-
-    } catch (error) {
-      console.error('[Frontend] Error sending message to backend:', error)
-      setError(`Backend communication error: ${error.message}.`)
-      setLoading(false)
-      return
-    }
-
-    try {
-      const savedUserMessage = { ...backendResponseData.savedMessage };
-      savedUserMessage.imageUrls = backendResponseData.imageUrls || [];
-
-      const assistantMessageContent = backendResponseData.suggestions.join('\n\n---\n\n')
-      const assistantMessageForDb = {
-        conversation_id: savedUserMessage.conversation_id,
-        sender: 'ai',
-        content: assistantMessageContent,
-      }
-
-      console.log('[Frontend] Preparing to insert AI message into Supabase:', assistantMessageForDb);
-      console.log('[Frontend] Adding user message (from backend response) and AI message to local state.');
-
-      const { data: insertedAiMessages, error: insertError } = await supabase
-        .from('messages')
-        .insert([assistantMessageForDb])
-        .select()
-
-      if (insertError) throw insertError
-
-      console.log('[Frontend] AI message inserted successfully:', insertedAiMessages);
-
-      const messagesToAdd = [savedUserMessage];
-      if (insertedAiMessages && insertedAiMessages.length > 0) {
-          messagesToAdd.push(...insertedAiMessages);
-      } else {
-          console.warn("AI Message inserted but not returned, AI response might not show until refresh");
-      }
-      setMessages(prevMessages => [...prevMessages, ...messagesToAdd]);
-
-      const firstMessage = messages.length === 0;
-      if (firstMessage && backendResponseData.nickname) {
-        console.log(`[Frontend] Updating conversation ${currentConversationId} title to: ${backendResponseData.nickname}`);
-        const { error: updateError } = await supabase
-          .from('conversations')
-          .update({ title: backendResponseData.nickname, updated_at: new Date().toISOString() })
-          .eq('id', currentConversationId)
-
-        if (updateError) {
-            console.error("[Frontend] Error updating conversation title:", updateError);
-        } else {
-            setConversations(prev => prev.map(c =>
-              c.id === currentConversationId ? { ...c, title: backendResponseData.nickname, updated_at: new Date().toISOString() } : c
-            ))
-        }
-      } else {
-        console.log(`[Frontend] Updating conversation ${currentConversationId} timestamp.`);
-        const { error: updateTsError } = await supabase
-          .from('conversations')
-          .update({ updated_at: new Date().toISOString() })
-          .eq('id', currentConversationId)
-        if (updateTsError) {
-            console.warn("[Frontend] Failed to explicitly update timestamp:", updateTsError);
-        } else {
-            setConversations(prev => prev.map(c =>
-              c.id === currentConversationId ? { ...c, updated_at: new Date().toISOString() } : c
-            ))
+      // Streaming logic
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let done = false;
+      let buffer = '';
+      // Add a placeholder for the assistant message
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { id: assistantMessageId, sender: 'ai', content: '', imageUrls: [] }
+      ]);
+      while (!done) {
+        const { value, done: streamDone } = await reader.read();
+        done = streamDone;
+        buffer += value ? decoder.decode(value, { stream: true }) : '';
+        let eolIndex;
+        while ((eolIndex = buffer.indexOf('\n\n')) !== -1) {
+          const raw = buffer.slice(0, eolIndex).trim();
+          buffer = buffer.slice(eolIndex + 2);
+          if (raw.startsWith('data:')) {
+            try {
+              const event = JSON.parse(raw.replace(/^data:/, '').trim());
+              if (event.text !== undefined) {
+                if (!event.done) {
+                  assistantMessageContent += event.text;
+                  setMessages(prevMessages => prevMessages.map(msg =>
+                    msg.id === assistantMessageId
+                      ? { ...msg, content: assistantMessageContent }
+                      : msg
+                  ));
+                }
+              }
+              if (event.done) {
+                // Optionally, handle any finalization here
+                break;
+              }
+            } catch (err) {
+              streamingError = err;
+              break;
+            }
+          }
         }
       }
+      // Finalize the assistant message
+      setMessages(prevMessages => prevMessages.map(msg =>
+        msg.id === assistantMessageId
+          ? { ...msg, content: assistantMessageContent }
+          : msg
+      ));
+      // Remove the optimistic flag from the user message (or replace with real message if backend returns it)
+      setMessages(prevMessages => prevMessages.map(msg =>
+        msg.id === optimisticId ? { ...msg, optimistic: false } : msg
+      ));
+      // Clean up object URLs
+      optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
     } catch (error) {
-      console.error('Error saving AI message or updating conversation:', error)
-      setError(`Failed to save AI response or update conversation: ${error.message}`)
+      setError(`Backend communication error: ${error.message}.`);
+      streamingError = error;
+      // Mark the optimistic message as failed
+      setMessages(prevMessages => prevMessages.map(msg =>
+        msg.id === optimisticId ? { ...msg, failed: true } : msg
+      ));
+      // Clean up object URLs
+      optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [activeConversationId, session, messages])
+  }, [activeConversationId, session, messages]);
 
   const handleRenameThread = useCallback(async (conversationId, newName) => {
     const trimmedName = newName.trim()

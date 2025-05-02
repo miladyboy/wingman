@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import ChatHistory from './ChatHistory';
 import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
+import { useNavigate } from 'react-router-dom';
 
 export default function MainApp({
   profile,
@@ -21,6 +22,12 @@ export default function MainApp({
 }) {
   const isNewChat = activeConversationId === 'new';
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -32,7 +39,7 @@ export default function MainApp({
         onRenameThread={handleRenameThread}
         onDeleteThread={handleDeleteConversation}
         user={profile}
-        onLogout={() => supabase.auth.signOut()}
+        onLogout={handleLogout}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">

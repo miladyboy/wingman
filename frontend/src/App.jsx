@@ -465,7 +465,7 @@ function AppRouter() {
     const [error, setError] = useState(null);
     const handleLogout = async () => {
       await supabase.auth.signOut();
-      navigate('/auth');
+      navigate('/');
     };
     const handleSubscribe = async () => {
       setLoading(true);
@@ -475,7 +475,7 @@ function AppRouter() {
         if (!session) {
           setError('You must be logged in.');
           setLoading(false);
-          navigate('/auth');
+          navigate('/');
           return;
         }
         const res = await fetch('/api/payments/create-checkout-session', {

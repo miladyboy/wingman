@@ -4,29 +4,35 @@ import { Card, CardContent } from "./ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./ui/accordion";
 import { CheckCircle2, UserPlus, Image, Sparkles, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from '../supabaseClient';
 
-export default function LandingPage({ onRequestAccess }) {
+export default function LandingPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const handleStartTrial = async () => {
+  // Placeholder: Replace with real API call to check subscription
+  async function checkSubscriptionStatus(userId) {
+    // TODO: Replace with real backend call
+    // Example: const res = await fetch(`/api/subscription-status?userId=${userId}`)
+    // return (await res.json()).active;
+    return false; // Assume not subscribed for now
+  }
+
+  const handleStartChatting = async () => {
     setLoading(true);
-    try {
-      const res = await fetch("/api/payments/create-checkout-session", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setLoading(false);
-        alert("Failed to start trial. Please try again.");
-      }
-    } catch (e) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
       setLoading(false);
-      alert("Error connecting to payment service.");
+      navigate('/auth');
+      return;
+    }
+    // User is logged in, check subscription
+    const isSubscribed = await checkSubscriptionStatus(session.user.id);
+    setLoading(false);
+    if (isSubscribed) {
+      navigate('/app');
+    } else {
+      navigate('/subscribe');
     }
   };
 
@@ -43,10 +49,10 @@ export default function LandingPage({ onRequestAccess }) {
         <Button
           size="lg"
           className="bg-royal text-ivory hover:bg-royal/90 shadow-xl mb-0"
-          onClick={handleStartTrial}
+          onClick={handleStartChatting}
           disabled={loading}
         >
-          {loading ? "Redirecting..." : "Start Free 7-Day Trial – $20/mo"}
+          {loading ? "Loading..." : "Start Chatting"}
         </Button>
       </section>
 
@@ -114,7 +120,7 @@ export default function LandingPage({ onRequestAccess }) {
       {/* Final CTA */}
       <section className="bg-ivory text-royal py-20 px-4 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-6">Level up your game. Join Harem today.</h2>
-        <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={onRequestAccess}>
+        <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={handleStartChatting}>
           Request Access
         </Button>
       </section>

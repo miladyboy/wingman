@@ -1,0 +1,22 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rule — Smart Dependency Installation
+
+1. **New dependency**  
+   - Add with `npm install <pkg>@latest --save` **only if** it’s a fresh dependency.  
+   - Immediately run the tests; if any break, pin to the latest *compatible* major (`npm install <pkg>@x.y.z --save`).
+
+2. **Existing dependency upgrades**  
+   - Do **not** auto-upgrade to `@latest` during regular edits.  
+   - Instead trigger a manual upgrade routine (`npx npm-check-updates -u && npm install`) in a dedicated PR so CI can vet changes.
+
+3. **Lockfiles are sacred**  
+   - Always commit the lockfile (`package-lock.json`, `pnpm-lock.yaml`, etc.) so builds stay deterministic across machines.
+
+4. **Report**  
+   - Call out any new or upgraded packages (and their versions) in the “What I just tweaked” summary.
+
+> **Rule of thumb:** never let unreviewed major bumps slip into `main`.

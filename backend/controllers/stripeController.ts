@@ -36,6 +36,34 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 };
 
 /**
+ * Handler to check if the authenticated user has an active subscription.
+ * @param req Express request
+ * @param res Express response
+ */
+export const getSubscriptionStatus = async (req: Request, res: Response) => {
+  try {
+    const user = await getUserFromRequest(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    if (!supabaseAdmin) return res.status(500).json({ error: 'Supabase not configured' });
+    // Query the users table for is_paid
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('is_paid')
+      .eq('id', user.id)
+      .single();
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({ error: 'Failed to check subscription status' });
+    }
+    return res.json({ active: !!data?.is_paid });
+  } catch (err) {
+    console.error('Error checking subscription status:', err);
+    return res.status(500).json({ error: 'Failed to check subscription status' });
+  }
+};
+
+/**
  * Stub for extracting the authenticated user from the request.
  * Replace this with your actual Supabase Auth extraction logic.
  * @param req Express request

@@ -23,6 +23,45 @@ function RedirectIfAuth({ session, children }) {
   return children;
 }
 
+function RequireSubscription({ children }) {
+  const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+    async function check() {
+      try {
+        const res = await fetch('/api/payments/subscription-status', { credentials: 'include' });
+        const data = await res.json();
+        if (data.active) {
+          setActive(true);
+        } else {
+          navigate('/subscribe');
+        }
+      } catch (e) {
+        navigate('/subscribe');
+      } finally {
+        setLoading(false);
+      }
+    }
+    check();
+  }, [navigate]);
+  if (loading) return <div>Checking subscription...</div>;
+  if (!active) return null;
+  return children;
+}
+
+function Subscribe() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h2 className="text-2xl font-bold mb-4">Subscribe to Harem</h2>
+      <p className="mb-6">To access the app, please subscribe.</p>
+      <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90">
+        Subscribe
+      </Button>
+    </div>
+  );
+}
+
 function AppRouter() {
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -425,23 +464,26 @@ function AppRouter() {
             <Auth />
           </RedirectIfAuth>
         } />
+        <Route path="/subscribe" element={<Subscribe />} />
         <Route path="/app" element={
           <RequireAuth session={session}>
-            <MainApp
-              profile={profile}
-              conversations={conversations}
-              activeConversationId={activeConversationId}
-              setActiveConversationId={setActiveConversationId}
-              handleNewThread={handleNewThread}
-              handleRenameThread={handleRenameThread}
-              handleDeleteConversation={handleDeleteConversation}
-              messages={messages}
-              loading={loading}
-              loadingMessages={loadingMessages}
-              error={error}
-              handleSendMessage={handleSendMessage}
-              supabase={supabase}
-            />
+            <RequireSubscription>
+              <MainApp
+                profile={profile}
+                conversations={conversations}
+                activeConversationId={activeConversationId}
+                setActiveConversationId={setActiveConversationId}
+                handleNewThread={handleNewThread}
+                handleRenameThread={handleRenameThread}
+                handleDeleteConversation={handleDeleteConversation}
+                messages={messages}
+                loading={loading}
+                loadingMessages={loadingMessages}
+                error={error}
+                handleSendMessage={handleSendMessage}
+                supabase={supabase}
+              />
+            </RequireSubscription>
           </RequireAuth>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />

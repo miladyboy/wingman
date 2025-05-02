@@ -2,7 +2,7 @@ import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import analyzeRoutes from './routes/analyze';
-import inviteRoutes from './routes/invite';
+// import inviteRoutes from './routes/invite';
 import paymentsRoutes from './routes/payments';
 import stripeWebhookRoutes from './routes/stripeWebhook';
 
@@ -27,7 +27,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/analyze', analyzeRoutes);
-app.use('/api/validate-invite-code', inviteRoutes);
+// app.use('/api/validate-invite-code', inviteRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/stripe', stripeWebhookRoutes);
 

@@ -12,38 +12,13 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false); 
   const [username, setUsername] = useState(''); 
-  const [inviteCode, setInviteCode] = useState(''); 
-  const [inviteError, setInviteError] = useState(''); 
   const [formError, setFormError] = useState('');
-
-  const apiBase = import.meta.env.VITE_BACKEND_URL || '';
 
   const handleAuth = async (event) => {
     event.preventDefault();
     setLoading(true);
-    setInviteError('');
     setFormError('');
 
-    if (isRegistering) {
-      // Validate invite code first
-      try {
-        const response = await fetch(`${apiBase}/api/validate-invite-code`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: inviteCode })
-        });
-        const result = await response.json();
-        if (!result.valid) {
-          setInviteError(result.error || 'Invalid invite code.');
-          setLoading(false);
-          return;
-        }
-      } catch (e) {
-        setInviteError('Error validating invite code.');
-        setLoading(false);
-        return;
-      }
-    }
     const { data, error } = isRegistering
       ? await supabase.auth.signUp({
           email: email,
@@ -51,7 +26,6 @@ export default function Auth() {
           options: {
             data: {
               username: username,
-              invite_code: inviteCode,
             },
           },
         })
@@ -89,38 +63,19 @@ export default function Auth() {
           )}
           <form onSubmit={handleAuth} className="flex flex-col gap-5">
             {isRegistering && (
-              <>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="username" className="text-foreground font-medium">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Your username (min 3 chars)"
-                    value={username}
-                    required
-                    minLength={3}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="inviteCode" className="text-foreground font-medium">Invite Code</Label>
-                  <Input
-                    id="inviteCode"
-                    type="text"
-                    placeholder="Enter your invite code"
-                    value={inviteCode}
-                    required
-                    onChange={(e) => setInviteCode(e.target.value)}
-                    className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
-                  />
-                  {inviteError && (
-                    <Alert variant="destructive" className="mt-2">
-                      <AlertDescription>{inviteError}</AlertDescription>
-                    </Alert>
-                  )}
-                </div>
-              </>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="username" className="text-foreground font-medium">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Your username (min 3 chars)"
+                  value={username}
+                  required
+                  minLength={3}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
+                />
+              </div>
             )}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email" className="text-foreground font-medium">Email</Label>
@@ -157,7 +112,6 @@ export default function Auth() {
             onClick={() => {
               setIsRegistering(!isRegistering);
               setFormError("");
-              setInviteError("");
             }}
             className="w-full mt-2 text-primary underline-offset-4 hover:underline"
           >

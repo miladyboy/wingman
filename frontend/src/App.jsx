@@ -50,7 +50,7 @@ function RequireSubscription({ children }) {
     }
     check();
   }, [navigate]);
-  if (loading) return <div>Checking subscription...</div>;
+  if (loading) return null;
   if (!active) return null;
   return children;
 }

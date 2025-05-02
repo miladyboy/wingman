@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient'
 import Auth from './components/Auth'
 import LandingPage from './components/LandingPage'
 import MainApp from './components/MainApp'
 import './index.css'
+import { Button } from './components/ui/button';
 
 function RequireAuth({ session, children }) {
   const location = useLocation();
@@ -31,6 +32,7 @@ function AppRouter() {
   const [error, setError] = useState(null)
   const [messages, setMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const navigate = useNavigate();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -403,7 +405,15 @@ function AppRouter() {
   }, [activeConversationId]);
 
   return (
-    <BrowserRouter>
+    <>
+      {/* Persistent Member Login button for public pages */}
+      {!session && (
+        <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 1000 }}>
+          <Button variant="outline" onClick={() => navigate('/auth')}>
+            Member Login
+          </Button>
+        </div>
+      )}
       <Routes>
         <Route path="/" element={
           <RedirectIfAuth session={session}>
@@ -436,7 +446,7 @@ function AppRouter() {
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 

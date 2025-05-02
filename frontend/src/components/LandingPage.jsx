@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./ui/accordion";
@@ -7,6 +7,28 @@ import { useNavigate } from "react-router-dom";
 
 export default function LandingPage({ onRequestAccess }) {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleStartTrial = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/payments/create-checkout-session", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setLoading(false);
+        alert("Failed to start trial. Please try again.");
+      }
+    } catch (e) {
+      setLoading(false);
+      alert("Error connecting to payment service.");
+    }
+  };
 
   return (
     <main className="min-h-screen font-sans">
@@ -21,9 +43,10 @@ export default function LandingPage({ onRequestAccess }) {
         <Button
           size="lg"
           className="bg-royal text-ivory hover:bg-royal/90 shadow-xl mb-0"
-          onClick={() => navigate("/signup")}
+          onClick={handleStartTrial}
+          disabled={loading}
         >
-          Start Free 7-Day Trial – $20/mo
+          {loading ? "Redirecting..." : "Start Free 7-Day Trial – $20/mo"}
         </Button>
       </section>
 

@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import analyzeRoutes from './routes/analyze';
 import inviteRoutes from './routes/invite';
+import paymentsRoutes from './routes/payments';
+import stripeWebhookRoutes from './routes/stripeWebhook';
 
 // Load environment variables from .env
 dotenv.config();
@@ -26,5 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/analyze', analyzeRoutes);
 app.use('/api/validate-invite-code', inviteRoutes);
+app.use('/api/payments', paymentsRoutes);
+app.use('/api/stripe', stripeWebhookRoutes);
 
 export default app;

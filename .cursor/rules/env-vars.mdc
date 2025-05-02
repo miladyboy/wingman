@@ -1,0 +1,28 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+```markdown
+# Cursor Rule — Keep `.env.example` in Lock-Step
+
+**Whenever you introduce, rename, or remove an environment variable in the codebase, you must update the matching `.env.example` file in the same commit.**
+
+## What to do
+
+1. **Additions**  
+   - As soon as you reference a new `process.env.MY_VAR` (or equivalent), append a line `MY_VAR=` to the appropriate `.env.example` (root, `/backend`, `/frontend`, etc.).  
+   - Include a brief `# comment` describing its purpose if the name isn’t self-explanatory.
+
+2. **Renames / Deletions**  
+   - If you rename an env var, add the new key and delete the old one from `.env.example`.  
+   - If you delete an env var from the code, remove it from `.env.example` as well.
+
+3. **Consistency check before finishing**  
+   - Run a quick diff (or a small script/linter if available) to be sure every env var used in the codebase exists in its corresponding `.env.example`, and vice-versa.
+
+4. **Report it**  
+   - Note every change to `.env.example` in your “What I just tweaked” section so reviewers instantly see the update.
+
+*No secrets go in `.env.example`—placeholders only.*
+```

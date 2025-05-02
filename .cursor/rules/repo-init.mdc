@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rule — Auto-create a Proper `.gitignore`
+
+**Whenever you spin up a new project folder, commit a `.gitignore` tailored to that stack before writing any code.**
+
+## 🎯 Why  
+- Prevents accidental commits of secrets, build artifacts, and `node_modules/` bloat.  
+- Keeps git history lean and security-safe from day 1.
+
+## 🔧 How to apply
+
+| Project type | Must-have ignores |
+|--------------|------------------|
+| **Frontend** (Vite/React, etc.) | `node_modules/`, `dist/`, `build/`, `.env*`, `.DS_Store`, `*.log`, `coverage/`, `.next/` (if Next.js) |
+| **Backend** (Express, TS, etc.) | `node_modules/`, `dist/`, `build/`, `.env*`, `.DS_Store`, `*.log`, `coverage/`, `uploads/` (if applicable) |
+
+1. **Generate**    
+   - Use the closest matching template from *gitignore.io* or your preferred boilerplate.  
+   - Append any framework-specific extras (e.g., `supabase/` artifacts).
+
+2. **Commit it first**    
+   - Stage the `.gitignore` in the very first commit for that folder (or include it when adding new service subfolders).
+
+3. **Keep it current**    
+   - When new tooling appears (e.g., `playwright/`, `storybook-static/`), tack on ignores immediately.  
+   - Never commit encrypted or plaintext secrets—`.env*` stays ignored forever.
+
+4. **Call it out**    
+   - Mention the `.gitignore` addition or modification in your “What I just tweaked” rundown so reviewers don’t miss it.
+
+> **Rule of thumb:** if a file is auto-generated, secret, compiled, or weighs megabytes, it belongs in `.gitignore`.

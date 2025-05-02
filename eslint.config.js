@@ -68,6 +68,11 @@ export default [
     plugins: {
       jest: jestPlugin,
     },
+    settings: {
+      jest: {
+        version: 29
+      }
+    },
     rules: {
       ...jestPlugin.configs.recommended.rules,
     },

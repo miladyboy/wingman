@@ -27,7 +27,6 @@ To-Do (Rest)
 
 Doing
 [ ] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
-[ ] Remove text that says that the backend is reviewing your subscription state.
 
 Done
 [x] Implementar API de streaming
@@ -61,3 +60,4 @@ Done
 [x] Create a proper MVP landing content and styles.
 [x] Integrate Cypress or Playwright for automated E2E testing. (Hard)
 [x] Add Stripe integration for payments.
+[x] Remove text that says that the backend is reviewing your subscription state.

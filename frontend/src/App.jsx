@@ -68,41 +68,22 @@ function AppRouter() {
 
   /**
    * Persist the active conversation ID to localStorage and update state.
+   * Only write to localStorage if the value changes.
    * @param {string|null} conversationId
    */
   const setActiveConversationId = useCallback((conversationId) => {
-    setActiveConversationIdState(conversationId);
-    if (conversationId) {
-      localStorage.setItem('harem:lastActiveChatId', conversationId);
-    } else {
-      localStorage.removeItem('harem:lastActiveChatId');
-    }
+    setActiveConversationIdState(prev => {
+      if (prev === conversationId) return prev;
+      if (conversationId) {
+        localStorage.setItem('harem:lastActiveChatId', conversationId);
+      } else {
+        localStorage.removeItem('harem:lastActiveChatId');
+      }
+      return conversationId;
+    });
   }, []);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      if (session) {
-        fetchProfile(session.user)
-      }
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      if (session) {
-        fetchProfile(session.user)
-        fetchConversations(session.user)
-      } else {
-        setProfile(null)
-        setConversations([])
-        setActiveConversationId(null)
-        setMessages([])
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [fetchProfile, fetchConversations, setActiveConversationId])
-
+  // Move fetchProfile and fetchConversations above useEffect
   const fetchProfile = useCallback(async (user) => {
     if (!user) return
     setLoading(true)
@@ -153,11 +134,36 @@ function AppRouter() {
     }
   }, [])
 
-  // Restore last active chat or set default when conversations change
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      if (session) {
+        fetchProfile(session.user)
+      }
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      if (session) {
+        fetchProfile(session.user)
+        fetchConversations(session.user)
+      } else {
+        setProfile(null)
+        setConversations([])
+        setActiveConversationId(null)
+        setMessages([])
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [fetchProfile, fetchConversations, setActiveConversationId])
+
+  // --- Restore last active chat or set default when conversations load ---
+  useEffect(() => {
+    // Only run restoration if conversations are loaded and activeConversationId is null
     if (!session) return;
-    if (!conversations) return;
-    if (activeConversationId) return;
+    if (!Array.isArray(conversations) || conversations.length === 0) return;
+    if (activeConversationId !== null) return;
     const lastActiveId = localStorage.getItem('harem:lastActiveChatId');
     if (lastActiveId && conversations.some(c => c.id === lastActiveId)) {
       setActiveConversationId(lastActiveId);

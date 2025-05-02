@@ -28,6 +28,9 @@ module.exports = {
   
 		/* ——— Color tokens (all via CSS vars) ——— */
 		colors: {
+		  royal: '#4B2996',   // Example purple
+		  ivory: '#F8F7F4',   // Example off-white
+		  luxe: '#CBA135',    // Example gold
 		  border:      'hsl(var(--border))',
 		  input:       'hsl(var(--input))',
 		  ring:        'hsl(var(--ring))',

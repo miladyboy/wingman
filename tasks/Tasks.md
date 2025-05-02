@@ -4,16 +4,13 @@ To-Do (Rest)
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
 [ ] Upload user chats to mimic their style. (Mid)
 [ ] Build a React Native app for mobile. (Hard)
-[ ] Integrate Cypress or Playwright for automated E2E testing. (Hard)
 [ ] If I'm uploading Tinder photos, extract and save tags/info from the description and profile.
 [ ] Agregar un favicon
 [ ] Setup CI environment
 [ ] Make image work with cmd + v (small) 
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
-[ ] Add Stripe integration for payments.
 [ ] Build the next version of my task manager.
 [ ] Test the entire backend
-[ ] Setup E2E testing
 [ ] Fix frontend tests
 [ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
 [ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
@@ -24,10 +21,11 @@ To-Do (Rest)
 [ ] The last chat you interacted with should move to the top on the left.
 [ ] Hacer que el bot responda en Markdown.
 [ ] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
+[ ] Agregar tracking para visitantes y usuarios.
+[ ] Agregar feedback loop de los usuarios. Que sea muy facil ayudarnos a mejorar.
+[ ] Add Stripe integration for payments.
 
 Doing
-[ ] Improve all the styling of the site.
-[ ] Perfect the landing content. 
 
 Done
 [x] Implementar API de streaming
@@ -58,3 +56,5 @@ Done
 [x] Generate a style guide or template
 [x] Sacarle las bubbles de text a la respuesta del agente.
 [x] Mejorar el "procesing" ese que aparece mientras el bot piensa. Es demasiado robotico.
+[x] Create a proper MVP landing content and styles.
+[x] Integrate Cypress or Playwright for automated E2E testing. (Hard)

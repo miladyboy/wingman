@@ -1,3 +1,5 @@
+/* eslint-env jest */
+/* global describe, it */
 // import React from 'react';
 // import { render, screen, fireEvent } from '@testing-library/react';
 // import UploadComponent from './UploadComponent';

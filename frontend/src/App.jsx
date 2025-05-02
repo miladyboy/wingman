@@ -42,7 +42,7 @@ function RequireSubscription({ children }) {
         } else {
           navigate('/subscribe');
         }
-      } catch (e) {
+      } catch {
         navigate('/subscribe');
       } finally {
         setLoading(false);
@@ -59,12 +59,25 @@ function AppRouter() {
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
   const [conversations, setConversations] = useState([])
-  const [activeConversationId, setActiveConversationId] = useState(null)
+  const [activeConversationId, setActiveConversationIdState] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [messages, setMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
   const navigate = useNavigate();
+
+  /**
+   * Persist the active conversation ID to localStorage and update state.
+   * @param {string|null} conversationId
+   */
+  const setActiveConversationId = useCallback((conversationId) => {
+    setActiveConversationIdState(conversationId);
+    if (conversationId) {
+      localStorage.setItem('harem:lastActiveChatId', conversationId);
+    } else {
+      localStorage.removeItem('harem:lastActiveChatId');
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -88,7 +101,7 @@ function AppRouter() {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [fetchProfile, setActiveConversationId])
 
   const fetchProfile = useCallback(async (user) => {
     if (!user) return
@@ -140,11 +153,26 @@ function AppRouter() {
     }
   }, [])
 
+  // Restore last active chat or set default when conversations change
+  useEffect(() => {
+    if (!session) return;
+    if (!conversations) return;
+    if (activeConversationId) return;
+    const lastActiveId = localStorage.getItem('harem:lastActiveChatId');
+    if (lastActiveId && conversations.some(c => c.id === lastActiveId)) {
+      setActiveConversationId(lastActiveId);
+    } else if (conversations.length > 0) {
+      setActiveConversationId(conversations[0].id);
+    } else {
+      setActiveConversationId('new');
+    }
+  }, [conversations, session, activeConversationId, setActiveConversationId]);
+
   useEffect(() => {
     if (session) {
-      fetchConversations(session.user)
+      fetchConversations(session.user);
     }
-  }, [session, fetchConversations])
+  }, [session, fetchConversations]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -153,55 +181,47 @@ function AppRouter() {
         setError(null);
         return;
       }
-
-      setLoadingMessages(true)
-      setError(null)
+      setLoadingMessages(true);
+      setError(null);
       try {
         const { data: convData, error: convError } = await supabase
           .from('conversations')
           .select('id')
           .eq('id', activeConversationId)
           .eq('user_id', session.user.id)
-          .single()
-
+          .single();
         if (convError || !convData) {
-          throw new Error("Conversation not found or access denied.")
+          throw new Error('Conversation not found or access denied.');
         }
-
         const { data, error } = await supabase
           .from('messages')
           .select(`id, sender, content, image_description, created_at, ChatMessageImages(storage_path)`)
           .eq('conversation_id', activeConversationId)
-          .order('created_at', { ascending: true })
-
-        if (error) throw error
-
+          .order('created_at', { ascending: true });
+        if (error) throw error;
         const { supabaseUrl } = await import('./supabaseClient');
         const bucketUrl = `${supabaseUrl}/storage/v1/object/public/chat-images/`;
-
         const messagesWithImages = (data || []).map(msg => ({
           ...msg,
-          imageUrls: (msg.ChatMessageImages || []).map(img => bucketUrl + img.storage_path)
+          imageUrls: (msg.ChatMessageImages || []).map(img => bucketUrl + img.storage_path),
         }));
-
-        setMessages(messagesWithImages)
+        setMessages(messagesWithImages);
       } catch (error) {
-        console.error('Error fetching messages:', error)
-        setError(`Could not fetch messages for this conversation. ${error.message}`)
-        setMessages([])
+        console.error('Error fetching messages:', error);
+        setError(`Could not fetch messages for this conversation. ${error.message}`);
+        setMessages([]);
       } finally {
-        setLoadingMessages(false)
+        setLoadingMessages(false);
       }
-    }
-
-    fetchMessages()
-  }, [activeConversationId, session])
+    };
+    fetchMessages();
+  }, [activeConversationId, session, fetchConversations]);
 
   const handleNewThread = () => {
     setActiveConversationId('new');
     setMessages([]);
     setError(null);
-  }
+  };
 
   const handleSendMessage = useCallback(async (formData) => {
     let currentConversationId = activeConversationId;
@@ -221,7 +241,7 @@ function AppRouter() {
           setActiveConversationId(data.id);
           currentConversationId = data.id;
         } else {
-          throw new Error("Failed to create conversation: No data returned.");
+          throw new Error('Failed to create conversation: No data returned.');
         }
       } catch (error) {
         setError(`Could not start a new conversation: ${error.message}`);
@@ -233,15 +253,13 @@ function AppRouter() {
     }
     formData.append('conversationId', currentConversationId);
     if (!currentConversationId || !session) {
-      setError("Please select or start a conversation first.");
+      setError('Please select or start a conversation first.');
       return;
     }
-
     // Optimistically add the user message to the UI immediately
     const optimisticId = `user-${Date.now()}`;
     const optimisticImageUrls = [];
     if (formData.getAll('images').length > 0) {
-      // Create object URLs for previews
       for (const file of formData.getAll('images')) {
         if (file instanceof File) {
           optimisticImageUrls.push(URL.createObjectURL(file));
@@ -256,19 +274,15 @@ function AppRouter() {
       optimistic: true,
     };
     setMessages(prevMessages => [...prevMessages, optimisticUserMessage]);
-
     const historyJson = JSON.stringify(messages.map(m => ({
       role: m.sender === 'user' ? 'user' : 'assistant',
-      content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content
+      content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content,
     })));
     formData.append('historyJson', historyJson);
-
     setLoading(true);
     setError(null);
-
     let assistantMessageId = `ai-${Date.now()}`;
     let assistantMessageContent = '';
-    let streamingError = null;
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
       const response = await fetch(`${backendUrl}/analyze`, {
@@ -287,10 +301,9 @@ function AppRouter() {
       const decoder = new TextDecoder('utf-8');
       let done = false;
       let buffer = '';
-      // Add a placeholder for the assistant message
       setMessages(prevMessages => [
         ...prevMessages,
-        { id: assistantMessageId, sender: 'ai', content: '', imageUrls: [] }
+        { id: assistantMessageId, sender: 'ai', content: '', imageUrls: [] },
       ]);
       while (!done) {
         const { value, done: streamDone } = await reader.read();
@@ -306,76 +319,73 @@ function AppRouter() {
               if (event.text !== undefined) {
                 if (!event.done) {
                   assistantMessageContent += event.text;
-                  setMessages(prevMessages => prevMessages.map(msg =>
-                    msg.id === assistantMessageId
-                      ? { ...msg, content: assistantMessageContent }
-                      : msg
-                  ));
+                  setMessages(prevMessages =>
+                    prevMessages.map(msg =>
+                      msg.id === assistantMessageId
+                        ? { ...msg, content: assistantMessageContent }
+                        : msg
+                    )
+                  );
                 }
               }
               if (event.done) {
-                // Optionally, handle any finalization here
                 break;
               }
-            } catch (err) {
-              streamingError = err;
+            } catch {
               break;
             }
           }
         }
       }
-      // Finalize the assistant message
-      setMessages(prevMessages => prevMessages.map(msg =>
-        msg.id === assistantMessageId
-          ? { ...msg, content: assistantMessageContent }
-          : msg
-      ));
-      // Remove the optimistic flag from the user message (or replace with real message if backend returns it)
-      setMessages(prevMessages => prevMessages.map(msg =>
-        msg.id === optimisticId ? { ...msg, optimistic: false } : msg
-      ));
-      // Clean up object URLs
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg.id === assistantMessageId
+            ? { ...msg, content: assistantMessageContent }
+            : msg
+        )
+      );
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg.id === optimisticId ? { ...msg, optimistic: false } : msg
+        )
+      );
       optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
     } catch (error) {
       setError(`Backend communication error: ${error.message}.`);
-      streamingError = error;
-      // Mark the optimistic message as failed
-      setMessages(prevMessages => prevMessages.map(msg =>
-        msg.id === optimisticId ? { ...msg, failed: true } : msg
-      ));
-      // Clean up object URLs
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg.id === optimisticId ? { ...msg, failed: true } : msg
+        )
+      );
       optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
     } finally {
       setLoading(false);
     }
-  }, [activeConversationId, session, messages]);
+  }, [activeConversationId, session, messages, conversations.length]);
 
   const handleRenameThread = useCallback(async (conversationId, newName) => {
-    const trimmedName = newName.trim()
-    if (!trimmedName || !session) return
-
-    const originalConversations = [...conversations]
+    const trimmedName = newName.trim();
+    if (!trimmedName || !session) return;
+    const originalConversations = [...conversations];
     setConversations(prev =>
       prev.map(conv =>
         conv.id === conversationId ? { ...conv, title: trimmedName } : conv
       )
-    )
-
-    setError(null)
+    );
+    setError(null);
     try {
       const { error } = await supabase
         .from('conversations')
         .update({ title: trimmedName })
         .eq('id', conversationId)
-        .eq('user_id', session.user.id)
-
-      if (error) throw error
+        .eq('user_id', session.user.id);
+      if (error) throw error;
     } catch (error) {
-      console.error("Error renaming conversation:", error)
-      setError(`Failed to rename conversation: ${error.message}`)
-      setConversations(originalConversations)
+      console.error('Error renaming conversation:', error);
+      setError(`Failed to rename conversation: ${error.message}`);
+      setConversations(originalConversations);
     }
-  }, [session, conversations])
+  }, [session, conversations, setActiveConversationId]);
 
   // Delete a conversation and all related data (images, messages, conversation)
   const handleDeleteConversation = useCallback(async (conversationId) => {
@@ -423,18 +433,25 @@ function AppRouter() {
       await supabase.from('conversations').delete().eq('id', conversationId);
 
       // 7. Update frontend state
-      setConversations(prev => prev.filter(c => c.id !== conversationId));
-      if (activeConversationId === conversationId) {
-        setActiveConversationId(null);
-        setMessages([]);
-      }
+      setConversations(prev => {
+        const updated = prev.filter(c => c.id !== conversationId);
+        if (activeConversationId === conversationId) {
+          if (updated.length > 0) {
+            setActiveConversationId(updated[0].id);
+          } else {
+            setActiveConversationId('new');
+          }
+          setMessages([]);
+        }
+        return updated;
+      });
     } catch (error) {
       console.error('Error deleting conversation:', error);
       setError('Failed to delete conversation: ' + (error.message || error));
     } finally {
       setLoading(false);
     }
-  }, [activeConversationId]);
+  }, [activeConversationId, setActiveConversationId]);
 
   // Move Subscribe component here so it can use navigate
   function Subscribe() {

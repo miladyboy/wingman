@@ -11,7 +11,7 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(false);
 
   // Placeholder: Replace with real API call to check subscription
-  async function checkSubscriptionStatus(userId) {
+  async function checkSubscriptionStatus() {
     // TODO: Replace with real backend call
     // Example: const res = await fetch(`/api/subscription-status?userId=${userId}`)
     // return (await res.json()).active;
@@ -27,7 +27,7 @@ export default function LandingPage() {
       return;
     }
     // User is logged in, check subscription
-    const isSubscribed = await checkSubscriptionStatus(session.user.id);
+    const isSubscribed = await checkSubscriptionStatus();
     setLoading(false);
     if (isSubscribed) {
       navigate('/app');

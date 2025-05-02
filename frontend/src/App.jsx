@@ -101,7 +101,7 @@ function AppRouter() {
     })
 
     return () => subscription.unsubscribe()
-  }, [fetchProfile, setActiveConversationId])
+  }, [fetchProfile, fetchConversations, setActiveConversationId])
 
   const fetchProfile = useCallback(async (user) => {
     if (!user) return
@@ -361,7 +361,7 @@ function AppRouter() {
     } finally {
       setLoading(false);
     }
-  }, [activeConversationId, session, messages, conversations.length]);
+  }, [activeConversationId, session, messages, conversations.length, setActiveConversationId]);
 
   const handleRenameThread = useCallback(async (conversationId, newName) => {
     const trimmedName = newName.trim();
@@ -385,7 +385,7 @@ function AppRouter() {
       setError(`Failed to rename conversation: ${error.message}`);
       setConversations(originalConversations);
     }
-  }, [session, conversations, setActiveConversationId]);
+  }, [session, conversations]);
 
   // Delete a conversation and all related data (images, messages, conversation)
   const handleDeleteConversation = useCallback(async (conversationId) => {

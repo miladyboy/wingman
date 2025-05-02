@@ -1,11 +1,10 @@
 To-Do (Rest)
-[ ] Agregar para que recuerde tu sesion opcionalmente
+[ ] Make session management optional through a "Remember Me" Toggle.
 [ ] Agregar Dark/Light theme
 [ ] Save memories based on what it sees in photos or what I say. (Hard)
 [ ] Upload user chats to mimic their style. (Mid)
 [ ] Build a React Native app for mobile. (Hard)
 [ ] If I'm uploading Tinder photos, extract and save tags/info from the description and profile.
-[ ] Agregar un favicon
 [ ] Setup CI environment
 [ ] Make image work with cmd + v (small) 
 [ ] The bot seems to lose track of things as the conversation grows. Improve. (Hard)(Important)
@@ -26,7 +25,7 @@ To-Do (Rest)
 [ ] Fijarme que el flujo de aprovar email funcione correctamente.
 
 Doing
-[ ] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
+[ ] Agregar un favicon
 
 Done
 [x] Implementar API de streaming
@@ -61,3 +60,5 @@ Done
 [x] Integrate Cypress or Playwright for automated E2E testing. (Hard)
 [x] Add Stripe integration for payments.
 [x] Remove text that says that the backend is reviewing your subscription state.
+[x] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
+[x] Update the title.

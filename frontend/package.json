@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -48,6 +49,7 @@
     "babel-jest": "^29.7.0",
     "babel-plugin-transform-import-meta": "^2.3.2",
     "cypress": "^14.3.2",
+    "eslint": "^9.26.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.0.0",

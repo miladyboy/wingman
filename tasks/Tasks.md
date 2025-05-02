@@ -23,6 +23,7 @@ To-Do (Rest)
 [ ] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
 [ ] Agregar tracking para visitantes y usuarios.
 [ ] Agregar feedback loop de los usuarios. Que sea muy facil ayudarnos a mejorar.
+[ ] Fijarme que el flujo de aprovar email funcione correctamente.
 
 Doing
 [ ] Add Stripe integration for payments.

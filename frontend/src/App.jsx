@@ -30,7 +30,12 @@ function RequireSubscription({ children }) {
   useEffect(() => {
     async function check() {
       try {
-        const res = await fetch('/api/payments/subscription-status', { credentials: 'include' });
+        // Get the current session and access token
+        const { data: { session } } = await supabase.auth.getSession();
+        const accessToken = session?.access_token;
+        const res = await fetch('/api/payments/subscription-status', {
+          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+        });
         const data = await res.json();
         if (data.active) {
           setActive(true);
@@ -48,18 +53,6 @@ function RequireSubscription({ children }) {
   if (loading) return <div>Checking subscription...</div>;
   if (!active) return null;
   return children;
-}
-
-function Subscribe() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h2 className="text-2xl font-bold mb-4">Subscribe to Harem</h2>
-      <p className="mb-6">To access the app, please subscribe.</p>
-      <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90">
-        Subscribe
-      </Button>
-    </div>
-  );
 }
 
 function AppRouter() {
@@ -443,52 +436,98 @@ function AppRouter() {
     }
   }, [activeConversationId]);
 
+  // Move Subscribe component here so it can use navigate
+  function Subscribe() {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const handleLogout = async () => {
+      await supabase.auth.signOut();
+      navigate('/auth');
+    };
+    const handleSubscribe = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setError('You must be logged in.');
+          setLoading(false);
+          navigate('/auth');
+          return;
+        }
+        const res = await fetch('/api/payments/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to create checkout session');
+        }
+        const { url } = await res.json();
+        if (url) {
+          window.location.href = url;
+        } else {
+          throw new Error('No checkout URL returned.');
+        }
+      } catch (e) {
+        setError(e.message || 'An error occurred.');
+        setLoading(false);
+      }
+    };
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <h2 className="text-2xl font-bold mb-4">Subscribe to Harem</h2>
+        <p className="mb-6">To access the app, please subscribe.</p>
+        {error && <div className="text-red-600 mb-4">{error}</div>}
+        <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={handleSubscribe} disabled={loading}>
+          {loading ? 'Redirecting...' : 'Subscribe'}
+        </Button>
+        <Button size="sm" variant="outline" className="mt-6" onClick={handleLogout} disabled={loading}>
+          Log out
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <>
-      {/* Persistent Member Login button for public pages */}
-      {!session && (
-        <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 1000 }}>
-          <Button variant="outline" onClick={() => navigate('/auth')}>
-            Member Login
-          </Button>
-        </div>
-      )}
-      <Routes>
-        <Route path="/" element={
-          <RedirectIfAuth session={session}>
-            <LandingPage onRequestAccess={() => window.location.href = '/auth'} />
-          </RedirectIfAuth>
-        } />
-        <Route path="/auth" element={
-          <RedirectIfAuth session={session}>
-            <Auth />
-          </RedirectIfAuth>
-        } />
-        <Route path="/subscribe" element={<Subscribe />} />
-        <Route path="/app" element={
-          <RequireAuth session={session}>
-            <RequireSubscription>
-              <MainApp
-                profile={profile}
-                conversations={conversations}
-                activeConversationId={activeConversationId}
-                setActiveConversationId={setActiveConversationId}
-                handleNewThread={handleNewThread}
-                handleRenameThread={handleRenameThread}
-                handleDeleteConversation={handleDeleteConversation}
-                messages={messages}
-                loading={loading}
-                loadingMessages={loadingMessages}
-                error={error}
-                handleSendMessage={handleSendMessage}
-                supabase={supabase}
-              />
-            </RequireSubscription>
-          </RequireAuth>
-        } />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={
+        <RedirectIfAuth session={session}>
+          <LandingPage onRequestAccess={() => window.location.href = '/auth'} />
+        </RedirectIfAuth>
+      } />
+      <Route path="/auth" element={
+        <RedirectIfAuth session={session}>
+          <Auth />
+        </RedirectIfAuth>
+      } />
+      <Route path="/subscribe" element={<Subscribe />} />
+      <Route path="/app" element={
+        <RequireAuth session={session}>
+          <RequireSubscription>
+            <MainApp
+              profile={profile}
+              conversations={conversations}
+              activeConversationId={activeConversationId}
+              setActiveConversationId={setActiveConversationId}
+              handleNewThread={handleNewThread}
+              handleRenameThread={handleRenameThread}
+              handleDeleteConversation={handleDeleteConversation}
+              messages={messages}
+              loading={loading}
+              loadingMessages={loadingMessages}
+              error={error}
+              handleSendMessage={handleSendMessage}
+              supabase={supabase}
+            />
+          </RequireSubscription>
+        </RequireAuth>
+      } />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

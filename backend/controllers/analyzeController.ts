@@ -5,6 +5,7 @@ import { OpenAIService } from '../services/openaiService';
 import { supabaseAdmin } from '../services/supabaseService';
 import systemPrompt from '../prompts/systemPrompt';
 import userPrompt from '../prompts/userPrompt';
+import { getUserIdFromAuthHeader } from '../utils/auth';
 // Import OpenAI types if available
 import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 
@@ -54,23 +55,6 @@ function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: st
     }
     const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
     return { history, newMessageText, conversationId, files };
-}
-
-async function getUserIdFromAuthHeader(authHeader: string | undefined, supabase: any): Promise<string | null> {
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const userAccessToken = authHeader.split(' ')[1];
-        try {
-            if (supabase) {
-                const { data: { user }, error: userError } = await supabase.auth.getUser(userAccessToken);
-                if (!userError && user) {
-                    return user.id;
-                }
-            }
-        } catch (e) {
-            // Optionally log error
-        }
-    }
-    return null;
 }
 
 async function saveMessageStub(supabase: any, conversationId: string, newMessageText: string): Promise<MessageRecord> {

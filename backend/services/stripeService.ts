@@ -1,4 +1,8 @@
 import Stripe from 'stripe';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3001';
 
 /**
  * Service for interacting with Stripe API for subscriptions and checkout.
@@ -41,8 +45,8 @@ export class StripeService {
       payment_method_types: ['card'],
       customer: customerId,
       line_items: [{ price: this.priceId, quantity: 1 }],
-      success_url: 'https://yourdomain.com/success', // TODO: Replace with your real URL
-      cancel_url: 'https://yourdomain.com/cancel',
+      success_url: `${FRONTEND_URL}/success`,
+      cancel_url: `${FRONTEND_URL}/cancel`,
       metadata: { userId },
     });
     if (!session.url) throw new Error('Stripe session URL not returned');

@@ -1,4 +1,4 @@
-import { getUserIdFromAuthHeader } from '../analyzeController';
+import { getUserIdFromAuthHeader } from '../auth';
 
 describe('getUserIdFromAuthHeader', () => {
   let supabaseMock: any;

@@ -11,6 +11,9 @@ dotenv.config();
 
 const app: Express = express();
 
+// Register Stripe webhook route FIRST to preserve raw body for signature verification
+app.use('/api/stripe', stripeWebhookRoutes);
+
 // CORS middleware
 app.use(cors({
   origin: function (origin, callback) {
@@ -21,7 +24,8 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -29,6 +33,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/analyze', analyzeRoutes);
 // app.use('/api/validate-invite-code', inviteRoutes);
 app.use('/api/payments', paymentsRoutes);
-app.use('/api/stripe', stripeWebhookRoutes);
 
 export default app;

@@ -26,6 +26,7 @@ To-Do (Rest)
 
 Doing
 [ ] Agregar un favicon
+[ ] Create a logo for the app.
 
 Done
 [x] Implementar API de streaming
@@ -62,3 +63,5 @@ Done
 [x] Remove text that says that the backend is reviewing your subscription state.
 [x] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
 [x] Update the title.
+[x] Add linting to both frontend and backend.
+[x] Log-out should redirect to the homepage.

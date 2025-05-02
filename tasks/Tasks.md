@@ -20,13 +20,14 @@ To-Do (Rest)
 [ ] Add "global data" preferences for the guy, what they're looking for, ways to connect to the girls with commonalities.
 [ ] The last chat you interacted with should move to the top on the left.
 [ ] Hacer que el bot responda en Markdown.
-[ ] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
 [ ] Agregar tracking para visitantes y usuarios.
 [ ] Agregar feedback loop de los usuarios. Que sea muy facil ayudarnos a mejorar.
+[ ] Implement a free trial to the stripe membership.
 [ ] Fijarme que el flujo de aprovar email funcione correctamente.
 
 Doing
-[ ] Add Stripe integration for payments.
+[ ] Refreshing when in the app should open either the last conversation you had open, or at least the first chat.
+[ ] Remove text that says that the backend is reviewing your subscription state.
 
 Done
 [x] Implementar API de streaming
@@ -59,3 +60,4 @@ Done
 [x] Mejorar el "procesing" ese que aparece mientras el bot piensa. Es demasiado robotico.
 [x] Create a proper MVP landing content and styles.
 [x] Integrate Cypress or Playwright for automated E2E testing. (Hard)
+[x] Add Stripe integration for payments.

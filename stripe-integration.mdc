@@ -1,0 +1,80 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Stripe Integration Rulebook (`stripe-integration.mdc`)
+
+## 1. Data Model & Ownership
+
+- **User Subscription Status**  
+  - Always store subscription/payment status (e.g., `is_paid`, `subscription_tier`) in the `profiles` table, not in the `users` table.
+  - Never duplicate payment state across multiple tables.
+
+- **Default Values**  
+  - Set explicit, correct defaults for all payment-related columns (e.g., `is_paid DEFAULT false`).
+  - Document all schema changes in migration files and keep them in sync with Supabase.
+
+## 2. Webhook Handling
+
+- **Webhook Routing**  
+  - All Stripe webhook events must be handled in a single, dedicated controller (e.g., `controllers/stripeWebhook.ts`).
+  - Route: `/api/stripe/webhook` (or similar, never public-facing).
+
+- **Event Processing**  
+  - Always verify the Stripe signature before processing any event.
+  - Use dependency injection for the Stripe client and database access to maximize testability.
+  - On successful payment or subscription update, update the `profiles` table only.
+
+- **Idempotency**  
+  - Ensure webhook handlers are idempotent: processing the same event twice must not cause inconsistent state.
+
+## 3. Subscription Checks
+
+- **Backend Authorization**  
+  - All backend checks for paid features must reference the `profiles.is_paid` (or equivalent) field.
+  - Never trust frontend state or JWT claims alone for payment gating.
+
+- **Frontend Gating**  
+  - Use a single source of truth for subscription status, fetched from the backend or Supabase, not from local storage.
+
+## 4. Testing & Mocks
+
+- **Unit Tests**  
+  - All Stripe logic (webhook handlers, payment flows) must have Jest tests with Stripe and DB dependencies mocked.
+  - Use dependency injection to make mocking trivial.
+
+- **Test Data**  
+  - Never use real Stripe keys or customer data in tests. Use Stripe's test mode and mock objects.
+
+## 5. Environment Variables
+
+- **Secrets Management**  
+  - All Stripe keys and webhook secrets must be referenced via environment variables.
+  - Update `.env.example` in lock-step with any new or changed Stripe env vars.
+  - Never commit real secrets.
+
+## 6. Documentation
+
+- **README Updates**  
+  - Document the Stripe integration flow, webhook setup, and required env vars in the backend README.
+  - Include a troubleshooting section for common Stripe issues (e.g., webhook not firing, status not updating).
+
+## 7. Error Handling & Logging
+
+- **Logging**  
+  - Log all webhook events and errors with enough context to debug issues, but never log full secrets or PII.
+  - Use structured logging for easier searching.
+
+- **Error Responses**  
+  - Webhook endpoints must return appropriate HTTP status codes (2xx for success, 4xx/5xx for errors).
+
+## 8. Duplication & DRY
+
+- **No Duplicated Logic**  
+  - All Stripe-related logic (event parsing, DB updates) should be centralized in shared services or utilities.
+  - Never copy-paste webhook or payment logic across controllers.
+
+---
+
+By following this rule, you'll ensure Stripe integrations are robust, testable, and easy to maintain—minimizing the risk of subtle bugs or security issues.

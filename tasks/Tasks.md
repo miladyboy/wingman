@@ -11,22 +11,27 @@ To-Do (Rest)
 [ ] Build the next version of my task manager.
 [ ] Test the entire backend
 [ ] Fix frontend tests
-[ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
-[ ] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.
-[ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
-[ ] Registering should give some feedback and a notice to verify email. (Small)
 [ ] Need to handle large images because it times out with 400 error. Make images smaller maybe.
 [ ] Add "global data" preferences for the guy, what they're looking for, ways to connect to the girls with commonalities.
-[ ] The last chat you interacted with should move to the top on the left.
 [ ] Hacer que el bot responda en Markdown.
 [ ] Agregar tracking para visitantes y usuarios.
 [ ] Agregar feedback loop de los usuarios. Que sea muy facil ayudarnos a mejorar.
 [ ] Implement a free trial to the stripe membership.
-[ ] Fijarme que el flujo de aprovar email funcione correctamente.
+[ ] Create an audit / architect mode rule that I can insert manually.
+[ ] Cambiar la alerta de cuando confirmas si eliminas un mensaje por un componente bonito.
 
-Doing
+MVP:
+[ ] Crear empresa y setup para poder cobrar realmente con Stripe.
 [ ] Agregar un favicon
 [ ] Create a logo for the app.
+[ ] Fijarme que el flujo de aprovar email funcione correctamente.
+[ ] The last chat you interacted with should move to the top on the left.
+[ ] Registering should give some feedback and a notice to verify email. (Small)
+[ ] Improve prompt engineering: better responses, shorter texts, and suggest how to naturally split longer messages into 2–3 parts. (Mid)(Important)
+[ ] Add a custom nickname to the thread based on the initial message and image. (Small)(Fix)
+
+Doing
+
 
 Done
 [x] Implementar API de streaming
@@ -65,3 +70,4 @@ Done
 [x] Update the title.
 [x] Add linting to both frontend and backend.
 [x] Log-out should redirect to the homepage.
+[x] It shouldn't always give me 2–3 suggestions. Sometimes one is fine, or just a regular reply.

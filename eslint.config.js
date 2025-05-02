@@ -3,9 +3,10 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import jestPlugin from 'eslint-plugin-jest'
 
 export default [
-  { ignores: ['dist', 'node_modules'] },
+  { ignores: ['dist', 'node_modules', 'coverage', 'frontend/dist', 'backend/dist', 'frontend/coverage', 'backend/coverage'] },
   // Frontend (React)
   {
     files: ['frontend/**/*.{js,jsx,ts,tsx}'],
@@ -53,6 +54,29 @@ export default [
       ...tseslint.configs.recommended.rules,
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error'],
+    },
+  },
+  // Test files (Jest)
+  {
+    files: ['**/__tests__/**/*.[jt]s?(x)', '**/*.test.[jt]s?(x)', '**/*.spec.[jt]s?(x)'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+    },
+    plugins: {
+      jest: jestPlugin,
+    },
+    rules: {
+      ...jestPlugin.configs.recommended.rules,
+    },
+  },
+  // Node config files
+  {
+    files: ['*.config.js', '*.config.ts', 'frontend/*.config.js', 'frontend/*.config.ts', 'backend/*.config.js', 'backend/*.config.ts'],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ]

@@ -1,3 +1,6 @@
+Wishlist
+[ ] Let the user store things to long term memory during a chat. Maybe by explicitly saying it.
+
 To-Do (Rest)
 [ ] Make session management optional through a "Remember Me" Toggle.
 [ ] Agregar Dark/Light theme
@@ -32,14 +35,13 @@ MVP:
 
 Doing
 
-
 Done
 [x] Implementar API de streaming
 [x] Add a complete project rule teaching the LLM to use Github.
 [x] Agregar automated testing a alguna parte del backend (testing)
 [x] Make image upload a drag-and-drop zone too. (Small)
 [x] Remove or improve the App component test.
-[x] A new thread shouldn’t be created until the first message is processed. (Mid)(Important)
+[x] A new thread shouldn't be created until the first message is processed. (Mid)(Important)
 [x] Setup Husky
 [x] Remove the image description from the bot reply.
 [x] Save image description info for all uploaded photos. (Hard)

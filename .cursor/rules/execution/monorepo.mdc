@@ -47,6 +47,8 @@ If these conditions are not met, default to folder-scoped installation.
 
 Follow this rule **exactly**; avoid assumptions or shortcuts.
 
+**Exception:** If a tool or service has a specific rule that overrides the use of `--prefix` (e.g., Playwright, see `services/playwright.mdc`), follow that tool/service-specific rule instead.
+
 
 
 

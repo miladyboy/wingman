@@ -1,0 +1,36 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Cursor Rule — Playwright in Monorepos
+
+> **Scope:**  Applies to all Playwright E2E test runs in this monorepo.
+
+## 1. Always Run Playwright from the `frontend` Directory
+- Playwright must be executed from within the `frontend` directory to ensure correct config and dependency resolution.
+- Do **not** use `--prefix` for Playwright. This flag is only for npm and does not affect Playwright's file/config resolution.
+
+## 2. Use a Root-Level Shell Script for Automation
+- For CI, Husky, or LLM automation, use a root-level shell script (e.g., `run-e2e.sh`) that:
+  - Changes directory to `frontend`
+  - Runs the Playwright test command
+
+  Example `run-e2e.sh`:
+  ```sh
+  #!/bin/sh
+  cd frontend && npx playwright test "$@"
+  ```
+
+## 3. Add a `test:e2e` Script to `frontend/package.json`
+- For developer ergonomics, add:
+  ```json
+  "scripts": {
+    "test:e2e": "playwright test"
+  }
+  ```
+- This allows running E2E tests with `npm run test:e2e` from within `frontend`.
+
+## 4. Exception to the General `--prefix` Rule
+- This rule supersedes the general `--prefix` rule for Playwright only.
+- All LLMs, CI, and developers must follow this pattern for Playwright E2E tests.

@@ -1,3 +1,6 @@
+# Supabase & Database Rules
+- All database schema changes must be made via migration files committed to git, not direct changes through the Supabase dashboard or MCP. This ensures auditability, reproducibility, and team collaboration.
+
 # Wishlist
 - [ ] Let the user store things to long-term memory during a chat, perhaps by explicitly asking for it.
 
@@ -21,8 +24,7 @@
 - [ ] Add an easy user feedback loop.  
 - [ ] Implement a free trial for the Stripe membership.  
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
-- [ ] Replace the confirmation alert for deleting a message with a nicer component.  
-- [ ] All database schema changes must be made via migration files committed to git, not direct changes through the Supabase dashboard or MCP. This ensures auditability, reproducibility, and team collaboration.
+- [ ] Replace the confirmation alert for deleting a message with a nicer component.
 
 # MVP
 - [ ] Add a favicon.  

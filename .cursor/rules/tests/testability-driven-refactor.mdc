@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rule — Testability-Driven Refactor Autonomy
+
+**Purpose:**  
+Allow the AI to proactively refactor *non-test* code (such as helpers, error handling, or dependency injection) **when and only when**:
+- The change is required to make tests reliable, robust, and maintainable.
+- The change does **not** alter business logic or requirements, but only clarifies error boundaries, improves testability, or enables correct dependency injection/mocking.
+- The change is directly motivated by a failing or unreliable test, and the intent is to align code with best practices for testability.
+
+**Scope:**
+- Applies to helpers, error handling, and dependency injection patterns that are tightly coupled to test reliability.
+- Does **not** permit changing business logic, requirements, or weakening/removing tests.
+- All such changes must be reported in the “What I just tweaked” section, with a clear explanation of the test-driven motivation.
+
+**How to Apply:**
+- If a test fails due to ambiguous error handling, poor separation of concerns, or lack of dependency injection, the AI may refactor the relevant code to clarify error boundaries, throw/catch errors as appropriate, or inject dependencies.
+- The AI should keep iterating until the test suite passes or a true business logic failure is found.
+- If the user explicitly requests to pause or review, the AI should yield control.
+
+**Example:**
+- Refactoring a helper to throw on internal errors (e.g., DB misconfiguration) and only return `null` for “not found,” so the controller can distinguish between 401 and 500 and tests can assert the correct status code.
+- Extracting dependency injection to the top level so tests can inject mocks.
+
+---
+
+**Summary:**
+With this rule, the AI may immediately refactor helpers or error handling to improve testability and reliability, maximizing developer velocity and test integrity, while preserving business logic.

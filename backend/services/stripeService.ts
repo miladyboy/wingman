@@ -2,20 +2,21 @@ import Stripe from 'stripe';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3001';
-
 /**
  * Service for interacting with Stripe API for subscriptions and checkout.
  * @param stripeSecretKey - Stripe secret key (injected)
  * @param priceId - Stripe price ID for the subscription (injected)
+ * @param frontendUrl - Frontend URL for redirect (injected, defaults to process.env.FRONTEND_URL or 'http://localhost:3001')
  */
 export class StripeService {
   private stripe: Stripe;
   private priceId: string;
+  private frontendUrl: string;
 
-  constructor(stripeSecretKey: string, priceId: string) {
+  constructor(stripeSecretKey: string, priceId: string, frontendUrl: string = process.env.FRONTEND_URL || 'http://localhost:3001') {
     this.stripe = new Stripe(stripeSecretKey);
     this.priceId = priceId;
+    this.frontendUrl = frontendUrl;
   }
 
   /**
@@ -45,8 +46,8 @@ export class StripeService {
       payment_method_types: ['card'],
       customer: customerId,
       line_items: [{ price: this.priceId, quantity: 1 }],
-      success_url: `${FRONTEND_URL}/success`,
-      cancel_url: `${FRONTEND_URL}/cancel`,
+      success_url: `${this.frontendUrl}/success`,
+      cancel_url: `${this.frontendUrl}/cancel`,
       metadata: { userId },
     });
     if (!session.url) throw new Error('Stripe session URL not returned');

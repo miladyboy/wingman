@@ -1,29 +1,31 @@
 import { OpenAIService } from '../openaiService';
 
-// Properly mock the OpenAI class as a constructor, defined inside the jest.mock factory
-jest.mock('openai', () => {
-  class OpenAIMock {
-    chat = {
+// Helper to create a mock OpenAI client for DI
+function createMockOpenAI(overrides: any = {}) {
+  return {
+    chat: {
       completions: {
         create: jest.fn(),
       },
-    };
-  }
-  return {
-    __esModule: true,
-    default: OpenAIMock,
+    },
+    responses: {
+      stream: jest.fn(),
+    },
+    ...overrides,
   };
-});
+}
 
 describe('OpenAIService', () => {
   const apiKey = 'test-api-key';
   const defaultModel = 'gpt-4o';
   let service: OpenAIService;
   let createMock: jest.Mock;
+  let mockOpenAI: any;
 
   beforeEach(() => {
-    service = new OpenAIService(apiKey, defaultModel);
-    createMock = (service as any).openai.chat.completions.create;
+    mockOpenAI = createMockOpenAI();
+    service = new OpenAIService(apiKey, defaultModel, mockOpenAI);
+    createMock = mockOpenAI.chat.completions.create;
     jest.clearAllMocks();
   });
 
@@ -53,6 +55,20 @@ describe('OpenAIService', () => {
     await expect(
       service.callOpenAI([{ role: 'user', content: 'Say hello' }])
     ).rejects.toThrow('OpenAI API returned a null message content.');
+  });
+
+  it('throws if OpenAI returns empty choices', async () => {
+    createMock.mockResolvedValue({ choices: [] });
+    await expect(
+      service.callOpenAI([{ role: 'user', content: 'Say hello' }])
+    ).rejects.toThrow('OpenAI API returned no choices.');
+  });
+
+  it('throws if OpenAI returns malformed response', async () => {
+    createMock.mockResolvedValue({});
+    await expect(
+      service.callOpenAI([{ role: 'user', content: 'Say hello' }])
+    ).rejects.toThrow('OpenAI API returned no choices.');
   });
 
   it('throws if OpenAI API throws', async () => {
@@ -96,6 +112,27 @@ describe('OpenAIService', () => {
       model: defaultModel,
       messages: [{ role: 'user', content: 'Say something' }],
       max_tokens: 222,
+    });
+  });
+
+  describe('streamChatCompletion', () => {
+    it('calls onData for each streamed chunk', async () => {
+      // Mock the OpenAI streaming generator
+      async function* mockStream() {
+        yield { type: 'response.output_text.delta', delta: 'Hello' };
+        yield { type: 'response.output_text.delta', delta: ' world' };
+      }
+      mockOpenAI.responses.stream.mockReturnValue(mockStream());
+      const onData = jest.fn();
+      await service.streamChatCompletion('prompt', onData);
+      expect(onData).toHaveBeenCalledWith('Hello');
+      expect(onData).toHaveBeenCalledWith(' world');
+    });
+
+    it('throws if the stream throws', async () => {
+      mockOpenAI.responses.stream.mockImplementation(() => { throw new Error('stream fail'); });
+      const onData = jest.fn();
+      await expect(service.streamChatCompletion('prompt', onData)).rejects.toThrow('OpenAI API Error (stream): stream fail');
     });
   });
 }); 

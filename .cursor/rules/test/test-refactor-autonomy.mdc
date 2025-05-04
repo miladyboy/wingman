@@ -1,0 +1,27 @@
+---
+description: 
+globs: **/*.test.*
+alwaysApply: false
+---
+# Cursor Rule — Test Refactor Autonomy
+
+## Purpose
+Allow the AI to proactively refactor, restructure, or improve test code (including mocks, dependency injection, and test setup/teardown) **without waiting for explicit user approval** when:
+- Test failures are due to mocking, dependency injection, or test setup issues (not business logic or requirements changes).
+- The goal is to make tests reliable, robust, and maintainable.
+
+## Scope
+- This rule applies only to test code and test scaffolding.
+- Does **not** permit weakening, removing, or skipping tests to "make the code green" (see `tests` rule for integrity).
+- Does **not** permit changing business logic or requirements without user approval.
+
+## How to Apply
+- If a test fails due to mocking, injection, or setup/teardown issues, the AI should refactor the test code as needed to resolve the issue and keep iterating until the test suite passes or a true business logic failure is found.
+- The AI should report all changes in the "What I just tweaked" section as usual.
+- If the user explicitly requests to pause or review, the AI should yield control.
+
+## Example
+- Refactoring test files to use `jest.resetModules()` and dynamic imports to ensure mocks are in place before importing the module under test.
+- Improving or restructuring mocks to ensure correct injection and isolation between tests.
+
+> This rule is designed to maximize developer velocity and test reliability, while maintaining test integrity and business logic correctness.

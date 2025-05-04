@@ -1,5 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Create rules for the eslint management and code cleanup.

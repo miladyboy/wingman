@@ -54,6 +54,9 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                 ? 'bg-primary/20'
                 : 'hover:bg-accent/30'}
             `}
+            data-active={activeThreadId === thread.id ? 'true' : undefined}
+            data-testid="chat-item"
+            data-thread-id={thread.id}
             onClick={() => editingThreadId !== thread.id && onSelectThread(thread.id)} // Don't select if editing
           >
             {editingThreadId === thread.id ? (
@@ -107,6 +110,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   onClick={(e) => { e.stopPropagation(); onDeleteThread && onDeleteThread(thread.id); }}
                   className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-1"
                   aria-label="Delete chat"
+                  data-testid="delete-chat"
                 >
                   <span role="img" aria-label="Delete">🗑️</span>
                 </Button>

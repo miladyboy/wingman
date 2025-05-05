@@ -119,9 +119,9 @@ function AppRouter() {
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .select('id, title, created_at, updated_at')
+        .select('id, title, created_at, last_message_at')
         .eq('user_id', user.id)
-        .order('updated_at', { ascending: false })
+        .order('last_message_at', { ascending: false })
 
       if (error) throw error
 
@@ -311,6 +311,18 @@ function AppRouter() {
         ...prevMessages,
         { id: assistantMessageId, sender: 'ai', content: '', imageUrls: [] },
       ]);
+      // --- Optimistically move the active conversation to the top ---
+      setConversations(prevConversations => {
+        const now = new Date().toISOString();
+        const idx = prevConversations.findIndex(c => c.id === currentConversationId);
+        if (idx === -1) return prevConversations;
+        const updated = [
+          { ...prevConversations[idx], last_message_at: now },
+          ...prevConversations.slice(0, idx),
+          ...prevConversations.slice(idx + 1)
+        ];
+        return updated;
+      });
       while (!done) {
         const { value, done: streamDone } = await reader.read();
         done = streamDone;

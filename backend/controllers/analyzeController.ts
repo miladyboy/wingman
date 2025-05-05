@@ -204,6 +204,21 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         // --- Save the Message Stub (without AI response yet) ---
         try {
             savedMessage = await saveMessageStub(supabaseAdmin, conversationId, newMessageText);
+            // Update conversation's last_message_at to the new message's created_at
+            if (savedMessage && savedMessage.id) {
+                // Fetch the created_at timestamp of the new message
+                const { data: msgData, error: msgError } = await supabaseAdmin
+                  .from('messages')
+                  .select('created_at')
+                  .eq('id', savedMessage.id)
+                  .single();
+                if (!msgError && msgData && msgData.created_at) {
+                  await supabaseAdmin
+                    .from('conversations')
+                    .update({ last_message_at: msgData.created_at })
+                    .eq('id', conversationId);
+                }
+            }
         } catch (dbError: any) {
             res.status(500).json({ error: 'Database operation failed.', details: dbError.message });
             return;

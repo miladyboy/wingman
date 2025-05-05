@@ -25,6 +25,8 @@ A personal AI wingman that analyzes chat screenshots and suggests flirty or clev
 
 ### Setup
 
+> **Supabase Project Naming**: For best results, name your Supabase project exactly the same as your GitHub repository and local folder (e.g., `harem`). This ensures the LLM and all tooling can reliably identify and use the correct Supabase project, avoiding accidental connections to the wrong database.
+
 1. Clone the repository:
 
 ```bash

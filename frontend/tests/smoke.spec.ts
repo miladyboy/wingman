@@ -46,17 +46,14 @@ async function createNewChat(page, chatNumber) {
 async function deleteAllChats(page) {
   console.log('Starting deleteAllChats function');
   // Wait for chats to load (if any exist)
-  await page.waitForTimeout(500); // Give the UI a moment to start loading
+  await page.waitForTimeout(500);
   await page.waitForSelector('[data-testid="chat-item"]', { timeout: 5000 }).catch(() => {});
   
-  const chatItems = page.locator('[data-testid="chat-item"]');
-  
-  console.log('Found chat items:', await chatItems.count());
   let iteration = 0;
 
-  while (await chatItems.count() > 0) {
+  while (await page.locator('[data-testid="chat-item"]').count() > 0) {
     iteration++;
-    console.log(`Starting deletion iteration ${iteration}`);
+    const chatItems = page.locator('[data-testid="chat-item"]');
     const firstChat = chatItems.first();
     const deleteBtn = firstChat.locator('[data-testid="delete-chat"]');
 
@@ -90,10 +87,8 @@ async function deleteAllChats(page) {
       deleteBtn.click(),
       confirm,
       page.waitForFunction(
-        (selector, prevCount) => {
-          const newCount = document.querySelectorAll(selector).length;
-          return newCount === prevCount - 1;
-        },
+        (selector, prevCount) => document.querySelectorAll(selector).length < prevCount,
+        { timeout: 5000 },
         '[data-testid="chat-item"]',
         count
       ),
@@ -102,7 +97,7 @@ async function deleteAllChats(page) {
   }
 
   // Final check: ensure no chats remain
-  await expect(chatItems).toHaveCount(0);
+  await expect(page.locator('[data-testid=\"chat-item\"]')).toHaveCount(0);
 }
 
 

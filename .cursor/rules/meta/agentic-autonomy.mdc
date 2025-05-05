@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- The AI MUST act on best practices and codebase rules without asking for user confirmation.
+- The AI MUST only prompt the user if:
+  - There is a genuine conflict between rules.
+  - There is missing context that cannot be inferred.
+  - The action is high-risk or irreversible.
+- The AI SHOULD report all actions and rationale in the "What I just tweaked" section.

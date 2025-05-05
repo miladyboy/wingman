@@ -1,10 +1,10 @@
-# Supabase & Database Rules
-- All database schema changes must be made via migration files committed to git, not direct changes through the Supabase dashboard or MCP. This ensures auditability, reproducibility, and team collaboration.
-
 # Wishlist
 - [ ] Let the user store things to long-term memory during a chat, perhaps by explicitly asking for it.
 
 # To-Do (Rest)
+- [ ] Make sure Stripe works in production. 
+- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [ ] Make sure the LLM knows which project to use in Supabase instead of defaulting to the first one.
 - [ ] Make session management optional through a "Remember Me" toggle.  
 - [ ] Add Dark/Light theme.  
 - [ ] Save memories based on what the bot sees in photos or what I say. **(Hard)**  
@@ -33,6 +33,7 @@
 - [ ] Registration should give feedback and a notice to verify email. *(Small)*  
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. **(Mid) (Important)**  
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
+- [ ] Add a .env.development stripe wh secret. (It doesn't change.)
 
 # Doing
 - [ ] The last chat you interacted with should move to the top on the left.  

@@ -1,8 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-I need to improve how the agent interacts with Supabase DBs.
-
-- It seems to get confused and update personal-stylist project (probably because it's the first one)

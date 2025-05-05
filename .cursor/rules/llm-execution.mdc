@@ -39,23 +39,20 @@ Whenever you introduce a new dependency:
 
 ## 5. Development Server Management
 
-> **Absolute rule:** **Never `cd` into sub-directories to launch a server.**  
-> Always launch servers from the repo root with `npm run dev --prefix <dir>`.
-
-### 5.1 Front-End (port 3001)
+### 5.1 Front-End
 
 | Step | Command / Action | Notes |
 |------|------------------|-------|
-| **Start** | `npm run dev --prefix frontend` | **Do not `cd` into `frontend/`; use `--prefix`.** |
-| **Check existing instance** | `lsof -i :3001` | If the listed process belongs to the current project, keep using it. |
-| **Kill stale process** | `kill -9 <PID>` | Only if the port 3001 process is unrelated or frozen. |
-| **Re-launch** | Re-run the start command **after** ensuring port 3001 is free. |
+| **Start** | `npm start --prefix frontend` | Launches the React/Vite app |
+| **Check existing instance** | `lsof -i :3001` | If the listed process is the correct project, keep using it |
+| **Kill stale process** | `kill -9 <PID>` | Only if the port 3001 process is unrelated or frozen |
+| **Re-launch** | Run the start command **after** ensuring port 3001 is free |
 
-### 5.2 Back-End (port 8081)
+### 5.2 Back-End
 
 | Step | Command / Action | Notes |
 |------|------------------|-------|
-| **Start** | `npm run dev --prefix backend` | **Do not `cd` into `backend/`; use `--prefix`.** |
-| **Check existing instance** | `lsof -i :8081` | If the listed process belongs to the current project, keep using it. |
-| **Kill stale process** | `kill -9 <PID>` | Only if the port 8081 process is unrelated or frozen. |
-| **Re-launch** | Re-run the start command **after** ensuring port 8081 is free. |
+| **Start** | `npm start --prefix backend` | Launches the Node/Express API |
+| **Check existing instance** | `lsof -i :8081` | If the listed process is the correct project, keep using it |
+| **Kill stale process** | `kill -9 <PID>` | Only if the port 8081 process is unrelated or frozen |
+| **Re-launch** | Run the start command **after** ensuring port 8081 is free |

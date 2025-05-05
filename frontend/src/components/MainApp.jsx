@@ -4,14 +4,7 @@ import ChatHistory from './ChatHistory';
 import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
 import { useNavigate } from 'react-router-dom';
-
-function ChatEmptyState() {
-  return (
-    <div className="text-center text-muted-foreground pt-10">
-      Start your new conversation by sending a message.
-    </div>
-  );
-}
+import ChatEmptyState from './ChatEmptyState';
 
 export default function MainApp({
   profile,

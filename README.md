@@ -54,6 +54,12 @@ npm install
 
 ## Running the Application
 
+### Stripe Webhook Forwarding (Development Only)
+
+The app now requires the [Stripe CLI](https://stripe.com/docs/stripe-cli) for local development to forward webhook events to your frontend. The `start:all` script will automatically run `stripe listen --forward-to localhost:3001/api/stripe/webhook` in parallel with the frontend and backend servers.
+
+If you don't have the Stripe CLI installed, follow [these instructions](https://stripe.com/docs/stripe-cli#install) to install it.
+
 1. Start the backend server:
 
 ```bash

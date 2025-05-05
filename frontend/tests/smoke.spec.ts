@@ -52,15 +52,14 @@ async function deleteAllChats(page) {
   // Find all chat items in the sidebar
   let chatItems = await page.$$('nav [role="listitem"]');
   while (chatItems.length > 0) {
-    // For each chat, click the delete button
-    // The delete button is only visible on hover, so hover first
     for (const chatItem of chatItems) {
       await chatItem.hover();
       const deleteBtn = await chatItem.$('[aria-label="Delete chat"]');
       if (deleteBtn) {
-        await deleteBtn.click();
-        // Wait for the chat item to be removed from the DOM
-        await page.waitForTimeout(300); // Small delay for UI update
+        await Promise.all([
+          chatItem.waitForElementState('detached'),
+          deleteBtn.click(),
+        ]);
       }
     }
     // Refresh the list of chat items

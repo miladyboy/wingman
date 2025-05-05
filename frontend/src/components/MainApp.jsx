@@ -5,6 +5,14 @@ import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
 import { useNavigate } from 'react-router-dom';
 
+function ChatEmptyState() {
+  return (
+    <div className="text-center text-muted-foreground pt-10">
+      Start your new conversation by sending a message.
+    </div>
+  );
+}
+
 export default function MainApp({
   profile,
   conversations,
@@ -23,6 +31,8 @@ export default function MainApp({
   const isNewChat = activeConversationId === 'new';
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
   const navigate = useNavigate();
+
+  const showEmptyState = conversations.length === 0 || isNewChat;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -50,10 +60,8 @@ export default function MainApp({
         )}
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
-          {isNewChat ? (
-            <div className="text-center text-muted-foreground pt-10">
-              Start your new conversation by sending a message.
-            </div>
+          {showEmptyState ? (
+            <ChatEmptyState />
           ) : activeConversationId ? (
             <ChatHistory history={messages.map(m => ({
               role: m.sender,
@@ -91,11 +99,11 @@ export default function MainApp({
           )}
         </div>
 
-        {isNewChat || activeConversationId ? (
+        {(showEmptyState || activeConversationId) && (
           <div className="p-4 border-t border-border bg-card">
             <UploadComponent onSendMessage={handleSendMessage} disabled={loading} />
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );

@@ -1,31 +1,34 @@
 # Wishlist
 - [ ] Let the user store things to long-term memory during a chat, perhaps by explicitly asking for it.
-
-# To-Do (Rest)
-- [ ] Make sure Stripe works in production. 
-- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
-- [ ] Make session management optional through a "Remember Me" toggle.  
 - [ ] Add Dark/Light theme.  
-- [ ] Save memories based on what the bot sees in photos or what I say. **(Hard)**  
-- [ ] Upload user chats to mimic their style. **(Mid)**  
-- [ ] Build a React Native app for mobile. **(Hard)**  
-- [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.  
-- [ ] Set up CI environment.  
+- [ ] Make session management optional through a "Remember Me" toggle.  
+- [ ] Save memories based on what the bot sees in photos or what I say. (RAG) **(Hard)**  
 - [ ] Make image paste with ⌘ + V work. *(Small)*  
-- [ ] The bot loses context as the conversation grows—improve this. **(Hard) (Important)**  
-- [ ] Build the next version of my task manager.  
-- [ ] Test the entire backend.  
-- [ ] Fix frontend tests.  
-- [ ] Handle large images (currently times out with a 400 error); maybe resize images.  
 - [ ] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  
 - [ ] Make the bot respond in Markdown.  
+- [ ] Implement a free trial for the Stripe membership.  
+- [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.  
+- [ ] Build a React Native app for mobile. **(Hard)**  
+- [ ] Upload user chats to mimic their style. **(Mid)**  
+
+# To-Do
+
+## Code Quality
+- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [ ] Create an audit / architect-mode rule that I can insert manually.  
+- [ ] Set up CI environment.  
+- [ ] Get to a good number of test coverage in the backend.
+- [ ] Make it so that E2E tests use a much smaller model to save on costs.
+- [ ] Fix the E2E suite
+
+## Features
+- [ ] Replace the confirmation alert for deleting a message with a nicer component.
+- [ ] Make sure Stripe works in production. 
+- [ ] Handle large images (currently times out with a 400 error); maybe resize images.  
+- [ ] Fix the feature that creates nicknames for each new chat thread *(bug)*
 - [ ] Add visitor and user tracking.  
 - [ ] Add an easy user feedback loop.  
-- [ ] Implement a free trial for the Stripe membership.  
-- [ ] Create an audit / architect-mode rule that I can insert manually.  
-- [ ] Replace the confirmation alert for deleting a message with a nicer component.
 - [ ] Improve "Pricing" aka payment page.
-- [ ] Make it so that E2E tests use a much smaller model to save on costs.
 
 # MVP
 - [ ] Add a favicon.  
@@ -35,7 +38,6 @@
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. **(Mid) (Important)**  
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] El optimistic preview de la imagen se rompe, aparece un momento y desaparece. En refresh aparece correctamente. 
-- [ ] Fix the E2E suite
 
 # Doing
 
@@ -80,3 +82,5 @@
 - [x] Make sure the LLM knows which project to use in Supabase instead of defaulting to the first one.
 - [x] The last chat you interacted with should move to the top on the left.  
 - [x] Log-in with no chats should open the app in the "new chat" component.
+- [x] Build the next version of my task manager.  
+- [x] Fix frontend tests.  

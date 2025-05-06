@@ -14,29 +14,29 @@
 # To-Do
 
 ## Code Quality
-- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
 - [ ] Set up CI environment.  
 - [ ] Get to a good number of test coverage in the backend.
 - [ ] Make it so that E2E tests use a much smaller model to save on costs.
 - [ ] Fix the E2E suite
+- [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
 
 ## Features
-- [ ] Replace the confirmation alert for deleting a message with a nicer component.
-- [ ] Make sure Stripe works in production. 
-- [ ] Handle large images (currently times out with a 400 error); maybe resize images.  
-- [ ] Add visitor and user tracking.  
-- [ ] Add an easy user feedback loop.  
-- [ ] Improve "Pricing" aka payment page.
-- [ ] Add a favicon.  
-- [ ] Create a logo for the app.  
-- [ ] Registration should give feedback and guide through the flow *(Small)*  
-- [ ] Add login/signup with google. 
-- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. **(Mid) (Important)**  
+- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
+- [ ] Make sure Stripe works in production.  *important*
+- [ ] Add visitor and user tracking. *growth*
+- [ ] Add an easy user feedback loop. *growth* 
+- [ ] Improve "Pricing" aka payment page. *ux*
+- [ ] Add a favicon. *ux* 
+- [ ] Create a logo for the app. 
+- [ ] Registration should give feedback and guide through the flow *ux*  
+- [ ] Add login/signup with google. *ux*
+- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
-- [ ] El optimistic preview de la imagen se rompe, aparece un momento y desaparece. En refresh aparece correctamente. 
+- [ ] Fix optimistic image preview bug (see tasks/20240608-fix-optimistic-image-preview.md)
 
 # Doing
+- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 
 # Done
 - [x] Implement streaming API.  

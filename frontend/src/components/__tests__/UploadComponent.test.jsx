@@ -3,11 +3,16 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import UploadComponent from '../UploadComponent';
+import ChatHistory from '../ChatHistory';
 
 describe('UploadComponent', () => {
   let mockSend;
   beforeEach(() => {
     mockSend = jest.fn();
+  });
+
+  beforeAll(() => {
+    window.HTMLElement.prototype.scrollIntoView = jest.fn();
   });
 
   it('sends message on Enter', () => {
@@ -57,5 +62,19 @@ describe('UploadComponent', () => {
     fireEvent.change(textarea, { target: { value: 'Should not send' } });
     fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter', charCode: 13 });
     expect(mockSend).not.toHaveBeenCalled();
+  });
+
+  it('shows error fallback if upload fails', () => {
+    // Simulate a failed optimistic message
+    const failedMessage = {
+      id: 'user-123',
+      sender: 'user',
+      content: 'Test',
+      imageUrls: ['blob:http://localhost/image1'],
+      optimistic: true,
+      failed: true,
+    };
+    render(<ChatHistory history={[failedMessage]} />);
+    expect(screen.getByText(/upload failed/i)).toBeInTheDocument();
   });
 }); 

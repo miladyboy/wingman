@@ -180,6 +180,23 @@ function AppRouter() {
     }
   }, [session, fetchConversations]);
 
+  // Helper to reconcile optimistic and server messages
+  function reconcileMessages(serverMessages, optimisticMessages) {
+    // Remove optimistic messages that have a matching real message (by content and image count)
+    const filteredOptimistic = optimisticMessages.filter(optMsg => {
+      if (!optMsg.optimistic) return false;
+      return !serverMessages.some(
+        srvMsg =>
+          srvMsg.sender === optMsg.sender &&
+          srvMsg.content === optMsg.content &&
+          Array.isArray(srvMsg.imageUrls) &&
+          Array.isArray(optMsg.imageUrls) &&
+          srvMsg.imageUrls.length === optMsg.imageUrls.length
+      );
+    });
+    return [...serverMessages, ...filteredOptimistic];
+  }
+
   useEffect(() => {
     const fetchMessages = async () => {
       if (!activeConversationId || !session || activeConversationId === 'new') {
@@ -207,11 +224,14 @@ function AppRouter() {
         if (error) throw error;
         const { supabaseUrl } = await import('./supabaseClient');
         const bucketUrl = `${supabaseUrl}/storage/v1/object/public/chat-images/`;
-        const messagesWithImages = (data || []).map(msg => ({
+        const serverMessages = (data || []).map(msg => ({
           ...msg,
           imageUrls: (msg.ChatMessageImages || []).map(img => bucketUrl + img.storage_path),
         }));
-        setMessages(messagesWithImages);
+        setMessages(prevMessages => {
+          const optimisticMessages = prevMessages.filter(m => m.optimistic);
+          return reconcileMessages(serverMessages, optimisticMessages);
+        });
       } catch (error) {
         console.error('Error fetching messages:', error);
         setError(`Could not fetch messages for this conversation. ${error.message}`);

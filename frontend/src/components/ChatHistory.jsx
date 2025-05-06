@@ -36,20 +36,24 @@ function ChatHistory({ history }) {
 
                   {/* ADDED: Display images if imageUrls array exists */}
                   {message.imageUrls && message.imageUrls.length > 0 && (
-                    <div className={`mt-2 flex flex-wrap gap-2 justify-end`}>
-                      {message.imageUrls.map((url, imgIndex) => {
-                        // REMOVED: Log inside the image map
-                        // console.log(`[ChatHistory] Rendering image ${imgIndex} for message ${message.id || index} with URL:`, url);
-                        return (
-                          <a key={imgIndex} href={url} target="_blank" rel="noopener noreferrer" className="block">
+                    <div className={`mt-2 flex flex-wrap gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                      {message.imageUrls.map((url, imgIndex) => (
+                        <div key={imgIndex} className="relative">
+                          <a href={url} target="_blank" rel="noopener noreferrer" className="block">
                             <img
                               src={url}
                               alt={`Uploaded image ${imgIndex + 1}`}
                               className="max-w-[150px] max-h-[150px] sm:max-w-[200px] sm:max-h-[200px] rounded object-cover border border-border hover:opacity-90 transition-opacity"
+                              style={message.failed ? { filter: 'grayscale(1)', opacity: 0.5 } : {}}
                             />
                           </a>
-                        );
-                      })}
+                          {message.failed && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-destructive/60 text-white font-bold text-xs rounded">
+                              Upload failed
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                   {/* Optional: Timestamp - using timestamp passed from App.jsx */}
@@ -66,20 +70,24 @@ function ChatHistory({ history }) {
                   </div>
                 )}
                 {message.imageUrls && message.imageUrls.length > 0 && (
-                  <div className={`mt-2 flex flex-wrap gap-2 justify-start`}>
-                    {message.imageUrls.map((url, imgIndex) => {
-                      // REMOVED: Log inside the image map
-                      // console.log(`[ChatHistory] Rendering image ${imgIndex} for message ${message.id || index} with URL:`, url);
-                      return (
-                        <a key={imgIndex} href={url} target="_blank" rel="noopener noreferrer" className="block">
+                  <div className={`mt-2 flex flex-wrap gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                    {message.imageUrls.map((url, imgIndex) => (
+                      <div key={imgIndex} className="relative">
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="block">
                           <img
                             src={url}
                             alt={`Uploaded image ${imgIndex + 1}`}
                             className="max-w-[150px] max-h-[150px] sm:max-w-[200px] sm:max-h-[200px] rounded object-cover border border-border hover:opacity-90 transition-opacity"
+                            style={message.failed ? { filter: 'grayscale(1)', opacity: 0.5 } : {}}
                           />
                         </a>
-                      );
-                    })}
+                        {message.failed && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-destructive/60 text-white font-bold text-xs rounded">
+                            Upload failed
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

@@ -25,6 +25,7 @@
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
 - [ ] Replace the confirmation alert for deleting a message with a nicer component.
 - [ ] Improve "Pricing" aka payment page.
+- [ ] Make it so that E2E tests use a much smaller model to save on costs.
 
 # MVP
 - [ ] Add a favicon.  
@@ -34,10 +35,9 @@
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. **(Mid) (Important)**  
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] El optimistic preview de la imagen se rompe, aparece un momento y desaparece. En refresh aparece correctamente. 
-
+- [ ] Fix the E2E suite
 
 # Doing
-- [ ] The last chat you interacted with should move to the top on the left.  
 
 # Done
 - [x] Implement streaming API.  
@@ -78,3 +78,5 @@
 - [x] Log-out redirects to the homepage.  
 - [x] Don't always give 2–3 suggestions—sometimes one or a normal reply is enough.
 - [x] Make sure the LLM knows which project to use in Supabase instead of defaulting to the first one.
+- [x] The last chat you interacted with should move to the top on the left.  
+- [x] Log-in with no chats should open the app in the "new chat" component.

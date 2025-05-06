@@ -44,72 +44,47 @@ async function createNewChat(page, chatNumber) {
  * Helper: Deletes every chat visible in the sidebar and waits until none remain.
  */
 async function deleteAllChats(page) {
-  console.log('Starting deleteAllChats function');
-  // Wait for chats to load (if any exist)
   await page.waitForTimeout(500);
-  await page.waitForSelector('[data-testid="chat-item"]', { timeout: 5000 }).catch(() => {});
-  
-  let iteration = 0;
+  const found = await page.waitForSelector('[data-testid="chat-item"]', { timeout: 500 }).catch(() => null);
+  if (!found)  return;
 
   while (await page.locator('[data-testid="chat-item"]').count() > 0) {
-    iteration++;
-    const chatItems = page.locator('[data-testid="chat-item"]');
-    const firstChat = chatItems.first();
-    const deleteBtn = firstChat.locator('[data-testid="delete-chat"]');
+    const chatItems  = page.locator('[data-testid="chat-item"]');
+    const firstChat  = chatItems.first();
+    const deleteBtn  = firstChat.locator('[data-testid="delete-chat"]');
 
-    // Hover to reveal the delete button (if needed)
-    console.log('Hovering over first chat to reveal delete button');
     await firstChat.hover();
 
-    // Check if the delete button is visible and enabled
-    console.log('Checking delete button visibility and state');
-    const isVisible = await deleteBtn.isVisible().catch(() => false);
-    const isEnabled = await deleteBtn.isEnabled().catch(() => false);
-    console.log(`Delete button - Visible: ${isVisible}, Enabled: ${isEnabled}`);
-    
-    if (!isVisible || !isEnabled) {
-      console.error('Delete button not accessible:', { isVisible, isEnabled });
-      throw new Error('Delete button not visible or not enabled after hover. Check selectors and UI state.');
-    }
+    // accept the confirm dialog
+    const confirm = page.waitForEvent('dialog').then(d => d.accept());
 
-    // Prepare to accept the confirmation dialog
-    console.log('Setting up confirmation dialog handler');
-    const confirm = page.waitForEvent('dialog').then(d => {
-      console.log('Dialog detected, accepting');
-      return d.accept();
-    });
+    const prevCount = await chatItems.count();
 
-    // Click delete and wait for the count to decrease
-    const count = await chatItems.count();
-    console.log(`Current chat count: ${count}, attempting to delete one chat`);
-    
     await Promise.all([
       deleteBtn.click(),
       confirm,
       page.waitForFunction(
-        (selector, prevCount) => document.querySelectorAll(selector).length < prevCount,
-        { timeout: 5000 },
-        '[data-testid="chat-item"]',
-        count
-      ),
+        ([sel, prev]) => document.querySelectorAll(sel).length < prev,
+        ['[data-testid="chat-item"]', prevCount],
+        { timeout: 5_000 }
+      )
     ]);
-    console.log(`Successfully completed deletion iteration ${iteration}`);
   }
 
-  // Final check: ensure no chats remain
-  await expect(page.locator('[data-testid=\"chat-item\"]')).toHaveCount(0);
+  await expect(page.locator('[data-testid="chat-item"]')).toHaveCount(0);
 }
 
 
-// /**
-//  * Smoke test: Loads the homepage and checks for the main header loads.
-//  */
-// test('homepage loads and chat input is visible', async ({ page }) => {
-//   await page.goto('/');
-//   const headline = await page.locator('h1.font-headline');
-//   await expect(headline).toBeVisible();
-//   await expect(headline).toContainText('Your Personal AI Wingman');
-// });
+
+/**
+ * Smoke test: Loads the homepage and checks for the main header loads.
+ */
+test('homepage loads and chat input is visible', async ({ page }) => {
+  await page.goto('/');
+  const headline = await page.locator('h1.font-headline');
+  await expect(headline).toBeVisible();
+  await expect(headline).toContainText('Your Personal AI Wingman');
+});
 
 // /**
 //  * Active chat management tests
@@ -134,23 +109,20 @@ test.describe('Active chat management', () => {
   test('shows first chat as active on login', async ({ page }) => {
     await login(page);    
     await deleteAllChats(page);
-    // // Create at least one chat
-    // const chat1 = await createNewChat(page, 1);
-    // // Reload to simulate fresh login
-    // await page.reload();
-    // // The first chat should be active
-    // const activeChat = await page.locator('nav [data-active="true"]').first();
-    // const activeChatText = await activeChat.textContent();
-    // expect(activeChatText).toContain(chat1);
+    // Create at least one chat
+    const chat1 = await createNewChat(page, 1);
+    // Reload to simulate fresh login
+    await page.reload();
+    // The first chat should be active
+    const activeChat = await page.locator('nav [data-active="true"]').first();
+    const activeChatText = await activeChat.textContent();
+    expect(activeChatText).toContain(chat1);
     expect(true).toBe(true);
   });
 
   test('shows new chat component if no chats exist', async ({ page }) => {
     await login(page);
-    console.log('Logged in');
     await deleteAllChats(page);
-    console.log('Deleted all chats');
-    // Should see the new chat prompt
     await expect(page.locator('text=Start your new conversation by sending a message.')).toBeVisible();
   });
 });

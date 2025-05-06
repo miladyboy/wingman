@@ -25,16 +25,13 @@
 - [ ] Replace the confirmation alert for deleting a message with a nicer component.
 - [ ] Make sure Stripe works in production. 
 - [ ] Handle large images (currently times out with a 400 error); maybe resize images.  
-- [ ] Fix the feature that creates nicknames for each new chat thread *(bug)*
 - [ ] Add visitor and user tracking.  
 - [ ] Add an easy user feedback loop.  
 - [ ] Improve "Pricing" aka payment page.
-
-# MVP
 - [ ] Add a favicon.  
 - [ ] Create a logo for the app.  
-- [ ] Ensure the email-approval flow works correctly. 
-- [ ] Registration should give feedback and a notice to verify email. *(Small)*  
+- [ ] Registration should give feedback and guide through the flow *(Small)*  
+- [ ] Add login/signup with google. 
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. **(Mid) (Important)**  
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] El optimistic preview de la imagen se rompe, aparece un momento y desaparece. En refresh aparece correctamente. 

@@ -19,6 +19,8 @@ export default function MainApp({
   loadingMessages,
   error,
   handleSendMessage,
+  uploading,
+  setUploading,
   supabase
 }) {
   const isNewChat = activeConversationId === 'new';
@@ -71,7 +73,7 @@ export default function MainApp({
           {loadingMessages && (
             <div className="text-center py-4 text-muted-foreground">Loading messages...</div>
           )}
-          {loading && !loadingMessages && (() => {
+          {(uploading || (loading && !loadingMessages)) && (() => {
             // Find the latest agent message (role/sender !== 'user')
             const lastAgentMsg = [...messages].reverse().find(m => (m.role !== 'user' && m.sender !== 'user'));
             const agentHasContent = lastAgentMsg && lastAgentMsg.content && lastAgentMsg.content.trim().length > 0;
@@ -94,7 +96,7 @@ export default function MainApp({
 
         {(showEmptyState || activeConversationId) && (
           <div className="p-4 border-t border-border bg-card">
-            <UploadComponent onSendMessage={handleSendMessage} disabled={loading} />
+            <UploadComponent onSendMessage={handleSendMessage} disabled={loading} setUploading={setUploading} />
           </div>
         )}
       </div>

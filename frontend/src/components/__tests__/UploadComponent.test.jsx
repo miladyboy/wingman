@@ -77,4 +77,13 @@ describe('UploadComponent', () => {
     render(<ChatHistory history={[failedMessage]} />);
     expect(screen.getByText(/upload failed/i)).toBeInTheDocument();
   });
+
+  it('calls setUploading immediately on submit', () => {
+    const mockSetUploading = jest.fn();
+    render(<UploadComponent onSendMessage={mockSend} disabled={false} setUploading={mockSetUploading} />);
+    const textarea = screen.getByPlaceholderText(/enter text|add context/i);
+    fireEvent.change(textarea, { target: { value: 'Test upload' } });
+    fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter', charCode: 13 });
+    expect(mockSetUploading).toHaveBeenCalledWith(true);
+  });
 }); 

@@ -4,7 +4,7 @@ This document outlines a step-by-step implementation plan to improve the structu
 
 ## Checklist
 
-- [ ] Extract route guard components (`RequireAuth`, `RedirectIfAuth`, `RequireSubscription`) into individual files under `src/components/guards/`.
+- [x] Extract route guard components (`RequireAuth`, `RedirectIfAuth`, `RequireSubscription`) into individual files under `src/components/guards/`.
 - [ ] Move `<Subscribe>` page into `src/pages/Subscribe.jsx` and router logic into `src/router/AppRouter.jsx`.
 - [ ] Create an `AuthContext` provider in `src/context/AuthContext.jsx` to centralize authentication/session state and replace manual prop-passing.
 - [ ] Refactor data-loading logic into custom hooks: `useProfile`, `useConversations`, `useMessages` in `src/hooks/`.

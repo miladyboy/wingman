@@ -42,6 +42,7 @@
 
 # Doing
 - [ ] Refactor App.jsx, it's 600 lines long.
+- [ ] The testing environment should have a separate database. 
 
 # Done
 - [x] Implement streaming API.  

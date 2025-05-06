@@ -1,0 +1,25 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- **Always verify the existence of `data-testid` attributes in the codebase before referencing them in Playwright or other E2E/UI tests.**
+
+  - Search the relevant component(s) for the expected `data-testid` before writing or running a test that uses it.
+
+  - If the attribute does not exist but is required for test stability, add it optimistically to the component(s) in a minimal, non-breaking way.
+  - Prefer adding `data-testid` to form fields, buttons, and other interactive elements that are targeted by tests.
+- **Report all such additions or changes in the update summary** ("What I just tweaked") so reviewers are aware of new or modified test IDs.
+- **Rationale:**
+  - Prevents test flakiness and wasted debugging time due to missing selectors.
+  - Ensures a stable contract between UI code and automated tests.
+- **Examples:**
+  ```jsx
+  // ✅ DO: Add data-testid if missing
+  <Input id="email" data-testid="register-email" ... />
+  <Button type="submit" data-testid="register-submit">Register</Button>
+  ```
+  ```typescript
+  // ✅ DO: Only use selectors that exist in the codebase
+  await page.fill('[data-testid="register-email"]', email);
+  ```

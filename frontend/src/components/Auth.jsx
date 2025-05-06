@@ -74,6 +74,7 @@ export default function Auth() {
                   minLength={3}
                   onChange={(e) => setUsername(e.target.value)}
                   className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
+                  data-testid="register-username"
                 />
               </div>
             )}
@@ -87,6 +88,7 @@ export default function Auth() {
                 required
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
+                data-testid={isRegistering ? "register-email" : "login-email"}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -100,9 +102,15 @@ export default function Auth() {
                 minLength={6}
                 onChange={(e) => setPassword(e.target.value)}
                 className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
+                data-testid={isRegistering ? "register-password" : "login-password"}
               />
             </div>
-            <Button type="submit" className="w-full mt-2 bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90 transition-colors duration-200" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full mt-2 bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90 transition-colors duration-200"
+              disabled={loading}
+              data-testid={isRegistering ? "register-submit" : "login-submit"}
+            >
               {loading ? 'Loading...' : isRegistering ? 'Register' : 'Sign In'}
             </Button>
           </form>

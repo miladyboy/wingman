@@ -12,6 +12,7 @@
 - [ ] Upload user chats to mimic their style. **(Mid)**  
 
 # To-Do
+- [ ] A paid user shouldn't be able to access /subscribe
 
 ## Code Quality
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
@@ -22,6 +23,7 @@
 - [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
 - [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 - [ ] Audit and make the frontend code more modular.
+- [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
@@ -39,7 +41,7 @@
 - [ ] I should be able to send a photo without a text message. *bug*
 
 # Doing
-- [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
+- [ ] Refactor App.jsx, it's 600 lines long.
 
 # Done
 - [x] Implement streaming API.  
@@ -84,4 +86,4 @@
 - [x] Log-in with no chats should open the app in the "new chat" component.
 - [x] Build the next version of my task manager.  
 - [x] Fix frontend tests.  
-- [x] Fix optimistic image preview bug (see tasks/20240608-fix-optimistic-image-preview.md)
+- [x] Fix optimistic image preview bug 

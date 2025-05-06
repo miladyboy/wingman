@@ -6,54 +6,10 @@ import LandingPage from './components/LandingPage'
 import MainApp from './components/MainApp'
 import './index.css'
 import { Button } from './components/ui/button';
-
-function RequireAuth({ session, children }) {
-  const location = useLocation();
-  if (!session) {
-    return <Navigate to="/" state={{ from: location }} replace />;
-  }
-  return children;
-}
-
-function RedirectIfAuth({ session, children }) {
-  const location = useLocation();
-  if (session) {
-    return <Navigate to="/app" state={{ from: location }} replace />;
-  }
-  return children;
-}
-
-function RequireSubscription({ children }) {
-  const [loading, setLoading] = useState(true);
-  const [active, setActive] = useState(false);
-  const navigate = useNavigate();
-  useEffect(() => {
-    async function check() {
-      try {
-        // Get the current session and access token
-        const { data: { session } } = await supabase.auth.getSession();
-        const accessToken = session?.access_token;
-        const res = await fetch('/api/payments/subscription-status', {
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-        });
-        const data = await res.json();
-        if (data.active) {
-          setActive(true);
-        } else {
-          navigate('/subscribe');
-        }
-      } catch {
-        navigate('/subscribe');
-      } finally {
-        setLoading(false);
-      }
-    }
-    check();
-  }, [navigate]);
-  if (loading) return null;
-  if (!active) return null;
-  return children;
-}
+import RequireAuth from './components/guards/RequireAuth';
+import RedirectIfAuth from './components/guards/RedirectIfAuth';
+import RequireSubscription from './components/guards/RequireSubscription';
+import RedirectIfSubscribed from './components/guards/RedirectIfSubscribed';
 
 function AppRouter() {
   const [session, setSession] = useState(null)
@@ -251,9 +207,9 @@ function AppRouter() {
 
   const handleSendMessage = useCallback(async (formData) => {
     let currentConversationId = activeConversationId;
+    setLoading(true);
+    setError(null);
     if (currentConversationId === 'new') {
-      setLoading(true);
-      setError(null);
       try {
         const initialTitle = `New Chat ${conversations.length + 1}`;
         const { data, error } = await supabase
@@ -273,13 +229,12 @@ function AppRouter() {
         setError(`Could not start a new conversation: ${error.message}`);
         setLoading(false);
         return;
-      } finally {
-        setLoading(false);
       }
     }
     formData.append('conversationId', currentConversationId);
     if (!currentConversationId || !session) {
       setError('Please select or start a conversation first.');
+      setLoading(false);
       return;
     }
     // Optimistically add the user message to the UI immediately
@@ -305,100 +260,101 @@ function AppRouter() {
       content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content,
     })));
     formData.append('historyJson', historyJson);
-    setLoading(true);
-    setError(null);
-    let assistantMessageId = `ai-${Date.now()}`;
-    let assistantMessageContent = '';
-    try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-      const response = await fetch(`${backendUrl}/analyze`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: formData,
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown backend error' }));
-        throw new Error(errorData.details || errorData.error || `Backend Error: ${response.statusText}`);
-      }
-      // Streaming logic
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let done = false;
-      let buffer = '';
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { id: assistantMessageId, sender: 'ai', content: '', imageUrls: [] },
-      ]);
-      // --- Optimistically move the active conversation to the top ---
-      setConversations(prevConversations => {
-        const now = new Date().toISOString();
-        const idx = prevConversations.findIndex(c => c.id === currentConversationId);
-        if (idx === -1) return prevConversations;
-        const updated = [
-          { ...prevConversations[idx], last_message_at: now },
-          ...prevConversations.slice(0, idx),
-          ...prevConversations.slice(idx + 1)
-        ];
-        return updated;
-      });
-      while (!done) {
-        const { value, done: streamDone } = await reader.read();
-        done = streamDone;
-        buffer += value ? decoder.decode(value, { stream: true }) : '';
-        let eolIndex;
-        while ((eolIndex = buffer.indexOf('\n\n')) !== -1) {
-          const raw = buffer.slice(0, eolIndex).trim();
-          buffer = buffer.slice(eolIndex + 2);
-          if (raw.startsWith('data:')) {
-            try {
-              const event = JSON.parse(raw.replace(/^data:/, '').trim());
-              if (event.text !== undefined) {
-                if (!event.done) {
-                  assistantMessageContent += event.text;
-                  setMessages(prevMessages =>
-                    prevMessages.map(msg =>
-                      msg.id === assistantMessageId
-                        ? { ...msg, content: assistantMessageContent }
-                        : msg
-                    )
-                  );
+    // Start backend call in a new tick to allow loading state to flush
+    setTimeout(async () => {
+      let assistantMessageId = `ai-${Date.now()}`;
+      let assistantMessageContent = '';
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        const response = await fetch(`${backendUrl}/analyze`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: formData,
+        });
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown backend error' }));
+          throw new Error(errorData.details || errorData.error || `Backend Error: ${response.statusText}`);
+        }
+        // Streaming logic
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let done = false;
+        let buffer = '';
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { id: assistantMessageId, sender: 'ai', content: '', imageUrls: [] },
+        ]);
+        // --- Optimistically move the active conversation to the top ---
+        setConversations(prevConversations => {
+          const now = new Date().toISOString();
+          const idx = prevConversations.findIndex(c => c.id === currentConversationId);
+          if (idx === -1) return prevConversations;
+          const updated = [
+            { ...prevConversations[idx], last_message_at: now },
+            ...prevConversations.slice(0, idx),
+            ...prevConversations.slice(idx + 1)
+          ];
+          return updated;
+        });
+        while (!done) {
+          const { value, done: streamDone } = await reader.read();
+          done = streamDone;
+          buffer += value ? decoder.decode(value, { stream: true }) : '';
+          let eolIndex;
+          while ((eolIndex = buffer.indexOf('\n\n')) !== -1) {
+            const raw = buffer.slice(0, eolIndex).trim();
+            buffer = buffer.slice(eolIndex + 2);
+            if (raw.startsWith('data:')) {
+              try {
+                const event = JSON.parse(raw.replace(/^data:/, '').trim());
+                if (event.text !== undefined) {
+                  if (!event.done) {
+                    assistantMessageContent += event.text;
+                    setMessages(prevMessages =>
+                      prevMessages.map(msg =>
+                        msg.id === assistantMessageId
+                          ? { ...msg, content: assistantMessageContent }
+                          : msg
+                      )
+                    );
+                  }
                 }
-              }
-              if (event.done) {
+                if (event.done) {
+                  break;
+                }
+              } catch {
                 break;
               }
-            } catch {
-              break;
             }
           }
         }
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: assistantMessageContent }
+              : msg
+          )
+        );
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
+            msg.id === optimisticId ? { ...msg, optimistic: false } : msg
+          )
+        );
+        optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
+      } catch (error) {
+        setError(`Backend communication error: ${error.message}.`);
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
+            msg.id === optimisticId ? { ...msg, failed: true } : msg
+          )
+        );
+        optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
+      } finally {
+        setLoading(false);
       }
-      setMessages(prevMessages =>
-        prevMessages.map(msg =>
-          msg.id === assistantMessageId
-            ? { ...msg, content: assistantMessageContent }
-            : msg
-        )
-      );
-      setMessages(prevMessages =>
-        prevMessages.map(msg =>
-          msg.id === optimisticId ? { ...msg, optimistic: false } : msg
-        )
-      );
-      optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
-    } catch (error) {
-      setError(`Backend communication error: ${error.message}.`);
-      setMessages(prevMessages =>
-        prevMessages.map(msg =>
-          msg.id === optimisticId ? { ...msg, failed: true } : msg
-        )
-      );
-      optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
-    } finally {
-      setLoading(false);
-    }
+    }, 0);
   }, [activeConversationId, session, messages, conversations.length, setActiveConversationId]);
 
   const handleRenameThread = useCallback(async (conversationId, newName) => {
@@ -559,7 +515,11 @@ function AppRouter() {
           <Auth />
         </RedirectIfAuth>
       } />
-      <Route path="/subscribe" element={<Subscribe />} />
+      <Route path="/subscribe" element={
+        <RedirectIfSubscribed>
+          <Subscribe />
+        </RedirectIfSubscribed>
+      } />
       <Route path="/app" element={
         <RequireAuth session={session}>
           <RequireSubscription>

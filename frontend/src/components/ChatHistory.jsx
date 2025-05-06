@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 // Updated props based on App.jsx
@@ -7,11 +7,32 @@ function ChatHistory({ history }) {
   // console.log("[ChatHistory] Received history prop:", history);
 
   const endOfMessagesRef = useRef(null);
+  const [imagesLoaded, setImagesLoaded] = useState(0);
+  const [imagesToLoad, setImagesToLoad] = useState(0);
 
-  // Scroll to the bottom when history changes
+  // Track the number of images in the latest message
   useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!history || history.length === 0) {
+      setImagesToLoad(0);
+      setImagesLoaded(0);
+      return;
+    }
+    const lastMsg = history[history.length - 1];
+    const count = Array.isArray(lastMsg.imageUrls) ? lastMsg.imageUrls.length : 0;
+    setImagesToLoad(count);
+    setImagesLoaded(0);
+    if (count === 0) {
+      // No images, scroll immediately
+      endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [history]);
+
+  // When all images are loaded, scroll to bottom
+  useEffect(() => {
+    if (imagesToLoad > 0 && imagesLoaded >= imagesToLoad) {
+      endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [imagesLoaded, imagesToLoad]);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
@@ -45,6 +66,12 @@ function ChatHistory({ history }) {
                               alt={`Uploaded image ${imgIndex + 1}`}
                               className="max-w-[150px] max-h-[150px] sm:max-w-[200px] sm:max-h-[200px] rounded object-cover border border-border hover:opacity-90 transition-opacity"
                               style={message.failed ? { filter: 'grayscale(1)', opacity: 0.5 } : {}}
+                              onLoad={() => {
+                                // Only count images for the latest message
+                                if (index === history.length - 1) {
+                                  setImagesLoaded(l => l + 1);
+                                }
+                              }}
                             />
                           </a>
                           {message.failed && (
@@ -79,6 +106,11 @@ function ChatHistory({ history }) {
                             alt={`Uploaded image ${imgIndex + 1}`}
                             className="max-w-[150px] max-h-[150px] sm:max-w-[200px] sm:max-h-[200px] rounded object-cover border border-border hover:opacity-90 transition-opacity"
                             style={message.failed ? { filter: 'grayscale(1)', opacity: 0.5 } : {}}
+                            onLoad={() => {
+                              if (index === history.length - 1) {
+                                setImagesLoaded(l => l + 1);
+                              }
+                            }}
                           />
                         </a>
                         {message.failed && (

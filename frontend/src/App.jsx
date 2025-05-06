@@ -64,7 +64,6 @@ function AppRouter() {
   const [error, setError] = useState(null)
   const [messages, setMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const navigate = useNavigate();
 
   /**
@@ -251,7 +250,6 @@ function AppRouter() {
   };
 
   const handleSendMessage = useCallback(async (formData) => {
-    setUploading(true);
     let currentConversationId = activeConversationId;
     if (currentConversationId === 'new') {
       setLoading(true);
@@ -274,7 +272,6 @@ function AppRouter() {
       } catch (error) {
         setError(`Could not start a new conversation: ${error.message}`);
         setLoading(false);
-        setUploading(false);
         return;
       } finally {
         setLoading(false);
@@ -283,7 +280,6 @@ function AppRouter() {
     formData.append('conversationId', currentConversationId);
     if (!currentConversationId || !session) {
       setError('Please select or start a conversation first.');
-      setUploading(false);
       return;
     }
     // Optimistically add the user message to the UI immediately
@@ -400,10 +396,8 @@ function AppRouter() {
         )
       );
       optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
-      setUploading(false);
     } finally {
       setLoading(false);
-      setUploading(false);
     }
   }, [activeConversationId, session, messages, conversations.length, setActiveConversationId]);
 
@@ -582,8 +576,6 @@ function AppRouter() {
               loadingMessages={loadingMessages}
               error={error}
               handleSendMessage={handleSendMessage}
-              uploading={uploading}
-              setUploading={setUploading}
               supabase={supabase}
             />
           </RequireSubscription>

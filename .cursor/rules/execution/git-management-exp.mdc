@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # Cursor Rule — Git Auto-Commit After Each Iteration
 

@@ -20,6 +20,8 @@
 - [ ] Make it so that E2E tests use a much smaller model to save on costs.
 - [ ] Fix the E2E suite
 - [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
+- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [ ] Audit and make the frontend code more modular.
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
@@ -33,10 +35,11 @@
 - [ ] Add login/signup with google. *ux*
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
-- [ ] Fix optimistic image preview bug (see tasks/20240608-fix-optimistic-image-preview.md)
+- [ ] When I add images in the web or send a new message, we should scroll to the bottom. 
+- [ ] I should be able to send a photo without a text message. *bug*
 
 # Doing
-- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
 
 # Done
 - [x] Implement streaming API.  
@@ -81,3 +84,4 @@
 - [x] Log-in with no chats should open the app in the "new chat" component.
 - [x] Build the next version of my task manager.  
 - [x] Fix frontend tests.  
+- [x] Fix optimistic image preview bug (see tasks/20240608-fix-optimistic-image-preview.md)

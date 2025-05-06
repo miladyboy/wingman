@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
-const UploadComponent = ({ onSendMessage, disabled, setUploading }) => {
+const UploadComponent = ({ onSendMessage, disabled }) => {
   const [text, setText] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -102,7 +102,6 @@ const UploadComponent = ({ onSendMessage, disabled, setUploading }) => {
         formData.append('images', file, file.name);
     });
 
-    if (setUploading) setUploading(true);
     onSendMessage(formData);
 
     setText('');

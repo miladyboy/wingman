@@ -496,7 +496,7 @@ function AppRouter() {
         <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={handleSubscribe} disabled={loading}>
           {loading ? 'Redirecting...' : 'Subscribe'}
         </Button>
-        <Button size="sm" variant="outline" className="mt-6" onClick={handleLogout} disabled={loading}>
+        <Button size="sm" variant="outline" className="mt-6" onClick={handleLogout} disabled={loading} data-testid="logout-button">
           Log out
         </Button>
       </div>

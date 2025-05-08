@@ -164,8 +164,14 @@ async function updateMessageWithImageDescription(supabase: any, messageId: strin
 
 async function generateSuggestions(conversation: any[], openaiInstance: OpenAIService = openaiClient): Promise<string[]> {
     const suggestionText = await openaiInstance.callOpenAI(conversation, 300);
-    return suggestionText.split(/\n\d\.\s+|\n\*\s+|\n-\s+|\n\n/)
-        .map(s => s.replace(/^\d\.\s*/, '').replace(/^[\*-]\s*/, '').trim())
+    return suggestionText
+        .split('\n')
+        .map(s => {
+            const trimmed = s.trim();
+            const withoutNumbering = trimmed.replace(/^\s*\d+\.\s*/, '');
+            const withoutMarkers = withoutNumbering.replace(/^[\*\-]\s*/, '');
+            return withoutMarkers.trim();
+        })
         .filter(s => s.length > 5 && s.length < 500);
 }
 

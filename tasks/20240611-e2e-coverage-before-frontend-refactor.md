@@ -20,7 +20,8 @@ As a developer, I want reliable E2E tests for the main app flows so that I can r
 - [ ] E2E tests are written using Playwright (run from `frontend/`)
 - [ ] Tests cover the following user journeys:
     - [x] Landing page loads and primary CTA works
-    - [ ] User can register, login, and logout
+    - [x] User can register, login, and logout
+    - [ ] Test the stripe subscription flow.
     - [ ] Authenticated user is redirected to `/app`
     - [ ] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
     - [ ] Subscribed user is redirected away from `/subscribe`

@@ -493,7 +493,7 @@ function AppRouter() {
         <h2 className="text-2xl font-bold mb-4">Subscribe to Harem</h2>
         <p className="mb-6">To access the app, please subscribe.</p>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={handleSubscribe} disabled={loading}>
+        <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={handleSubscribe} disabled={loading} data-testid="proceed-to-checkout-button">
           {loading ? 'Redirecting...' : 'Subscribe'}
         </Button>
         <Button size="sm" variant="outline" className="mt-6" onClick={handleLogout} disabled={loading} data-testid="logout-button">

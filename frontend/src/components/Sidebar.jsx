@@ -126,13 +126,14 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
       {/* --- User Info & Logout --- */}
       <div className="p-4 border-t border-border mt-auto">
         {user && (
-          <div className="text-sm text-muted-foreground mb-2 truncate" title={user.email}>
+          <div className="text-sm text-muted-foreground mb-2 truncate" title={user.email} data-testid="user-info-display">
             Logged in as: {user.username || user.email}
           </div>
         )}
         <Button
           onClick={onLogout}
           className="w-full flex items-center justify-center font-bold text-sm bg-destructive hover:bg-destructive/80 text-destructive-foreground"
+          data-testid="logout-button"
         >
           <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
           Logout

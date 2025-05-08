@@ -18,7 +18,6 @@
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
 - [ ] Set up CI environment.  
 - [ ] Make it so that E2E tests use a much smaller model to save on costs.
-- [ ] Fix the E2E suite
 - [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
 - [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
 
@@ -42,9 +41,20 @@
 - [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 
 # Doing
-
+- [ ] Refactor other tests to use getByTestId()
+- [ ] Extract the Subscribe page into its own component.
+- [ ] Authenticated user is redirected to `/app`
+- [ ] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
+- [ ] Subscribed user is redirected away from `/subscribe`
+- [ ] User can start a new chat, send a message, and see it appear
+- [ ] User can upload an image in chat and see the preview
+- [ ] User can rename and delete a conversation
+- [ ] Refreshing the app restores the last active chat
 
 # Done
+- [x] Test the stripe subscription flow.
+- [x] Landing page loads and primary CTA works
+- [x] User can register, login, and logout
 - [x] Implement streaming API.  
 - [x] Add a complete project rule teaching the LLM to use GitHub.  
 - [x] Add automated testing to part of the backend (testing).  

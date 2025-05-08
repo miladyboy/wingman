@@ -46,11 +46,15 @@ test.describe('Supabase Auth Flows', () => {
     // Wait for the frontend to redirect to /subscribe
     await page.waitForURL('**/subscribe');
     await expect(page).toHaveURL(routes.subscribe);
+
     // Log out
-    if (await page.locator(selectors.logoutButton).count() > 0) {
-      await page.click(selectors.logoutButton);
-    }
+    // Wait for the logout button to be visible and then click it.
+    // Increased timeout to handle potential rendering delays after navigation.
+    await expect(page.locator(selectors.logoutButton)).toBeVisible({ timeout: 10000 }); 
+    await page.locator(selectors.logoutButton).click();
+
     await expect(page).toHaveURL('/');
+
     // Login
     await page.goto(routes.auth);
     await page.fill(selectors.loginEmail, email);

@@ -10,19 +10,16 @@
 - [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.  
 - [ ] Build a React Native app for mobile. **(Hard)**  
 - [ ] Upload user chats to mimic their style. **(Mid)**  
+- [ ] A paid user shouldn't be able to access /subscribe
 
 # To-Do
-- [ ] A paid user shouldn't be able to access /subscribe
 
 ## Code Quality
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
 - [ ] Set up CI environment.  
-- [ ] Get to a good number of test coverage in the backend.
 - [ ] Make it so that E2E tests use a much smaller model to save on costs.
 - [ ] Fix the E2E suite
 - [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
-- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
-- [ ] Audit and make the frontend code more modular.
 - [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
 
 ## Features
@@ -37,12 +34,15 @@
 - [ ] Add login/signup with google. *ux*
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
-- [ ] When I add images in the web or send a new message, we should scroll to the bottom. 
 - [ ] I should be able to send a photo without a text message. *bug*
-
-# Doing
 - [ ] Refactor App.jsx, it's 600 lines long.
 - [ ] The testing environment should have a separate database. 
+- [ ] Audit and make the frontend code more modular.
+- [ ] Get to a good number of test coverage in the backend.
+- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+
+# Doing
+
 
 # Done
 - [x] Implement streaming API.  
@@ -88,3 +88,4 @@
 - [x] Build the next version of my task manager.  
 - [x] Fix frontend tests.  
 - [x] Fix optimistic image preview bug 
+- [x] When I add images in the web or send a new message, we should scroll to the bottom. 

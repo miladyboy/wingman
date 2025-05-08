@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './supabaseClient'
 import Auth from './components/Auth'
 import LandingPage from './components/LandingPage'
 import MainApp from './components/MainApp'
 import './index.css'
-import { Button } from './components/ui/button';
 import RequireAuth from './components/guards/RequireAuth';
 import RedirectIfAuth from './components/guards/RedirectIfAuth';
 import RequireSubscription from './components/guards/RequireSubscription';
 import RedirectIfSubscribed from './components/guards/RedirectIfSubscribed';
+import Subscribe from './components/Subscribe';
 
 function AppRouter() {
   const [session, setSession] = useState(null)
@@ -20,7 +20,6 @@ function AppRouter() {
   const [error, setError] = useState(null)
   const [messages, setMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
-  const navigate = useNavigate();
 
   /**
    * Persist the active conversation ID to localStorage and update state.
@@ -446,62 +445,6 @@ function AppRouter() {
       setLoading(false);
     }
   }, [activeConversationId, setActiveConversationId]);
-
-  // Move Subscribe component here so it can use navigate
-  function Subscribe() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const handleLogout = async () => {
-      await supabase.auth.signOut();
-      navigate('/');
-    };
-    const handleSubscribe = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          setError('You must be logged in.');
-          setLoading(false);
-          navigate('/');
-          return;
-        }
-        const res = await fetch('/api/payments/create-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || 'Failed to create checkout session');
-        }
-        const { url } = await res.json();
-        if (url) {
-          window.location.href = url;
-        } else {
-          throw new Error('No checkout URL returned.');
-        }
-      } catch (e) {
-        setError(e.message || 'An error occurred.');
-        setLoading(false);
-      }
-    };
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h2 className="text-2xl font-bold mb-4">Subscribe to Harem</h2>
-        <p className="mb-6">To access the app, please subscribe.</p>
-        {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={handleSubscribe} disabled={loading} data-testid="proceed-to-checkout-button">
-          {loading ? 'Redirecting...' : 'Subscribe'}
-        </Button>
-        <Button size="sm" variant="outline" className="mt-6" onClick={handleLogout} disabled={loading} data-testid="logout-button">
-          Log out
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <Routes>

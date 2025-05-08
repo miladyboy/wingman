@@ -20,6 +20,7 @@
 - [ ] Make it so that E2E tests use a much smaller model to save on costs.
 - [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
 - [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
+- [ ] Add prettier so that we keep consistent styling.
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
@@ -40,16 +41,18 @@
 - [ ] Get to a good number of test coverage in the backend.
 - [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 
-# Doing
+# Today
+- [ ] Fix the ugly messages that I get when the tests run.
 - [ ] Refactor other tests to use getByTestId()
-- [ ] Extract the Subscribe page into its own component.
-- [ ] Authenticated user is redirected to `/app`
-- [ ] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
-- [ ] Subscribed user is redirected away from `/subscribe`
 - [ ] User can start a new chat, send a message, and see it appear
 - [ ] User can upload an image in chat and see the preview
 - [ ] User can rename and delete a conversation
 - [ ] Refreshing the app restores the last active chat
+
+# Doing
+- [ ] Authenticated user is redirected to `/app`
+- [ ] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
+- [ ] Subscribed user is redirected away from `/subscribe`
 
 # Done
 - [x] Test the stripe subscription flow.
@@ -99,3 +102,4 @@
 - [x] Fix frontend tests.  
 - [x] Fix optimistic image preview bug 
 - [x] When I add images in the web or send a new message, we should scroll to the bottom. 
+- [x] Extract the Subscribe page into its own component.

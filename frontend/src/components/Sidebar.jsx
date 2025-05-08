@@ -39,6 +39,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         <Button
           onClick={onNewThread}
           className="w-full font-bold"
+          data-testid="new-chat-button"
         >
           + New Chat
         </Button>

@@ -40,7 +40,7 @@ export default function LandingPage() {
     <main className="min-h-screen font-sans">
       {/* Hero */}
       <section className="py-16 px-4 text-center bg-ivory text-royal">
-        <h1 className="font-headline text-5xl md:text-6xl font-bold mb-6">
+        <h1 className="font-headline text-5xl md:text-6xl font-bold mb-6" data-testid='landing-page-headline'>
           Your Personal <span className="text-luxe">AI Wingman</span>
         </h1>
         <p className="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto mb-8">

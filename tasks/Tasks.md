@@ -10,7 +10,6 @@
 - [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.  
 - [ ] Build a React Native app for mobile. **(Hard)**  
 - [ ] Upload user chats to mimic their style. **(Mid)**  
-- [ ] A paid user shouldn't be able to access /subscribe
 
 # To-Do
 
@@ -44,17 +43,15 @@
 # Today
 - [ ] Fix the ugly messages that I get when the tests run.
 - [ ] Refactor other tests to use getByTestId()
-- [ ] User can start a new chat, send a message, and see it appear
-- [ ] User can upload an image in chat and see the preview
-- [ ] User can rename and delete a conversation
 - [ ] Refreshing the app restores the last active chat
 
 # Doing
-- [ ] Authenticated user is redirected to `/app`
-- [ ] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
-- [ ] Subscribed user is redirected away from `/subscribe`
+- [ ] User can start a new chat, send a message, and see it appear
+- [ ] User can upload an image in chat and see the preview
+- [ ] User can rename and delete a conversation
 
 # Done
+- [x] A paid user shouldn't be able to access /subscribe
 - [x] Test the stripe subscription flow.
 - [x] Landing page loads and primary CTA works
 - [x] User can register, login, and logout
@@ -103,3 +100,7 @@
 - [x] Fix optimistic image preview bug 
 - [x] When I add images in the web or send a new message, we should scroll to the bottom. 
 - [x] Extract the Subscribe page into its own component.
+- [x] Authenticated user is redirected to `/app`
+- [x] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
+- [x] Subscribed user is redirected away from `/subscribe`
+- [x] Test all Auth guards

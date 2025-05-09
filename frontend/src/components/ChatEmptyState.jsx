@@ -6,7 +6,7 @@ import React from 'react';
  */
 export default function ChatEmptyState() {
   return (
-    <div className="text-center text-muted-foreground pt-10">
+    <div className="text-center text-muted-foreground pt-10" data-testid="chat-empty-state">
       Start your new conversation by sending a message.
     </div>
   );

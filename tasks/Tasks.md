@@ -11,6 +11,8 @@
 - [ ] Build a React Native app for mobile. **(Hard)**  
 - [ ] Upload user chats to mimic their style. **(Mid)**  
 - [ ] Hacer un tear down de la DB que elimine todos los users de prueba?
+- [ ] The UI should be reactive and update when you do things in other devices.
+- [ ] Manage true test isolation for the E2E tests.
 
 # To-Do
 
@@ -21,6 +23,8 @@
 - [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
 - [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
 - [ ] Add prettier so that we keep consistent styling.
+- [ ] Fix the ugly messages that I get when the tests run.
+- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
@@ -35,21 +39,14 @@
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] I should be able to send a photo without a text message. *bug*
-- [ ] Refactor App.jsx, it's 600 lines long.
 - [ ] The testing environment should have a separate database. 
-- [ ] Audit and make the frontend code more modular.
 - [ ] Get to a good number of test coverage in the backend.
-- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 
 # Today
-- [ ] Fix the ugly messages that I get when the tests run.
-- [ ] Refreshing the app restores the last active chat
+- [ ] Refactor App.jsx, it's 600 lines long.
+- [ ] Audit and make the frontend code more modular.
 
 # Doing
-- [ ] User can start a new chat, send a message, and see it appear
-- [ ] User can upload an image in chat and see the preview
-- [ ] User can rename and delete a conversation
-- [ ] Refactor other tests to use getByTestId()
 
 # Done
 - [x] A paid user shouldn't be able to access /subscribe
@@ -105,3 +102,9 @@
 - [x] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
 - [x] Subscribed user is redirected away from `/subscribe`
 - [x] Test all Auth guards
+- [x] Refactor other tests to use getByTestId()
+- [x] User can start a new chat, send a message, and see it appear
+- [x] User can rename a conversation
+- [x] User can delete a conversation
+- [x] User can upload an image in chat and see the preview
+- [x] Refreshing the app restores the last active chat

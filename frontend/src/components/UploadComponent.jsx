@@ -124,6 +124,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
                   src={preview.url}
                   alt={`Preview ${preview.name}`}
                   className="object-cover w-full h-full"
+                  data-testid="chat-image-preview"
                 />
                 <Button
                   type="button"

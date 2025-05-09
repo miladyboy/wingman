@@ -26,4 +26,5 @@ uploads/
 coverage/
 
 # Playwright authentication state
-frontend/playwright/.auth/ 
+frontend/playwright/.auth/
+frontend/test-results/ 

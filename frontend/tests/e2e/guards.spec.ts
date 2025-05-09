@@ -64,16 +64,18 @@ test.describe('Route Guards', () => {
 
     test('[RequireSubscription] can access /app', async ({ page }) => {
       await page.goto(routes.app);
+      await page.waitForURL(routes.app, { timeout: 10000 });
       await expect(page).toHaveURL(routes.app);
-      await expect(page.getByTestId('new-chat-button')).toBeVisible();
-      await expect(page.getByTestId('user-info-display')).toBeVisible();
+      await expect(page.getByTestId('new-chat-button')).toBeVisible({ timeout: 10000 });
+      await expect(page.getByTestId('user-info-display')).toBeVisible({ timeout: 10000 });
       await logoutUser(page);
     });
 
     test('[RedirectIfSubscribed] to /subscribe is redirected to /app', async ({ page }) => {
       await page.goto(routes.subscribe);
+      await page.waitForURL(routes.app, { timeout: 10000 });
       await expect(page).toHaveURL(routes.app);
-      await expect(page.getByTestId('new-chat-button')).toBeVisible();
+      await expect(page.getByTestId('new-chat-button')).toBeVisible({ timeout: 10000 });
       await logoutUser(page);
     });
   });

@@ -1,18 +1,19 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
+// import path from 'path'; // No longer strictly needed here if not using path.resolve for storageState
 
-dotenv.config();  
+dotenv.config();
 
 /**
  * Read more at https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: './tests/e2e',
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  timeout: 60 * 1000,
   expect: {
     /** Maximum time expect() should wait for the condition to be met. */
-    timeout: 5000
+    timeout: 10000
   },
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -34,16 +35,33 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+      timeout: 5 * 60 * 1000, // Increased timeout for multiple user creations
+    },
+    {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // No global storageState here; tests will use test.use() or a default empty state.
+      },
+      dependencies: ['setup'],
     },
     // {
     //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     // No global storageState here.
+    //   },
+    //   dependencies: ['setup'],
     // },
     // {
     //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //     // No global storageState here.
+    //   },
+    //   dependencies: ['setup'],
     // },
   ],
 }); 

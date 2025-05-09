@@ -28,8 +28,18 @@ export default function MainApp({
   const showEmptyState = conversations.length === 0 || isNewChat;
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error && error.status !== 403) {
+        console.error('Supabase signOut error:', error);
+      }
+    } catch (e) {
+      console.error('Logout exception:', e);
+    }
+    localStorage.clear();
+    sessionStorage.clear();
+    // If you use Redux or React context for user, reset it here
+    window.location.href = '/';
   };
 
   return (

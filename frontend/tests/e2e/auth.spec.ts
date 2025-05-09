@@ -1,11 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { getConfirmationLink } from './utils/mailtrap';
+import { generateUniqueEmail, TEST_PASSWORD } from './utils/userFlows';
 
-function generateUniqueEmail() {
-  return `e2euser+${Date.now()}@example.com`;
-}
-
-const password = 'TestPassword123!';
+test.use({ storageState: { cookies: [], origins: [] } });
 
 const routes = {
   auth: '/auth',
@@ -34,7 +31,7 @@ test.describe('Supabase Auth Flows', () => {
     await page.click(selectors.toggleToRegister);
     await page.fill(selectors.registerUsername, username);
     await page.fill(selectors.registerEmail, email);
-    await page.fill(selectors.registerPassword, password);
+    await page.fill(selectors.registerPassword, TEST_PASSWORD);
     await page.click(selectors.registerSubmit);
     // Wait for the confirmation email to arrive
     await page.waitForTimeout(4000); // Consider polling for robustness
@@ -48,8 +45,6 @@ test.describe('Supabase Auth Flows', () => {
     await expect(page).toHaveURL(routes.subscribe);
 
     // Log out
-    // Wait for the logout button to be visible and then click it.
-    // Increased timeout to handle potential rendering delays after navigation.
     await expect(page.locator(selectors.logoutButton)).toBeVisible({ timeout: 10000 }); 
     await page.locator(selectors.logoutButton).click();
 
@@ -58,7 +53,7 @@ test.describe('Supabase Auth Flows', () => {
     // Login
     await page.goto(routes.auth);
     await page.fill(selectors.loginEmail, email);
-    await page.fill(selectors.loginPassword, password);
+    await page.fill(selectors.loginPassword, TEST_PASSWORD);
     await page.click(selectors.loginSubmit);
     await expect(page).toHaveURL(routes.subscribe);
   });

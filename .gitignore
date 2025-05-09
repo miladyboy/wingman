@@ -23,4 +23,7 @@ build/
 uploads/
 
 # Testing
-coverage/ 
+coverage/
+
+# Playwright authentication state
+frontend/playwright/.auth/ 

@@ -10,6 +10,7 @@
 - [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.  
 - [ ] Build a React Native app for mobile. **(Hard)**  
 - [ ] Upload user chats to mimic their style. **(Mid)**  
+- [ ] Hacer un tear down de la DB que elimine todos los users de prueba?
 
 # To-Do
 

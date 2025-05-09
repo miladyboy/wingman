@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 
 /**
  * Hook to check if the current user has an active subscription.
- * Redirects to /subscribe if not active.
+ * Redirects to /auth if not authenticated, or /subscribe if not subscribed.
  * Returns { loading, active }
  */
 export function useRequireSubscription() {
@@ -16,7 +16,12 @@ export function useRequireSubscription() {
     async function check() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const accessToken = session?.access_token;
+        if (!session) {
+          navigate('/auth');
+          setLoading(false);
+          return;
+        }
+        const accessToken = session.access_token;
         const res = await fetch('/api/payments/subscription-status', {
           headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         });

@@ -1,11 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { getConfirmationLink } from './utils/mailtrap';
+import { generateUniqueEmail, TEST_PASSWORD } from './utils/userFlows';
 
-function generateUniqueEmail() {
-  return `e2euser+${Date.now()}@example.com`;
-}
-
-const password = 'TestPassword123!';
+test.use({ storageState: { cookies: [], origins: [] } });
 
 const routes = {
   auth: '/auth',
@@ -23,9 +20,6 @@ const selectors = {
   loginSubmit: '[data-testid="login-submit"]',
   logoutButton: '[data-testid="logout-button"]',
   toggleToRegister: 'text=Need an account? Register',
-  stripePaymentElement: '[data-testid="stripe-payment-element"]',
-  stripeSubmitButton: '[data-testid="stripe-submit-button"]',
-  subscriptionSuccessMessage: '[data-testid="subscription-success-message"]',
   proceedToCheckoutButton: '[data-testid="proceed-to-checkout-button"]',
   userInfoDisplay: '[data-testid="user-info-display"]',
 };
@@ -39,7 +33,7 @@ test.describe('Subscription Flows', () => {
     await page.click(selectors.toggleToRegister);
     await page.fill(selectors.registerUsername, username);
     await page.fill(selectors.registerEmail, email);
-    await page.fill(selectors.registerPassword, password);
+    await page.fill(selectors.registerPassword, TEST_PASSWORD);
     await page.click(selectors.registerSubmit);
     // Wait for the confirmation email to arrive
     await page.waitForTimeout(4000); // Consider polling for robustness
@@ -68,26 +62,15 @@ test.describe('Subscription Flows', () => {
     await page.getByRole('textbox', { name: 'CVC' }).fill('123');
     await page.getByRole('textbox', { name: 'Cardholder name' }).fill('Test User');
     
-    // Example for postal code if it appears (verify accessible name):
-    // const postalCodeField = page.getByRole('textbox', { name: /Postal code|ZIP/i });
-    // if (await postalCodeField.isVisible()) {
-    //   await postalCodeField.fill('90210');
-    // }
 
     // Click the pay button on Stripe's page using the provided test ID
     await page.getByTestId('hosted-payment-submit-button').click();
 
-    // Wait for redirection back to your application
-    // This URL depends on your Stripe Checkout configuration (success_url)
-    // Assuming it redirects to the /app page upon successful subscription
     await page.waitForURL(`**${routes.app}`);
     await expect(page).toHaveURL(routes.app);
 
     // Wait for the main app page to be ready by checking for user info display
     await expect(page.locator(selectors.userInfoDisplay)).toBeVisible({ timeout: 15000 });
-
-    // Optional: Verify a success message on your site
-    // await expect(page.locator(selectors.subscriptionSuccessMessage)).toBeVisible();
 
     // Optional: Log out and log back in to verify subscription state persists
     await expect(page.locator(selectors.logoutButton)).toBeVisible({ timeout: 10000 });

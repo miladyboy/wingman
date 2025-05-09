@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Landing Page', () => {
   test('should load and display the main headline and CTA', async ({ page }) => {
     await page.goto('/');

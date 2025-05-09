@@ -6,11 +6,12 @@ test.describe('Landing Page', () => {
   test('should load and display the main headline and CTA', async ({ page }) => {
     await page.goto('/');
     // Check main headline
-    const headline = page.locator('h1.font-headline');
+    const headline = page.getByTestId('landing-page-headline');
     await expect(headline).toBeVisible();
     await expect(headline).toContainText('Your Personal AI Wingman');
 
-    // Check primary CTA button
+    // Check primary CTA button (if data-testid is available, prefer getByTestId)
+    // Otherwise, fallback to getByRole
     const startChattingBtn = page.getByRole('button', { name: /start chatting/i });
     await expect(startChattingBtn).toBeVisible();
     await expect(startChattingBtn).toBeEnabled();

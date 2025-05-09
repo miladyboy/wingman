@@ -10,31 +10,17 @@ const routes = {
   subscribe: '/subscribe',
 };
 
-const selectors = {
-  registerUsername: '[data-testid="register-username"]',
-  registerEmail: '[data-testid="register-email"]',
-  registerPassword: '[data-testid="register-password"]',
-  registerSubmit: '[data-testid="register-submit"]',
-  loginEmail: '[data-testid="login-email"]',
-  loginPassword: '[data-testid="login-password"]',
-  loginSubmit: '[data-testid="login-submit"]',
-  logoutButton: '[data-testid="logout-button"]',
-  toggleToRegister: 'text=Need an account? Register',
-  proceedToCheckoutButton: '[data-testid="proceed-to-checkout-button"]',
-  userInfoDisplay: '[data-testid="user-info-display"]',
-};
-
 test.describe('Subscription Flows', () => {
   test('User can register, confirm email, and subscribe', async ({ page }) => {
     const email = generateUniqueEmail();
     const username = `user${Date.now()}`;
     // Register
     await page.goto(routes.auth);
-    await page.click(selectors.toggleToRegister);
-    await page.fill(selectors.registerUsername, username);
-    await page.fill(selectors.registerEmail, email);
-    await page.fill(selectors.registerPassword, TEST_PASSWORD);
-    await page.click(selectors.registerSubmit);
+    await page.getByText('Need an account? Register').click();
+    await page.getByTestId('register-username').fill(username);
+    await page.getByTestId('register-email').fill(email);
+    await page.getByTestId('register-password').fill(TEST_PASSWORD);
+    await page.getByTestId('register-submit').click();
     // Wait for the confirmation email to arrive
     await page.waitForTimeout(4000); // Consider polling for robustness
     // Fetch the confirmation link from Mailtrap
@@ -47,22 +33,17 @@ test.describe('Subscription Flows', () => {
     await expect(page).toHaveURL(routes.subscribe);
    
     // Click the button to proceed to Stripe Checkout
-    await page.click(selectors.proceedToCheckoutButton);
+    await page.getByTestId('proceed-to-checkout-button').click();
 
     // Wait for navigation to Stripe's checkout page
-    // The URL will typically be something like https://checkout.stripe.com/...
     await page.waitForURL('**/checkout.stripe.com/**');
 
     // Fill in Stripe's test payment details using getByRole selectors
-    // Email might be pre-filled. If not, find its accessible name.
-    // await page.getByRole('textbox', { name: 'Email' }).fill(email);
-
     await page.getByRole('textbox', { name: 'Card number' }).fill('4242424242424242');
     await page.getByRole('textbox', { name: 'Expiration' }).fill('1230'); // MMYY format
     await page.getByRole('textbox', { name: 'CVC' }).fill('123');
     await page.getByRole('textbox', { name: 'Cardholder name' }).fill('Test User');
     
-
     // Click the pay button on Stripe's page using the provided test ID
     await page.getByTestId('hosted-payment-submit-button').click();
 
@@ -70,10 +51,10 @@ test.describe('Subscription Flows', () => {
     await expect(page).toHaveURL(routes.app);
 
     // Wait for the main app page to be ready by checking for user info display
-    await expect(page.locator(selectors.userInfoDisplay)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('user-info-display')).toBeVisible({ timeout: 15000 });
 
     // Optional: Log out and log back in to verify subscription state persists
-    await expect(page.locator(selectors.logoutButton)).toBeVisible({ timeout: 10000 });
-    await page.locator(selectors.logoutButton).click();
+    await expect(page.getByTestId('logout-button')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('logout-button').click();
   });
 }); 

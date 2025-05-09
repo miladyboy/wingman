@@ -42,7 +42,7 @@ function ChatHistory({ history }) {
         const isUser = message.role === 'user' || message.sender === 'user'; // Adapt based on actual field name
 
         return (
-          <div key={message.id || index} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+          <div key={message.id || index} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`} data-testid="chat-message" data-message-id={message.id || index} data-sender={isUser ? 'user' : 'bot'}>
             {isUser ? (
               <Card
                 className={`max-w-lg lg:max-w-xl shadow-md break-words border border-border ml-auto bg-primary text-primary-foreground`}
@@ -50,7 +50,7 @@ function ChatHistory({ history }) {
                 <CardContent className="p-4">
                   {/* Display content directly */}
                   {message.content && (
-                    <div className="whitespace-pre-wrap">
+                    <div className="whitespace-pre-wrap" data-testid="chat-message-content">
                       {message.content}
                     </div>
                   )}
@@ -72,6 +72,7 @@ function ChatHistory({ history }) {
                                   setImagesLoaded(l => l + 1);
                                 }
                               }}
+                              data-testid="chat-message-image"
                             />
                           </a>
                           {message.failed && (
@@ -92,7 +93,7 @@ function ChatHistory({ history }) {
             ) : (
               <div className="max-w-lg lg:max-w-xl px-4 py-3 text-foreground">
                 {message.content && (
-                  <div className="whitespace-pre-wrap">
+                  <div className="whitespace-pre-wrap" data-testid="chat-message-content">
                     {message.content}
                   </div>
                 )}
@@ -111,6 +112,7 @@ function ChatHistory({ history }) {
                                 setImagesLoaded(l => l + 1);
                               }
                             }}
+                            data-testid="chat-message-image"
                           />
                         </a>
                         {message.failed && (

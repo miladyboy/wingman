@@ -10,29 +10,17 @@ const routes = {
   subscribe: '/subscribe',
 };
 
-const selectors = {
-  registerUsername: '[data-testid="register-username"]',
-  registerEmail: '[data-testid="register-email"]',
-  registerPassword: '[data-testid="register-password"]',
-  registerSubmit: '[data-testid="register-submit"]',
-  loginEmail: '[data-testid="login-email"]',
-  loginPassword: '[data-testid="login-password"]',
-  loginSubmit: '[data-testid="login-submit"]',
-  logoutButton: '[data-testid="logout-button"]',
-  toggleToRegister: 'text=Need an account? Register',
-};
-
 test.describe('Supabase Auth Flows', () => {
   test('User can register, confirm email, logout, and login', async ({ page }) => {
     const email = generateUniqueEmail();
     const username = `user${Date.now()}`;
     // Register
     await page.goto(routes.auth);
-    await page.click(selectors.toggleToRegister);
-    await page.fill(selectors.registerUsername, username);
-    await page.fill(selectors.registerEmail, email);
-    await page.fill(selectors.registerPassword, TEST_PASSWORD);
-    await page.click(selectors.registerSubmit);
+    await page.getByText('Need an account? Register').click();
+    await page.getByTestId('register-username').fill(username);
+    await page.getByTestId('register-email').fill(email);
+    await page.getByTestId('register-password').fill(TEST_PASSWORD);
+    await page.getByTestId('register-submit').click();
     // Wait for the confirmation email to arrive
     await page.waitForTimeout(4000); // Consider polling for robustness
     // Fetch the confirmation link from Mailtrap
@@ -45,16 +33,16 @@ test.describe('Supabase Auth Flows', () => {
     await expect(page).toHaveURL(routes.subscribe);
 
     // Log out
-    await expect(page.locator(selectors.logoutButton)).toBeVisible({ timeout: 10000 }); 
-    await page.locator(selectors.logoutButton).click();
+    await expect(page.getByTestId('logout-button')).toBeVisible({ timeout: 10000 }); 
+    await page.getByTestId('logout-button').click();
 
     await expect(page).toHaveURL('/');
 
     // Login
     await page.goto(routes.auth);
-    await page.fill(selectors.loginEmail, email);
-    await page.fill(selectors.loginPassword, TEST_PASSWORD);
-    await page.click(selectors.loginSubmit);
+    await page.getByTestId('login-email').fill(email);
+    await page.getByTestId('login-password').fill(TEST_PASSWORD);
+    await page.getByTestId('login-submit').click();
     await expect(page).toHaveURL(routes.subscribe);
   });
 }); 

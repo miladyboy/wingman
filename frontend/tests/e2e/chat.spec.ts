@@ -6,16 +6,13 @@ import { test, expect } from '@playwright/test';
  * Assumes user is logged in and on a page where "+ New Chat" is visible (e.g., /app)
  */
 async function createNewChat(page, chatNumber: number) {
-  await page.locator('button:has-text("+ New Chat")').click(); // More specific selector
+  await page.getByTestId('new-chat-button').click();
   const chatName = `New Chat ${chatNumber}`;
-  // Type and send a message to actually create the chat
   const message = `Hello from chat ${chatNumber}`;
-  await page.fill('textarea[name="newMessageText"], input[name="newMessageText"]', message); // More specific selector
-  await page.locator('button:has-text("Send")').click(); // More specific selector
-  // Wait for the message to appear in chat history
-  await page.waitForSelector(`text=${message}`);
-  // Wait for the chat to appear in the sidebar
-  await page.waitForSelector(`nav >> text=${chatName}`);
+  await page.getByTestId('chat-input').fill(message);
+  await page.getByTestId('send-message-button').click();
+  await page.getByTestId('chat-message-content').filter({ hasText: message }).waitFor();
+  await page.getByTestId('chat-item-name').filter({ hasText: chatName }).waitFor();
   return chatName;
 }
 
@@ -24,23 +21,18 @@ async function createNewChat(page, chatNumber: number) {
  * Assumes user is logged in and on a page where chat items are visible (e.g., /app)
  */
 async function deleteAllChats(page) {
-  // A small wait to ensure UI is stable before checking for chat items
   await page.waitForTimeout(500);
-  const found = await page.waitForSelector('[data-testid="chat-item"]', { timeout: 1000 }).catch(() => null);
-  if (!found) return; // No chats to delete
+  const found = await page.getByTestId('chat-item').first().waitFor({ timeout: 1000 }).catch(() => null);
+  if (!found) return;
 
-  while (await page.locator('[data-testid="chat-item"]').count() > 0) {
-    const chatItems = page.locator('[data-testid="chat-item"]');
+  while (await page.getByTestId('chat-item').count() > 0) {
+    const chatItems = page.getByTestId('chat-item');
     const firstChat = chatItems.first();
-    const deleteBtn = firstChat.locator('[data-testid="delete-chat"]');
+    const deleteBtn = firstChat.getByTestId('delete-chat');
 
     await firstChat.hover();
-
-    // Accept the confirm dialog
     const confirmPromise = page.waitForEvent('dialog').then(d => d.accept());
-
     const prevCount = await chatItems.count();
-
     await Promise.all([
       deleteBtn.click(),
       confirmPromise,
@@ -51,79 +43,63 @@ async function deleteAllChats(page) {
       )
     ]);
   }
-
-  await expect(page.locator('[data-testid="chat-item"]')).toHaveCount(0);
+  await expect(page.getByTestId('chat-item')).toHaveCount(0);
 }
 
 test.use({ storageState: 'playwright/.auth/subscribedUser.json' });
 
 test.describe('Core Chat Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    // Tests now start authenticated due to global setup.
-    // Ensure we are on the correct page and chats are cleared.
     await page.goto('/app');
     await deleteAllChats(page);
   });
 
   test('user can start a new chat, send a message, and see it appear', async ({ page }) => {
-    const chatName = await createNewChat(page, 1); // Sends "Hello from chat 1"
-    await expect(page.locator(`text=Hello from chat 1`)).toBeVisible();
-    await expect(page.locator(`nav >> text=${chatName}`)).toBeVisible();
+    const chatName = await createNewChat(page, 1);
+    await expect(page.getByTestId('chat-message-content').filter({ hasText: 'Hello from chat 1' })).toBeVisible();
+    await expect(page.getByTestId('chat-item-name').filter({ hasText: chatName })).toBeVisible();
   });
 
   test('user can upload an image in chat and see the preview', async ({ page }) => {
     await createNewChat(page, 1);
-
     const dummyImage = {
       name: 'test-image.png',
       mimeType: 'image/png',
       buffer: Buffer.from('dummy image content for test purposes'),
     };
-
-    const fileInput = page.locator('[data-testid="chat-file-input"]');
+    const fileInput = page.getByTestId('chat-file-input');
     await expect(fileInput).toBeVisible({ timeout: 5000 });
     await fileInput.setInputFiles(dummyImage);
-
-    const imagePreview = page.locator('[data-testid="image-preview"]');
+    const imagePreview = page.getByTestId('chat-message-image');
     await expect(imagePreview).toBeVisible({ timeout: 10000 });
-    // Check for a message indicating image upload in chat history
-    await expect(page.locator(`text=[Image: ${dummyImage.name}]`)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('chat-message-content').filter({ hasText: `[Image: ${dummyImage.name}]` })).toBeVisible({ timeout: 10000 });
   });
 
   test('user can rename a conversation', async ({ page }) => {
     const originalChatName = await createNewChat(page, 1);
     const newChatName = 'My Awesome Renamed Chat';
-
-    const chatItem = page.locator(`[data-testid="chat-item"]:has-text("${originalChatName}")`);
+    const chatItem = page.getByTestId('chat-item').filter({ has: page.getByTestId('chat-item-name').filter({ hasText: originalChatName }) });
     await chatItem.hover();
-
-    const renameButton = chatItem.locator('[data-testid="rename-chat-button"]');
+    const renameButton = chatItem.getByTestId('rename-chat-button');
     await renameButton.click();
-
-    const renameInput = page.locator('[data-testid="rename-chat-input"]');
+    const renameInput = page.getByTestId('rename-chat-input');
     await expect(renameInput).toBeVisible();
     await renameInput.fill(newChatName);
     await renameInput.press('Enter');
-
-    await expect(page.locator(`[data-testid="chat-item"]:has-text("${originalChatName}")`)).not.toBeVisible();
-    await expect(page.locator(`[data-testid="chat-item"]:has-text("${newChatName}")`)).toBeVisible();
+    await expect(page.getByTestId('chat-item-name').filter({ hasText: originalChatName })).not.toBeVisible();
+    await expect(page.getByTestId('chat-item-name').filter({ hasText: newChatName })).toBeVisible();
   });
 
   test('user can delete a single conversation', async ({ page }) => {
     const chatToDeleteName = await createNewChat(page, 1);
     const chatToKeepName = await createNewChat(page, 2);
-
-    const chatItemToDelete = page.locator(`[data-testid="chat-item"]:has-text("${chatToDeleteName}")`);
+    const chatItemToDelete = page.getByTestId('chat-item').filter({ has: page.getByTestId('chat-item-name').filter({ hasText: chatToDeleteName }) });
     await chatItemToDelete.hover();
-
-    const deleteButton = chatItemToDelete.locator('[data-testid="delete-chat"]');
-
+    const deleteButton = chatItemToDelete.getByTestId('delete-chat');
     page.once('dialog', dialog => dialog.accept());
-
     await deleteButton.click();
-
-    await expect(page.locator(`[data-testid="chat-item"]:has-text("${chatToDeleteName}")`)).not.toBeVisible({ timeout: 5000 });
-    await expect(page.locator(`[data-testid="chat-item"]:has-text("${chatToKeepName}")`)).toBeVisible();
+    await expect(page.getByTestId('chat-item-name').filter({ hasText: chatToDeleteName })).not.toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('chat-item-name').filter({ hasText: chatToKeepName })).toBeVisible();
   });
 });
 
@@ -139,7 +115,7 @@ test.describe('Active chat management', () => {
   test('keeps last chat active after refresh', async ({ page }) => {
     const chat1 = await createNewChat(page, 1);
     const chat2 = await createNewChat(page, 2);
-    await page.locator(`nav >> text=${chat2}`).click(); // More specific selector
+    await page.getByTestId('chat-item-name').filter({ hasText: chat2 }).click();
     await page.reload();
     // Ensure nav is loaded after reload, and then get the active chat
     await page.waitForSelector('nav [data-testid="chat-item"]'); 
@@ -171,10 +147,10 @@ test.describe('Chat ordering', () => {
   test('sending a message moves chat to top', async ({ page }) => {
     const chat1 = await createNewChat(page, 1);
     const chat2 = await createNewChat(page, 2);
-    await page.locator(`nav >> text=${chat2}`).click(); // More specific selector
-    await page.fill('textarea[name="newMessageText"], input[name="newMessageText"]', 'Hello again from chat 2'); // More specific selector
-    await page.locator('button:has-text("Send")').click(); // More specific selector
-    await page.waitForSelector('text=Hello again from chat 2');
+    await page.getByTestId('chat-item-name').filter({ hasText: chat2 }).click();
+    await page.fill('input[data-testid="chat-input"]', 'Hello again from chat 2');
+    await page.getByTestId('send-message-button').click();
+    await page.waitForSelector('div[data-testid="chat-message-content"]:has-text("Hello again from chat 2")');
 
     await page.waitForSelector('nav [data-testid="chat-item"]');
     const firstChat = await page.locator('nav [data-testid="chat-item"]').first();

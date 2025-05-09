@@ -43,13 +43,13 @@
 
 # Today
 - [ ] Fix the ugly messages that I get when the tests run.
-- [ ] Refactor other tests to use getByTestId()
 - [ ] Refreshing the app restores the last active chat
 
 # Doing
 - [ ] User can start a new chat, send a message, and see it appear
 - [ ] User can upload an image in chat and see the preview
 - [ ] User can rename and delete a conversation
+- [ ] Refactor other tests to use getByTestId()
 
 # Done
 - [x] A paid user shouldn't be able to access /subscribe

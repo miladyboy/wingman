@@ -154,8 +154,9 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
           rows={3}
           disabled={disabled}
-            className={`w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 ${isDragActive ? 'bg-primary/10' : ''}`}
-          />
+          className={`w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 ${isDragActive ? 'bg-primary/10' : ''}`}
+          data-testid="chat-input"
+        />
           {isDragActive && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-primary font-medium text-lg">Drop images here…</span>
@@ -173,6 +174,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             ref={fileInputRef}
             multiple
             disabled={disabled}
+            data-testid="chat-file-input"
           />
           <Label htmlFor="file-input" className="sr-only">Attach image(s)</Label>
           <Button
@@ -191,6 +193,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             type="submit"
             className="font-semibold flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={disabled || (selectedFiles.length === 0 && !text.trim())}
+            data-testid="send-message-button"
           >
             Send
             <PaperAirplaneIcon className="h-5 w-5" />

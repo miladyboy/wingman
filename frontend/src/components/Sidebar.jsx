@@ -70,6 +70,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   onKeyDown={handleKeyDown}
                   className="flex-grow bg-input text-foreground px-2 py-1 rounded mr-1 text-sm border border-border"
                   autoFocus
+                  data-testid="rename-chat-input"
                 />
                 <Button
                   size="icon"
@@ -93,7 +94,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
             ) : (
               // --- Display State ---
               <>
-                <span className="flex-1 truncate text-sm" title={thread.name}>
+                <span className="flex-1 truncate text-sm" title={thread.name} data-testid="chat-item-name">
                   {thread.name}
                 </span>
                 <Button
@@ -102,6 +103,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   onClick={(e) => { e.stopPropagation(); handleStartEdit(thread); }}
                   className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                   aria-label="Rename chat"
+                  data-testid="rename-chat-button"
                 >
                   <PencilIcon className="h-4 w-4" />
                 </Button>

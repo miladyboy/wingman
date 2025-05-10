@@ -10,100 +10,35 @@ import RedirectIfAuth from './components/guards/RedirectIfAuth';
 import RequireSubscription from './components/guards/RequireSubscription';
 import RedirectIfSubscribed from './components/guards/RedirectIfSubscribed';
 import Subscribe from './components/Subscribe';
+import AppRoutes from './components/AppRoutes';
+import useSessionProfile from './hooks/useSessionProfile';
+import useConversations from './hooks/useConversations';
+import useMessages from './hooks/useMessages';
+import useActiveConversationId from './hooks/useActiveConversationId';
 
 function AppRouter() {
-  const [session, setSession] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [conversations, setConversations] = useState([])
-  const [activeConversationId, setActiveConversationIdState] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [loadingMessages, setLoadingMessages] = useState(false)
-
-  /**
-   * Persist the active conversation ID to localStorage and update state.
-   * Only write to localStorage if the value changes.
-   * @param {string|null} conversationId
-   */
-  const setActiveConversationId = useCallback((conversationId) => {
-    setActiveConversationIdState(prev => {
-      if (prev === conversationId) return prev;
-      if (conversationId) {
-        localStorage.setItem('harem:lastActiveChatId', conversationId);
-      } else {
-        localStorage.removeItem('harem:lastActiveChatId');
-      }
-      return conversationId;
-    });
-  }, []);
-
-  // Move fetchProfile and fetchConversations above useEffect
-  const fetchProfile = useCallback(async (user) => {
-    if (!user) return
-    setLoading(true)
-    setError(null)
-    try {
-      const { data, error, status } = await supabase
-        .from('profiles')
-        .select(`username, email`)
-        .eq('id', user.id)
-        .single()
-
-      if (error && status !== 406) {
-        throw error
-      }
-
-      if (data) {
-        setProfile(data)
-      } else {
-        console.log("Profile not found yet, trigger should create it.")
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error)
-      setError('Could not fetch user profile.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const fetchConversations = useCallback(async (user) => {
-    if (!user) return
-    setLoading(true)
-    setError(null)
-    try {
-      const { data, error } = await supabase
-        .from('conversations')
-        .select('id, title, created_at, last_message_at')
-        .eq('user_id', user.id)
-        .order('last_message_at', { ascending: false })
-
-      if (error) throw error
-
-      setConversations(data || [])
-    } catch (error) {
-      console.error('Error fetching conversations:', error)
-      setError('Could not fetch conversations.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const { session, profile, loading: sessionLoading, error: sessionError } = useSessionProfile(supabase);
+  const {
+    conversations,
+    loading: conversationsLoading,
+    error: conversationsError,
+    fetchConversations,
+    setConversations
+  } = useConversations(supabase, session);
+  const { activeConversationId, setActiveConversationId } = useActiveConversationId(conversations, session);
+  const {
+    messages,
+    loadingMessages,
+    error: messagesError,
+    fetchMessages,
+    setMessages
+  } = useMessages(supabase, session, activeConversationId);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      if (session) {
-        fetchProfile(session.user)
-      }
-    })
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
       if (session) {
-        fetchProfile(session.user)
         fetchConversations(session.user)
       } else {
-        setProfile(null)
         setConversations([])
         setActiveConversationId(null)
         setMessages([])
@@ -111,103 +46,15 @@ function AppRouter() {
     })
 
     return () => subscription.unsubscribe()
-  }, [fetchProfile, fetchConversations, setActiveConversationId])
-
-  // --- Restore last active chat or set default when conversations load ---
-  useEffect(() => {
-    // Only run restoration if conversations are loaded and activeConversationId is null
-    if (!session) return;
-    if (!Array.isArray(conversations) || conversations.length === 0) return;
-    if (activeConversationId !== null) return;
-    const lastActiveId = localStorage.getItem('harem:lastActiveChatId');
-    if (lastActiveId && conversations.some(c => c.id === lastActiveId)) {
-      setActiveConversationId(lastActiveId);
-    } else if (conversations.length > 0) {
-      setActiveConversationId(conversations[0].id);
-    } else {
-      setActiveConversationId('new');
-    }
-  }, [conversations, session, activeConversationId, setActiveConversationId]);
-
-  useEffect(() => {
-    if (session) {
-      fetchConversations(session.user);
-    }
-  }, [session, fetchConversations]);
-
-  // Helper to reconcile optimistic and server messages
-  function reconcileMessages(serverMessages, optimisticMessages) {
-    // Remove optimistic messages that have a matching real message (by content and image count)
-    const filteredOptimistic = optimisticMessages.filter(optMsg => {
-      if (!optMsg.optimistic) return false;
-      return !serverMessages.some(
-        srvMsg =>
-          srvMsg.sender === optMsg.sender &&
-          srvMsg.content === optMsg.content &&
-          Array.isArray(srvMsg.imageUrls) &&
-          Array.isArray(optMsg.imageUrls) &&
-          srvMsg.imageUrls.length === optMsg.imageUrls.length
-      );
-    });
-    return [...serverMessages, ...filteredOptimistic];
-  }
-
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (!activeConversationId || !session || activeConversationId === 'new') {
-        setMessages([]);
-        setError(null);
-        return;
-      }
-      setLoadingMessages(true);
-      setError(null);
-      try {
-        const { data: convData, error: convError } = await supabase
-          .from('conversations')
-          .select('id')
-          .eq('id', activeConversationId)
-          .eq('user_id', session.user.id)
-          .single();
-        if (convError || !convData) {
-          throw new Error('Conversation not found or access denied.');
-        }
-        const { data, error } = await supabase
-          .from('messages')
-          .select(`id, sender, content, image_description, created_at, ChatMessageImages(storage_path)`)
-          .eq('conversation_id', activeConversationId)
-          .order('created_at', { ascending: true });
-        if (error) throw error;
-        const { supabaseUrl } = await import('./supabaseClient');
-        const bucketUrl = `${supabaseUrl}/storage/v1/object/public/chat-images/`;
-        const serverMessages = (data || []).map(msg => ({
-          ...msg,
-          imageUrls: (msg.ChatMessageImages || []).map(img => bucketUrl + img.storage_path),
-        }));
-        setMessages(prevMessages => {
-          const optimisticMessages = prevMessages.filter(m => m.optimistic);
-          return reconcileMessages(serverMessages, optimisticMessages);
-        });
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-        setError(`Could not fetch messages for this conversation. ${error.message}`);
-        setMessages([]);
-      } finally {
-        setLoadingMessages(false);
-      }
-    };
-    fetchMessages();
-  }, [activeConversationId, session, fetchConversations]);
+  }, [fetchConversations, setActiveConversationId])
 
   const handleNewThread = () => {
     setActiveConversationId('new');
     setMessages([]);
-    setError(null);
   };
 
   const handleSendMessage = useCallback(async (formData) => {
     let currentConversationId = activeConversationId;
-    setLoading(true);
-    setError(null);
     if (currentConversationId === 'new') {
       try {
         const initialTitle = `New Chat ${conversations.length + 1}`;
@@ -225,15 +72,13 @@ function AppRouter() {
           throw new Error('Failed to create conversation: No data returned.');
         }
       } catch (error) {
-        setError(`Could not start a new conversation: ${error.message}`);
-        setLoading(false);
+        console.error('Error starting new conversation:', error);
         return;
       }
     }
     formData.append('conversationId', currentConversationId);
     if (!currentConversationId || !session) {
-      setError('Please select or start a conversation first.');
-      setLoading(false);
+      console.error('Please select or start a conversation first.');
       return;
     }
     // Optimistically add the user message to the UI immediately
@@ -343,15 +188,13 @@ function AppRouter() {
         );
         optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
       } catch (error) {
-        setError(`Backend communication error: ${error.message}.`);
+        console.error('Backend communication error:', error);
         setMessages(prevMessages =>
           prevMessages.map(msg =>
             msg.id === optimisticId ? { ...msg, failed: true } : msg
           )
         );
         optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
-      } finally {
-        setLoading(false);
       }
     }, 0);
   }, [activeConversationId, session, messages, conversations.length, setActiveConversationId]);
@@ -365,7 +208,6 @@ function AppRouter() {
         conv.id === conversationId ? { ...conv, title: trimmedName } : conv
       )
     );
-    setError(null);
     try {
       const { error } = await supabase
         .from('conversations')
@@ -375,7 +217,6 @@ function AppRouter() {
       if (error) throw error;
     } catch (error) {
       console.error('Error renaming conversation:', error);
-      setError(`Failed to rename conversation: ${error.message}`);
       setConversations(originalConversations);
     }
   }, [session, conversations]);
@@ -383,8 +224,6 @@ function AppRouter() {
   // Delete a conversation and all related data (images, messages, conversation)
   const handleDeleteConversation = useCallback(async (conversationId) => {
     if (!window.confirm('Are you sure you want to delete this conversation and all its messages and images? This cannot be undone.')) return;
-    setLoading(true);
-    setError(null);
     try {
       // 1. Fetch all messages for the conversation
       const { data: messagesData, error: messagesError } = await supabase
@@ -440,52 +279,26 @@ function AppRouter() {
       });
     } catch (error) {
       console.error('Error deleting conversation:', error);
-      setError('Failed to delete conversation: ' + (error.message || error));
-    } finally {
-      setLoading(false);
     }
   }, [activeConversationId, setActiveConversationId]);
 
   return (
-    <Routes>
-      <Route path="/" element={
-        <RedirectIfAuth session={session}>
-          <LandingPage onRequestAccess={() => window.location.href = '/auth'} />
-        </RedirectIfAuth>
-      } />
-      <Route path="/auth" element={
-        <RedirectIfAuth session={session}>
-          <Auth />
-        </RedirectIfAuth>
-      } />
-      <Route path="/subscribe" element={
-        <RedirectIfSubscribed>
-          <Subscribe />
-        </RedirectIfSubscribed>
-      } />
-      <Route path="/app" element={
-        <RequireAuth session={session}>
-          <RequireSubscription>
-            <MainApp
-              profile={profile}
-              conversations={conversations}
-              activeConversationId={activeConversationId}
-              setActiveConversationId={setActiveConversationId}
-              handleNewThread={handleNewThread}
-              handleRenameThread={handleRenameThread}
-              handleDeleteConversation={handleDeleteConversation}
-              messages={messages}
-              loading={loading}
-              loadingMessages={loadingMessages}
-              error={error}
-              handleSendMessage={handleSendMessage}
-              supabase={supabase}
-            />
-          </RequireSubscription>
-        </RequireAuth>
-      } />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <AppRoutes
+      session={session}
+      profile={profile}
+      conversations={conversations}
+      activeConversationId={activeConversationId}
+      setActiveConversationId={setActiveConversationId}
+      handleNewThread={handleNewThread}
+      handleRenameThread={handleRenameThread}
+      handleDeleteConversation={handleDeleteConversation}
+      messages={messages}
+      loading={sessionLoading}
+      loadingMessages={loadingMessages}
+      error={sessionError || conversationsError || messagesError}
+      handleSendMessage={handleSendMessage}
+      supabase={supabase}
+    />
   );
 }
 

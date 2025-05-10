@@ -41,11 +41,11 @@
 - [ ] The testing environment should have a separate database. 
 - [ ] Audit and make the frontend code more modular.
 - [ ] Add a favicon. *ux* 
-- [ ] Refactor App.jsx, it's 600 lines long.
 
 # Today
 
 # Doing
+- [ ] Refactor App.jsx, it's 600 lines long. Improve frontend components.
 
 # Done
 - [x] A paid user shouldn't be able to access /subscribe

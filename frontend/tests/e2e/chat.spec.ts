@@ -47,7 +47,7 @@ async function deleteAllChats(page) {
           return currentElements.length < prev;
         },
         { selector: '[data-testid="chat-item"]', prev: prevCount },
-        { timeout: 15000, polling: 500 }
+        { timeout: 7000, polling: 500 }
       ).catch(err => {
         // Minimal error logging in case of failure, or re-throw
         console.error('Error waiting for chat item count to decrease:', err.message);

@@ -6,6 +6,7 @@ import { supabaseAdmin } from '../services/supabaseService';
 import systemPrompt from '../prompts/systemPrompt';
 import userPrompt from '../prompts/userPrompt';
 import { getUserIdFromAuthHeader } from '../utils/auth';
+import { compressImage } from '../utils/imageProcessor';
 // Import OpenAI types if available
 import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 
@@ -78,30 +79,60 @@ async function uploadFilesToStorage(supabase: any, files: UploadedFile[], savedM
     let imageUrlsForOpenAI: string[] = [];
     let imageUrlsForFrontend: string[] = [];
     for (const file of files) {
-        const fileExt = path.extname(file.originalname);
-        const fileNameWithoutExt = path.basename(file.originalname, fileExt);
+        const originalFileExt = path.extname(file.originalname);
+        const fileNameWithoutExt = path.basename(file.originalname, originalFileExt);
         const safeFileNameBase = fileNameWithoutExt.replace(/[^a-zA-Z0-9_-]/g, '_');
-        const uniqueFileName = `${safeFileNameBase}-${uuidv4()}${fileExt}`;
+        
+        let processedBuffer = file.buffer;
+        let processedMimeType = file.mimetype;
+        let processedSize = file.size;
+        let processedFileExt = originalFileExt; // Start with original extension
+        let wasCompressed = false;
+
+        if (file.mimetype.startsWith('image/')) {
+            try {
+                processedBuffer = await compressImage(file.buffer);
+                processedMimeType = 'image/jpeg'; 
+                processedSize = processedBuffer.length;
+                processedFileExt = '.jpg'; // Set to .jpg if compression successful
+                wasCompressed = true;
+            } catch (compressionError) {
+                console.warn(`Failed to compress image ${file.originalname}, uploading original. Error: ${compressionError}`);
+                // processedBuffer, processedMimeType, processedSize, processedFileExt remain original
+            }
+        }
+        
+        const uniqueFileName = `${safeFileNameBase}-${uuidv4()}${processedFileExt}`;
         const storageDirPath = userId ? `public/${userId}/${savedMessage.id}` : `public/${savedMessage.id}`;
         const storagePath = `${storageDirPath}/${uniqueFileName}`;
-        const { data: uploadData, error: uploadError } = await supabase!.storage.from('chat-images').upload(storagePath, file.buffer, {
-            contentType: file.mimetype,
+
+        const { data: uploadData, error: uploadError } = await supabase!.storage.from('chat-images').upload(storagePath, processedBuffer, {
+            contentType: processedMimeType,
             cacheControl: '3600',
         });
+
         if (uploadError) {
+            console.error(`Failed to upload ${file.originalname}: ${uploadError.message}`);
             continue;
         }
+
+        if (!uploadData || !uploadData.path) {
+            console.error(`Upload data or path is missing for ${file.originalname}. Skipping this file.`);
+            continue;
+        }
+
         const { data: urlData } = supabase!.storage.from('chat-images').getPublicUrl(uploadData.path);
         if (urlData?.publicUrl) {
             imageUrlsForOpenAI.push(urlData.publicUrl);
             imageUrlsForFrontend.push(urlData.publicUrl);
         }
+
         imageRecords.push({
             message_id: savedMessage.id,
             storage_path: uploadData.path,
             filename: file.originalname,
-            content_type: file.mimetype,
-            filesize: file.size
+            content_type: processedMimeType,
+            filesize: processedSize
         });
     }
     return { imageRecords, imageUrlsForOpenAI, imageUrlsForFrontend };
@@ -130,7 +161,7 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
     descriptionPromptContent.unshift({ type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe. Then, suggest a short, catchy, SFW nickname for the girl based *only* on the image(s).' });
     const descriptionPrompt: ChatCompletionMessageParam[] = [{
         role: 'user',
-        content: descriptionPromptContent as any // OpenAI SDK expects string, but our code uses array for multimodal; keep as any for now
+        content: descriptionPromptContent as any
     }];
     const descriptionAndNickname = await openaiInstance.callOpenAI(descriptionPrompt, 100);
     const lines = descriptionAndNickname.split('\n');
@@ -147,7 +178,7 @@ async function generateImageDescription(finalUserMessageContent: any[], openaiIn
     descPromptContentSubsequent.unshift({ type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe.' });
     const descriptionPromptSubsequent: ChatCompletionMessageParam[] = [{
         role: 'user',
-        content: descPromptContentSubsequent as any // see above note
+        content: descPromptContentSubsequent as any
     }];
     try {
         let generatedImageDescription = await openaiInstance.callOpenAI(descriptionPromptSubsequent, 100);

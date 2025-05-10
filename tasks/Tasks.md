@@ -20,11 +20,11 @@
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
 - [ ] Set up CI environment.  
 - [ ] Make it so that E2E tests use a much smaller model to save on costs.
-- [ ] Handle large images (currently times out with a 400 error); maybe resize images. 
 - [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
 - [ ] Add prettier so that we keep consistent styling.
 - [ ] Fix the ugly messages that I get when the tests run.
 - [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [ ] Get to a good number of test coverage in the backend.
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
@@ -32,7 +32,6 @@
 - [ ] Add visitor and user tracking. *growth*
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Add a favicon. *ux* 
 - [ ] Create a logo for the app. 
 - [ ] Registration should give feedback and guide through the flow *ux*  
 - [ ] Add login/signup with google. *ux*
@@ -40,11 +39,11 @@
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] I should be able to send a photo without a text message. *bug*
 - [ ] The testing environment should have a separate database. 
-- [ ] Get to a good number of test coverage in the backend.
+- [ ] Audit and make the frontend code more modular.
+- [ ] Add a favicon. *ux* 
+- [ ] Refactor App.jsx, it's 600 lines long.
 
 # Today
-- [ ] Refactor App.jsx, it's 600 lines long.
-- [ ] Audit and make the frontend code more modular.
 
 # Doing
 
@@ -108,3 +107,4 @@
 - [x] User can delete a conversation
 - [x] User can upload an image in chat and see the preview
 - [x] Refreshing the app restores the last active chat
+- [x] Handle large images (currently times out with a 400 error); maybe resize images. 

@@ -1,23 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect, useCallback } from 'react'
 import { supabase } from './supabaseClient'
-import Auth from './components/Auth'
-import LandingPage from './components/LandingPage'
-import MainApp from './components/MainApp'
 import './index.css'
-import RequireAuth from './components/guards/RequireAuth';
-import RedirectIfAuth from './components/guards/RedirectIfAuth';
-import RequireSubscription from './components/guards/RequireSubscription';
-import RedirectIfSubscribed from './components/guards/RedirectIfSubscribed';
-import Subscribe from './components/Subscribe';
 import AppRoutes from './components/AppRoutes';
-import useSessionProfile from './hooks/useSessionProfile';
+import { useAuthSession } from './hooks/useAuthSession';
+import { useUserProfile } from './hooks/useUserProfile';
 import useConversations from './hooks/useConversations';
 import useMessages from './hooks/useMessages';
 import useActiveConversationId from './hooks/useActiveConversationId';
 
 function AppRouter() {
-  const { session, profile, loading: sessionLoading, error: sessionError } = useSessionProfile(supabase);
+  const { session, loading: authLoading, error: authError } = useAuthSession();
+  const { profile, loading: profileLoading, error: profileError } = useUserProfile(session?.user?.id);
   const {
     conversations,
     loading: conversationsLoading,
@@ -293,9 +286,9 @@ function AppRouter() {
       handleRenameThread={handleRenameThread}
       handleDeleteConversation={handleDeleteConversation}
       messages={messages}
-      loading={sessionLoading}
+      loading={authLoading}
       loadingMessages={loadingMessages}
-      error={sessionError || conversationsError || messagesError}
+      error={authError || conversationsError || messagesError}
       handleSendMessage={handleSendMessage}
       supabase={supabase}
     />

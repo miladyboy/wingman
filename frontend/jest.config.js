@@ -1,6 +1,6 @@
 export default {
     testEnvironment: 'jsdom',
-    moduleFileExtensions: ['js', 'jsx'],
+    moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
     transform: {
       '^.+\\.[jt]sx?$': 'babel-jest',
     },
@@ -11,4 +11,7 @@ export default {
       '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
       '^@/(.*)$': '<rootDir>/src/$1',
     },
+    testPathIgnorePatterns: [
+      "\\.spec\\.(ts|tsx|js|jsx)$",
+    ],
   };

@@ -21,31 +21,32 @@
 - [ ] Set up CI environment.  
 - [ ] Make it so that E2E tests use a much smaller model to save on costs.
 - [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
-- [ ] Add prettier so that we keep consistent styling.
+- [ ] Add prettier so that we keep consistent styling. Add prettier to husky?
 - [ ] Fix the ugly messages that I get when the tests run.
-- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 - [ ] Get to a good number of test coverage in the backend.
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
-- [ ] Make sure Stripe works in production.  *important*
 - [ ] Add visitor and user tracking. *growth*
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Create a logo for the app. 
-- [ ] Registration should give feedback and guide through the flow *ux*  
-- [ ] Add login/signup with google. *ux*
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] I should be able to send a photo without a text message. *bug*
-- [ ] The testing environment should have a separate database. 
-- [ ] Audit and make the frontend code more modular.
-- [ ] Add a favicon. *ux* 
+- [ ] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
 
 # Today
+- [ ] Add login/signup with google. *ux*
+- [ ] Registration should give feedback and guide through the flow *ux*  
+- [ ] Create a logo for the app. 
+- [ ] The testing environment should have a separate database. 
+- [ ] Add a favicon. *ux* 
+- [ ] Make sure Stripe works in production.  *important*
+- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 
 # Doing
-- [ ] Refactor App.jsx, it's 600 lines long. Improve frontend components.
+- [ ] Understand, refactor and improve the frontend.
+- [ ] Migrate frontend to typescript.
 
 # Done
 - [x] A paid user shouldn't be able to access /subscribe
@@ -108,3 +109,4 @@
 - [x] User can upload an image in chat and see the preview
 - [x] Refreshing the app restores the last active chat
 - [x] Handle large images (currently times out with a 400 error); maybe resize images. 
+- [x] Solve mailtrap integration (upgrade?)

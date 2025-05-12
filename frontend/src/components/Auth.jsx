@@ -36,10 +36,7 @@ export default function Auth() {
 
     if (error) {
       setFormError(error.error_description || error.message);
-    } else {
-      // Login/Signup successful, App.jsx will detect session change
-      console.log(isRegistering ? 'Signup successful!' : 'Login successful!', data);
-    }
+    } 
     setLoading(false);
   };
 

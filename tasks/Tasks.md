@@ -24,6 +24,8 @@
 - [ ] Add prettier so that we keep consistent styling. Add prettier to husky?
 - [ ] Fix the ugly messages that I get when the tests run.
 - [ ] Get to a good number of test coverage in the backend.
+- [ ] Understand, refactor and improve the frontend.
+- [ ] Migrate frontend to typescript.
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
@@ -36,17 +38,13 @@
 - [ ] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
 
 # Today
-- [ ] Add login/signup with google. *ux*
 - [ ] Registration should give feedback and guide through the flow *ux*  
 - [ ] Create a logo for the app. 
-- [ ] The testing environment should have a separate database. 
 - [ ] Add a favicon. *ux* 
-- [ ] Make sure Stripe works in production.  *important*
-- [ ] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [ ] Add login/signup with google. *ux*
 
 # Doing
-- [ ] Understand, refactor and improve the frontend.
-- [ ] Migrate frontend to typescript.
+- [ ] Make sure Stripe works in production.  *important*
 
 # Done
 - [x] A paid user shouldn't be able to access /subscribe
@@ -110,3 +108,6 @@
 - [x] Refreshing the app restores the last active chat
 - [x] Handle large images (currently times out with a 400 error); maybe resize images. 
 - [x] Solve mailtrap integration (upgrade?)
+- [x] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [x] Agregar MCP de Context7
+- [x] Configure the production environment to have a separate database. 

@@ -31,9 +31,6 @@ All database schema changes **must** be made via migration files committed to gi
 - Do **not** add, drop, or alter tables/columns directly in the Supabase dashboard for production or shared environments.
 - Do **not** use MCP for schema changes unless you immediately export the SQL and add it as a migration file.
 
-## Exceptions
-- For quick prototyping in a throwaway dev environment, dashboard edits are fine—but always backfill with a migration before merging to main.
-
 ## Summary
 > **All schema changes = migration files in git.**
 > This is non-negotiable for team projects and production.

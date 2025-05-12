@@ -22,7 +22,8 @@ export function useRequireSubscription() {
           return;
         }
         const accessToken = session.access_token;
-        const res = await fetch('/api/payments/subscription-status', {
+        const apiBase = import.meta.env.VITE_BACKEND_URL;
+        const res = await fetch(`${apiBase}/api/payments/subscription-status`, {
           headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         });
         const data = await res.json();

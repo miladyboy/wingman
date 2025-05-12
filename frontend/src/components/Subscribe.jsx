@@ -34,7 +34,8 @@ export default function Subscribe() {
         navigate('/');
         return;
       }
-      const res = await fetch('/api/payments/create-checkout-session', {
+      const apiBase = import.meta.env.VITE_BACKEND_URL;
+      const res = await fetch(`${apiBase}/api/payments/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

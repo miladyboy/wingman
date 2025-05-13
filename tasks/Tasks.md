@@ -41,10 +41,11 @@
 
 # Today
 - [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
+- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 
 # Doing
-- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
+- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
+
 
 # Done
 - [x] Add visitor and user tracking. *growth*

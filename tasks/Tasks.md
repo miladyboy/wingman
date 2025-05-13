@@ -29,24 +29,26 @@
 - [ ] Migrate frontend to typescript.
 
 ## Features
-- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
-- [ ] Add an easy user feedback loop. *growth* 
+- [ ] Setup reverse proxy para las stats de usuarios.
 
 ## Polish 
+- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Enter should send the message even if there's only an image and no text.
 - [ ] Improve the email that users get from Supabase.
-- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] Add login/signup with google. *ux*
+- [ ] Make sure the experience works correctly in mobile 
+- [ ] Add an easy user feedback loop. *growth* 
 
 # Today
-- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Add visitor and user tracking. *growth*
+- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 
 # Doing
-- [ ] I should be able to send a photo without a text message. *bug*
+- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 
 # Done
+- [x] Add visitor and user tracking. *growth*
+- [x] I should be able to send a photo without a text message. *bug*
 - [x] Add a favicon. *ux* 
 - [x] Create a logo for the app. 
 - [x] Make sure Stripe works in production.  *important*

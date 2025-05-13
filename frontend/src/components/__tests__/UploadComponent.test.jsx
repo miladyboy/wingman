@@ -5,6 +5,14 @@ import UploadComponent from '../UploadComponent';
 import ChatHistory from '../ChatHistory';
 import MainApp from '../MainApp';
 
+jest.mock('../../services/supabaseClient', () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn().mockResolvedValue({ data: { session: { access_token: 'test-token' } } }),
+    },
+  },
+}));
+
 describe('UploadComponent', () => {
   let mockSend;
   beforeEach(() => {

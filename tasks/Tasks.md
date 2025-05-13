@@ -19,6 +19,7 @@
 - [ ] Fix the manifest.json and everything so that it works as a PWA
 
 # To-Do
+
 ## Code Quality
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
 - [ ] Set up CI environment.  
@@ -29,6 +30,7 @@
 - [ ] Get to a good number of test coverage in the backend.
 - [ ] Understand, refactor and improve the frontend.
 - [ ] Migrate frontend to typescript.
+- [ ] Add running the E2E tests to the git push
 
 ## Features
 - [ ] Setup reverse proxy para las stats de usuarios.

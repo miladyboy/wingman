@@ -1,9 +1,8 @@
-import React from 'react';
 import { render, act, screen } from '@testing-library/react';
 import { useAuthSession } from './useAuthSession';
 
 // Mock supabase client
-jest.mock('../supabaseClient', () => {
+jest.mock('../services/supabaseClient', () => {
   return {
     supabase: {
       auth: {

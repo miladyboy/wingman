@@ -1,13 +1,11 @@
 import { useEffect, useCallback, useState } from 'react'
-import { supabase } from './supabaseClient'
-import './index.css'
+import { supabase } from './services/supabaseClient'
 import AppRoutes from './components/AppRoutes';
 import { useAuthSession } from './hooks/useAuthSession';
 import { useUserProfile } from './hooks/useUserProfile';
 import useConversations from './hooks/useConversations';
 import useMessages from './hooks/useMessages';
 import useActiveConversationId from './hooks/useActiveConversationId';
-import { ToastProvider } from './components/ui/toast';
 
 function AppRouter() {
   const { session, loading: authLoading, error: authError } = useAuthSession();
@@ -48,8 +46,10 @@ function AppRouter() {
     setMessages([]);
   };
 
-  const handleSendMessage = useCallback((formData) => {
+  const handleSendMessage = useCallback(async (formData) => {
     setSendingMessage(true);
+    await Promise.resolve();
+
     setTimeout(async () => {
       let currentConversationId = activeConversationId;
       if (currentConversationId === 'new') {
@@ -305,8 +305,6 @@ function AppRouter() {
 
 export default function App() {
   return (
-    <ToastProvider>
       <AppRouter />
-    </ToastProvider>
   );
 }

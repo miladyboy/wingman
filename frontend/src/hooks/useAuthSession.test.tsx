@@ -14,7 +14,7 @@ jest.mock('../supabaseClient', () => {
   };
 });
 
-import { supabase } from '../supabaseClient';
+import { supabase } from '../services/supabaseClient';
 
 type Session = { user: { id: string } };
 type AuthError = { message: string };

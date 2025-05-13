@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../services/supabaseClient';
 import { Button } from './ui/button'; // Assuming Button is in ./ui/button relative to components directory
 
 export default function Subscribe() {

@@ -62,7 +62,7 @@ export default function useMessages(supabase, session, activeConversationId) {
         .eq('conversation_id', activeConversationId)
         .order('created_at', { ascending: true });
       if (error) throw error;
-      const { supabaseUrl } = await import('../supabaseClient');
+      const { supabaseUrl } = await import('../services/supabaseClient');
       const bucketUrl = `${supabaseUrl}/storage/v1/object/public/chat-images/`;
       const serverMessages = (data || []).map(msg => ({
         ...msg,

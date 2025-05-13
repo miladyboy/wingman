@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { supabase } from './supabaseClient'
 import './index.css'
 import AppRoutes from './components/AppRoutes';
@@ -27,6 +27,7 @@ function AppRouter() {
     fetchMessages,
     setMessages
   } = useMessages(supabase, session, activeConversationId);
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -47,59 +48,62 @@ function AppRouter() {
     setMessages([]);
   };
 
-  const handleSendMessage = useCallback(async (formData) => {
-    let currentConversationId = activeConversationId;
-    if (currentConversationId === 'new') {
-      try {
-        const initialTitle = `New Chat ${conversations.length + 1}`;
-        const { data, error } = await supabase
-          .from('conversations')
-          .insert({ user_id: session.user.id, title: initialTitle })
-          .select()
-          .single();
-        if (error) throw error;
-        if (data) {
-          setConversations(prevConversations => [data, ...prevConversations]);
-          setActiveConversationId(data.id);
-          currentConversationId = data.id;
-        } else {
-          throw new Error('Failed to create conversation: No data returned.');
+  const handleSendMessage = useCallback((formData) => {
+    setSendingMessage(true);
+    setTimeout(async () => {
+      let currentConversationId = activeConversationId;
+      if (currentConversationId === 'new') {
+        try {
+          const initialTitle = `New Chat ${conversations.length + 1}`;
+          const { data, error } = await supabase
+            .from('conversations')
+            .insert({ user_id: session.user.id, title: initialTitle })
+            .select()
+            .single();
+          if (error) throw error;
+          if (data) {
+            setConversations(prevConversations => [data, ...prevConversations]);
+            setActiveConversationId(data.id);
+            currentConversationId = data.id;
+          } else {
+            throw new Error('Failed to create conversation: No data returned.');
+          }
+        } catch (error) {
+          console.error('Error starting new conversation:', error);
+          setSendingMessage(false);
+          return;
         }
-      } catch (error) {
-        console.error('Error starting new conversation:', error);
+      }
+      formData.append('conversationId', currentConversationId);
+      if (!currentConversationId || !session) {
+        console.error('Please select or start a conversation first.');
+        setSendingMessage(false);
         return;
       }
-    }
-    formData.append('conversationId', currentConversationId);
-    if (!currentConversationId || !session) {
-      console.error('Please select or start a conversation first.');
-      return;
-    }
-    // Optimistically add the user message to the UI immediately
-    const optimisticId = `user-${Date.now()}`;
-    const optimisticImageUrls = [];
-    if (formData.getAll('images').length > 0) {
-      for (const file of formData.getAll('images')) {
-        if (file instanceof File) {
-          optimisticImageUrls.push(URL.createObjectURL(file));
+      // Optimistically add the user message to the UI immediately
+      const optimisticId = `user-${Date.now()}`;
+      const optimisticImageUrls = [];
+      if (formData.getAll('images').length > 0) {
+        for (const file of formData.getAll('images')) {
+          if (file instanceof File) {
+            optimisticImageUrls.push(URL.createObjectURL(file));
+          }
         }
       }
-    }
-    const optimisticUserMessage = {
-      id: optimisticId,
-      sender: 'user',
-      content: formData.get('newMessageText'),
-      imageUrls: optimisticImageUrls,
-      optimistic: true,
-    };
-    setMessages(prevMessages => [...prevMessages, optimisticUserMessage]);
-    const historyJson = JSON.stringify(messages.map(m => ({
-      role: m.sender === 'user' ? 'user' : 'assistant',
-      content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content,
-    })));
-    formData.append('historyJson', historyJson);
-    // Start backend call in a new tick to allow loading state to flush
-    setTimeout(async () => {
+      const optimisticUserMessage = {
+        id: optimisticId,
+        sender: 'user',
+        content: formData.get('newMessageText'),
+        imageUrls: optimisticImageUrls,
+        optimistic: true,
+      };
+      setMessages(prevMessages => [...prevMessages, optimisticUserMessage]);
+      const historyJson = JSON.stringify(messages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content,
+      })));
+      formData.append('historyJson', historyJson);
+      // Start backend call
       let assistantMessageId = `ai-${Date.now()}`;
       let assistantMessageContent = '';
       try {
@@ -181,6 +185,7 @@ function AppRouter() {
           )
         );
         optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
+        setSendingMessage(false);
       } catch (error) {
         console.error('Backend communication error:', error);
         setMessages(prevMessages =>
@@ -189,6 +194,7 @@ function AppRouter() {
           )
         );
         optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
+        setSendingMessage(false);
       }
     }, 0);
   }, [activeConversationId, session, messages, conversations.length, setActiveConversationId]);
@@ -291,6 +297,7 @@ function AppRouter() {
       loadingMessages={loadingMessages}
       error={authError || conversationsError || messagesError}
       handleSendMessage={handleSendMessage}
+      sendingMessage={sendingMessage}
       supabase={supabase}
     />
   );

@@ -1,9 +1,7 @@
-import React from 'react';
 import Sidebar from './Sidebar';
 import ChatHistory from './ChatHistory';
 import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
-import { useNavigate } from 'react-router-dom';
 import ChatEmptyState from './ChatEmptyState';
 
 export default function MainApp({
@@ -19,11 +17,11 @@ export default function MainApp({
   loadingMessages,
   error,
   handleSendMessage,
+  sendingMessage,
   supabase
 }) {
   const isNewChat = activeConversationId === 'new';
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
-  const navigate = useNavigate();
 
   const showEmptyState = conversations.length === 0 || isNewChat;
 
@@ -81,7 +79,7 @@ export default function MainApp({
           {loadingMessages && (
             <div className="text-center py-4 text-muted-foreground">Loading messages...</div>
           )}
-          {loading && !loadingMessages && (() => {
+          {sendingMessage && !loadingMessages && (() => {
             // Find the latest agent message (role/sender !== 'user')
             const lastAgentMsg = [...messages].reverse().find(m => (m.role !== 'user' && m.sender !== 'user'));
             const agentHasContent = lastAgentMsg && lastAgentMsg.content && lastAgentMsg.content.trim().length > 0;
@@ -104,7 +102,7 @@ export default function MainApp({
 
         {(showEmptyState || activeConversationId) && (
           <div className="p-4 border-t border-border bg-card">
-            <UploadComponent onSendMessage={handleSendMessage} disabled={loading} />
+            <UploadComponent onSendMessage={handleSendMessage} disabled={sendingMessage} />
           </div>
         )}
       </div>

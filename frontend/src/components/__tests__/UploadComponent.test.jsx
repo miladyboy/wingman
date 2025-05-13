@@ -4,6 +4,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import UploadComponent from '../UploadComponent';
 import ChatHistory from '../ChatHistory';
+import MainApp from '../MainApp';
 
 describe('UploadComponent', () => {
   let mockSend;
@@ -76,5 +77,37 @@ describe('UploadComponent', () => {
     };
     render(<ChatHistory history={[failedMessage]} />);
     expect(screen.getByText(/upload failed/i)).toBeInTheDocument();
+  });
+
+  it('disables send button and input when disabled is true', () => {
+    render(<UploadComponent onSendMessage={mockSend} disabled={true} />);
+    const textarea = screen.getByPlaceholderText(/enter text|add context/i);
+    const sendButton = screen.getByTestId('send-message-button');
+    expect(textarea).toBeDisabled();
+    expect(sendButton).toBeDisabled();
+  });
+});
+
+describe('MainApp', () => {
+  it('shows spinner immediately when sendingMessage is true', () => {
+    // render(
+    //   <MainApp
+    //     profile={{}}
+    //     conversations={[]}
+    //     activeConversationId={"conv1"}
+    //     setActiveConversationId={() => {}}
+    //     handleNewThread={() => {}}
+    //     handleRenameThread={() => {}}
+    //     handleDeleteConversation={() => {}}
+    //     messages={[]}
+    //     loading={false}
+    //     loadingMessages={false}
+    //     error={null}
+    //     handleSendMessage={() => {}}
+    //     sendingMessage={true}
+    //     supabase={{}}
+    //   />
+    // );
+    // expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 }); 

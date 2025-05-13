@@ -15,6 +15,8 @@
 - [ ] Manage true test isolation for the E2E tests.
 - [ ] Maybe I should create the user just after the email is verified. To prevent DB spam.
 - [ ] Hacer mas solido el flow de confirmacion de emails. Para que puedan re-pedir el mail de confirmacion.
+- [ ] Improve security of the images by keeping them either encrypted or in a private bucket. Figure out how to work it out with OpenAI.
+- [ ] Fix the manifest.json and everything so that it works as a PWA
 
 # To-Do
 ## Code Quality
@@ -30,6 +32,8 @@
 
 ## Features
 - [ ] Setup reverse proxy para las stats de usuarios.
+- [ ] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
+- [ ] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
 
 ## Polish 
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
@@ -38,14 +42,18 @@
 - [ ] Add login/signup with google. *ux*
 - [ ] Make sure the experience works correctly in mobile 
 - [ ] Add an easy user feedback loop. *growth* 
+- [ ] Delete el chat optimisticamente de la UI.
 
 # Today
 - [ ] Improve "Pricing" aka payment page. *ux*
 - [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
+- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
+- [ ] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
+- [ ] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
 
 # Doing
-- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 
+- [ ] The "loading" wheel disapeared and is not showing. *bug*
 
 # Done
 - [x] Add visitor and user tracking. *growth*

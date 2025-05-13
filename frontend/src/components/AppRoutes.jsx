@@ -26,6 +26,7 @@ import MainApp from './MainApp';
  * @param {string|null} props.error - Error message, if any.
  * @param {function} props.handleSendMessage - Handler to send a message.
  * @param {object} props.supabase - Supabase client instance.
+ * @param {boolean} props.sendingMessage - Loading state for sending a message.
  */
 function AppRoutes({
   session,
@@ -41,6 +42,7 @@ function AppRoutes({
   loadingMessages,
   error,
   handleSendMessage,
+  sendingMessage,
   supabase
 }) {
   return (
@@ -76,6 +78,7 @@ function AppRoutes({
               loadingMessages={loadingMessages}
               error={error}
               handleSendMessage={handleSendMessage}
+              sendingMessage={sendingMessage}
               supabase={supabase}
             />
           </RequireSubscription>

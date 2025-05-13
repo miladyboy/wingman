@@ -1,10 +1,6 @@
-import React from 'react';
-
 /**
  * LoadingDots — Animated loading indicator with three pulsing dots.
  * Uses the dot-pulse animation defined in Tailwind config.
- *
- * @example <LoadingDots />
  */
 const LoadingDots = () => (
   <div className="flex items-center justify-center space-x-1 text-sm text-muted-foreground">

@@ -52,8 +52,7 @@
 - [ ] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
 
 # Doing
-
-- [ ] The "loading" wheel disapeared and is not showing. *bug*
+- [ ] Make sure the loading dots appear just as soon as the user hits send.
 
 # Done
 - [x] Add visitor and user tracking. *growth*
@@ -127,3 +126,4 @@
 - [x] Configure the production environment to have a separate database. 
 - [x] Registration should give feedback and guide through the flow *ux*  
 - [x] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
+- [x] The "loading" wheel disapeared and is not showing. *bug*

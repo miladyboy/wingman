@@ -9,6 +9,7 @@ import { getUserIdFromAuthHeader } from '../utils/auth';
 import { compressImage } from '../utils/imageProcessor';
 // Import OpenAI types if available
 import type { ChatCompletionMessageParam } from 'openai/resources/chat';
+import { getNicknamePrompt, getImageDescriptionAndNicknamePrompt } from '../prompts/nicknamePrompts';
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey);
@@ -150,15 +151,17 @@ async function saveImageRecords(supabase: any, imageRecords: ImageRecord[]): Pro
 async function generateNickname(newMessageText: string, openaiInstance: OpenAIService = openaiClient): Promise<string> {
     const nicknamePrompt: ChatCompletionMessageParam[] = [{
         role: 'user',
-        content: `Based on the following initial message, suggest a short, catchy, SFW nickname for the person being discussed:\n\n"${newMessageText}"\n\nNickname:`
+        content: getNicknamePrompt(newMessageText)
     }];
     const result = await openaiInstance.callOpenAI(nicknamePrompt, 20);
-    return result.trim() || 'Chat Pal';
+    const nickname = result.trim();
+    if (!nickname) return 'Chat Pal';
+    return nickname;
 }
 
 async function generateImageDescriptionAndNickname(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<{ nickname: string; imageDescription: string }> {
     const descriptionPromptContent = [...finalUserMessageContent];
-    descriptionPromptContent.unshift({ type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe. Then, suggest a short, catchy, SFW nickname for the girl based *only* on the image(s).' });
+    descriptionPromptContent.unshift({ type: 'text', text: getImageDescriptionAndNicknamePrompt() });
     const descriptionPrompt: ChatCompletionMessageParam[] = [{
         role: 'user',
         content: descriptionPromptContent as any
@@ -166,11 +169,11 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
     const descriptionAndNickname = await openaiInstance.callOpenAI(descriptionPrompt, 100);
     const lines = descriptionAndNickname.split('\n');
     let parsedNickname = lines.find(line => line.toLowerCase().startsWith('nickname:'));
-    const generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop()?.trim() || '';
-    const nickname = generatedNickname || 'Mystery Girl';
-    const generatedImageDescription = lines.filter(line => !line.toLowerCase().startsWith('nickname:') && line.trim() !== nickname).join('\n').trim();
+    let generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop()?.trim() || '';
+    if (!generatedNickname) generatedNickname = 'Mystery Girl';
+    const generatedImageDescription = lines.filter(line => !line.toLowerCase().startsWith('nickname:') && line.trim() !== generatedNickname).join('\n').trim();
     const imageDescription = generatedImageDescription || 'Image(s) received.';
-    return { nickname, imageDescription };
+    return { nickname: generatedNickname, imageDescription };
 }
 
 async function generateImageDescription(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<string> {
@@ -302,6 +305,10 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             } else {
                 generatedNickname = await generateNickname(newMessageText);
             }
+            // --- Set conversation title to nickname if generated ---
+            if (generatedNickname && conversationId) {
+                await supabaseAdmin.from('conversations').update({ title: generatedNickname }).eq('id', conversationId);
+            }
         } else if (finalUserMessageContent.length > 0 && imageUrlsForOpenAI.length > 0) {
             generatedNickname = null;
             generatedImageDescription = await generateImageDescription(finalUserMessageContent);
@@ -333,12 +340,19 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         res.flushHeaders();
 
         let aiResponseBuffer = '';
+        let sentTitle = false;
         try {
             await openaiClient.streamChatCompletion(prompt, (text) => {
                 aiResponseBuffer += text;
-                res.write(`data: ${JSON.stringify({ text, done: false })}\n\n`);
+                // If we have a generated nickname and haven't sent it yet, include it in the SSE
+                if (!sentTitle && generatedNickname && isInitialUserMessage) {
+                    res.write(`data: ${JSON.stringify({ text, done: false, conversationTitle: generatedNickname })}\n\n`);
+                    sentTitle = true;
+                } else {
+                    res.write(`data: ${JSON.stringify({ text, done: false })}\n\n`);
+                }
             });
-            res.write(`data: ${JSON.stringify({ text: '', done: true })}\n\n`);
+            res.write(`data: ${JSON.stringify({ text: '', done: true, conversationTitle: generatedNickname || undefined })}\n\n`);
             // Save the full AI message to the database
             if (savedMessage && aiResponseBuffer.trim()) {
                 try {

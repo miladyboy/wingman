@@ -18,6 +18,7 @@
 - [ ] Improve security of the images by keeping them either encrypted or in a private bucket. Figure out how to work it out with OpenAI.
 - [ ] Fix the manifest.json and everything so that it works as a PWA
 - [ ] Add a search for the threads to find a specific girl name.
+- [ ] Implement google vision to extract the girls names. OpenAI screams.
 
 # To-Do
 
@@ -32,32 +33,38 @@
 - [ ] Understand, refactor and improve the frontend.
 - [ ] Migrate frontend to typescript.
 - [ ] Add running the E2E tests to the git push
+- [ ] Implement the AI lib from Vercel so that I can update which language I use for different things.
 
 ## Features
 - [ ] Setup reverse proxy para las stats de usuarios.
-- [ ] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
-- [ ] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
 
 ## Polish 
-- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Enter should send the message even if there's only an image and no text.
 - [ ] Improve the email that users get from Supabase.
-- [ ] Add login/signup with google. *ux*
-- [ ] Make sure the experience works correctly in mobile 
+
+# Good MVP
+- [ ] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
+- [ ] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
+- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Add an easy user feedback loop. *growth* 
+- [ ] Perfect the Landing Copywright
+- [ ] Perfect the prompting 100x
+- [ ] Make sure the experience works correctly in mobile 
+- [ ] Add login/signup with google. *ux*
 - [ ] Delete el chat optimisticamente de la UI.
-
-# Sprint
 - [ ] Improve "Pricing" aka payment page. *ux*
-
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
 - [ ] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
 - [ ] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
+- [ ] Manage when we get a negative title from the backend. Don't update the default.
 
 # Doing
-- [ ] Improve the prompt that tries to generate a nickname to make sure that it extracts a name if at all possible. Name + 1-3 words that describe her, otherwise just the descripting words. Fix the feature as well.
 
 # Done
+- [x] Make the E2E suite go to green again.
+- [x] Se sigue renderizando dos veces el mensaje de preview algunas veces *bug*
+- [x] No se esta mostrando el reply hasta que hago un refresh. *bug*
+- [x] Improve the prompt that tries to generate a nickname to make sure that it extracts a name if at all possible. Name + 1-3 words that describe her, otherwise just the descripting words. Fix the feature as well.
 - [x] Add visitor and user tracking. *growth*
 - [x] I should be able to send a photo without a text message. *bug*
 - [x] Add a favicon. *ux* 

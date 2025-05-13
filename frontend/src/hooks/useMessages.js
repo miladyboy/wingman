@@ -2,21 +2,42 @@ import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Utility to reconcile optimistic and server messages.
- * Removes optimistic messages that have a matching real message (by content and image count).
+ * Removes optimistic messages that have a matching real message (by content and image count or more).
+ * If the server message is less complete (fewer images), keep the optimistic message and do not add the server message.
  */
 function reconcileMessages(serverMessages, optimisticMessages) {
+  // Filter out server messages that are less complete than optimistic ones
+  const filteredServerMessages = serverMessages.filter(srvMsg => {
+    // Find a matching optimistic message by sender and content
+    const matchingOptMsg = optimisticMessages.find(optMsg =>
+      optMsg.sender === srvMsg.sender &&
+      optMsg.content === srvMsg.content &&
+      Array.isArray(optMsg.imageUrls)
+    );
+    if (matchingOptMsg) {
+      // If the server message has fewer images than the optimistic one, skip it
+      if (
+        Array.isArray(srvMsg.imageUrls) &&
+        srvMsg.imageUrls.length < matchingOptMsg.imageUrls.length
+      ) {
+        return false; // Don't include this server message
+      }
+    }
+    return true; // Include server message if no matching optimistic or not less complete
+  });
+
+  // Filter out optimistic messages that have a matching (same or more complete) server message
   const filteredOptimistic = optimisticMessages.filter(optMsg => {
     if (!optMsg.optimistic) return false;
-    return !serverMessages.some(
+    return !filteredServerMessages.some(
       srvMsg =>
         srvMsg.sender === optMsg.sender &&
         srvMsg.content === optMsg.content &&
         Array.isArray(srvMsg.imageUrls) &&
-        Array.isArray(optMsg.imageUrls) &&
-        srvMsg.imageUrls.length === optMsg.imageUrls.length
+        srvMsg.imageUrls.length >= optMsg.imageUrls.length
     );
   });
-  return [...serverMessages, ...filteredOptimistic];
+  return [...filteredServerMessages, ...filteredOptimistic];
 }
 
 /**
@@ -85,4 +106,6 @@ export default function useMessages(supabase, session, activeConversationId) {
   }, [fetchMessages]);
 
   return { messages, loadingMessages, error, fetchMessages, setMessages };
-} 
+}
+
+export { reconcileMessages }; 

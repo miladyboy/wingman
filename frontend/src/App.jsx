@@ -31,6 +31,11 @@ function AppRouter() {
   const [pendingFormData, setPendingFormData] = useState(null);
   const optimisticIdRef = useRef(null);
 
+  // Reset sendingMessage if activeConversationId changes
+  useEffect(() => {
+    setSendingMessage(false);
+  }, [activeConversationId]);
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
@@ -63,7 +68,11 @@ function AppRouter() {
       const formData = pendingFormData;
       if (currentConversationId === 'new') {
         try {
-          const initialTitle = `New Chat ${conversations.length + 1}`;
+          // Use the first 5 words of the user's message as the initial title, or fallback
+          const userMessage = pendingFormData.get('newMessageText');
+          const initialTitle = userMessage
+            ? userMessage.split(/\s+/).slice(0, 5).join(' ')
+            : `New Chat ${conversations.length + 1}`;
           newConversationData = await createConversation(supabase, session.user.id, initialTitle);
           setConversations(prevConversations => [newConversationData, ...prevConversations]);
           setActiveConversationId(newConversationData.id);
@@ -96,6 +105,7 @@ function AppRouter() {
       // Start backend call
       let assistantMessageId = `ai-${Date.now()}`;
       let assistantMessageContent = '';
+      let updatedConversationTitle = null;
       try {
         const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
         const response = await sendMessageToBackend(backendUrl, session.access_token, formData);
@@ -124,20 +134,25 @@ function AppRouter() {
           ];
           return updated;
         });
+        // --- Read backend stream and look for improved title ---
         while (!done) {
           const { value, done: streamDone } = await reader.read();
           done = streamDone;
-          buffer += value ? decoder.decode(value, { stream: true }) : '';
-          let eolIndex;
-          while ((eolIndex = buffer.indexOf('\n\n')) !== -1) {
-            const raw = buffer.slice(0, eolIndex).trim();
-            buffer = buffer.slice(eolIndex + 2);
-            if (raw.startsWith('data:')) {
-              try {
-                const event = JSON.parse(raw.replace(/^data:/, '').trim());
-                if (event.text !== undefined) {
-                  if (!event.done) {
-                    assistantMessageContent += event.text;
+          if (value) {
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+
+            // Split buffer into lines (SSE events are separated by double newlines)
+            let lines = buffer.split(/\n\n/);
+            // Keep the last partial line in buffer for next chunk
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const payload = JSON.parse(line.slice(6));
+                  if (payload.text) {
+                    assistantMessageContent += payload.text;
                     setMessages(prevMessages =>
                       prevMessages.map(msg =>
                         msg.id === assistantMessageId
@@ -146,16 +161,18 @@ function AppRouter() {
                       )
                     );
                   }
-                }
-                if (event.done) {
-                  break;
-                }
-              } catch {
-                break;
+                  if (payload.conversationTitle && payload.conversationTitle !== updatedConversationTitle) {
+                    updatedConversationTitle = payload.conversationTitle;
+                    setConversations(prev => prev.map(conv =>
+                      conv.id === currentConversationId ? { ...conv, title: updatedConversationTitle } : conv
+                    ));
+                  }
+                } catch {}
               }
             }
           }
         }
+        // Final update to ensure the last chunk is rendered
         setMessages(prevMessages =>
           prevMessages.map(msg =>
             msg.id === assistantMessageId

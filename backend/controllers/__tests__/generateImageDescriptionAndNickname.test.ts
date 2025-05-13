@@ -10,6 +10,7 @@ jest.mock('../../services/openaiService', () => {
 
 import { generateImageDescriptionAndNickname } from '../analyzeController';
 import { OpenAIService } from '../../services/openaiService';
+import { getImageDescriptionAndNicknamePrompt } from '../../prompts/nicknamePrompts';
 
 // Mock OpenAIService
 // const mockCallOpenAI = jest.fn(); // Moved up
@@ -37,7 +38,7 @@ describe('generateImageDescriptionAndNickname', () => {
     ];
 
     it('should call OpenAI with the correct prompt structure and parse nickname and description', async () => {
-        const openAIResponse = 'Image Description: A cat wearing a party hat.\nNickname: Party Cat';
+        const openAIResponse = 'Image Description: A cat wearing a party hat.\nNickname: Anna Bright Eyes';
         mockCallOpenAI.mockResolvedValue(openAIResponse);
 
         const result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
@@ -47,15 +48,30 @@ describe('generateImageDescriptionAndNickname', () => {
             {
                 role: 'user',
                 content: [
-                    { type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe. Then, suggest a short, catchy, SFW nickname for the girl based *only* on the image(s).' },
+                    { type: 'text', text: getImageDescriptionAndNicknamePrompt() },
                     ...sampleFinalUserMessageContent,
                 ],
             },
         ];
         expect(mockCallOpenAI).toHaveBeenCalledWith(expectedPromptArgument, 100);
 
-        expect(result.nickname).toBe('Party Cat');
+        expect(result.nickname).toBe('Anna Bright Eyes');
         expect(result.imageDescription).toBe('Image Description: A cat wearing a party hat.');
+    });
+
+    it('should handle LLM response with just descriptors as nickname', async () => {
+        const openAIResponse = 'Image Description: A girl hiking in the mountains.\nNickname: Adventurous Spirit';
+        mockCallOpenAI.mockResolvedValue(openAIResponse);
+        const result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
+        expect(result.nickname).toBe('Adventurous Spirit');
+        expect(result.imageDescription).toBe('Image Description: A girl hiking in the mountains.');
+    });
+
+    it('should handle edge case: LLM returns only whitespace', async () => {
+        mockCallOpenAI.mockResolvedValue('   ');
+        const result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
+        expect(result.nickname).toBe('Mystery Girl');
+        expect(result.imageDescription).toBe('Image(s) received.');
     });
 
     it('should handle OpenAI response with nickname on a new line without prefix', async () => {

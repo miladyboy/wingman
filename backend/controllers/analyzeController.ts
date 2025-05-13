@@ -51,7 +51,7 @@ function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: st
     } catch (e) {
         throw new Error('Invalid history JSON');
     }
-    if (!newMessageText || !conversationId) {
+    if (typeof newMessageText === 'undefined' || !conversationId) {
         throw new Error('newMessageText and conversationId are required');
     }
     const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
@@ -224,10 +224,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        if ((!newMessageText || newMessageText.trim() === '') && files.length === 0) {
-            res.status(400).json({ error: 'New message content (text or image files) is required.' });
-            return;
-        }
         if (!supabaseAdmin) {
             res.status(500).json({ error: 'Backend Supabase client not configured.' });
             return;
@@ -280,8 +276,12 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         let generatedImageDescription: string | null = null;
         let finalUserMessageContent: any[] = [];
         const isInitialUserMessage = !history || history.filter((msg: any) => msg.role === 'user').length === 0;
-        if (newMessageText && newMessageText.trim() !== '') {
-            finalUserMessageContent.push({ type: 'text', text: newMessageText });
+        let promptText = newMessageText;
+        if ((!newMessageText || newMessageText.trim() === '') && imageUrlsForOpenAI.length > 0) {
+            promptText = 'Please analyze these images and give me your advice.';
+        }
+        if (promptText && promptText.trim() !== '') {
+            finalUserMessageContent.push({ type: 'text', text: promptText });
         }
         if (imageUrlsForOpenAI.length > 0) {
             if (finalUserMessageContent.length === 0) {

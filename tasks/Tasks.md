@@ -32,16 +32,19 @@
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Add an easy user feedback loop. *growth* 
 
-# Today
+## Polish 
+- [ ] Enter should send the message even if there's only an image and no text.
+- [ ] Improve the email that users get from Supabase.
+- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
 - [ ] Add login/signup with google. *ux*
+
+# Today
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Improve "Pricing" aka payment page. *ux*
 - [ ] Add visitor and user tracking. *growth*
-- [ ] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
-- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
-- [ ] I should be able to send a photo without a text message. *bug*
 
 # Doing
+- [ ] I should be able to send a photo without a text message. *bug*
 
 # Done
 - [x] Add a favicon. *ux* 
@@ -112,3 +115,4 @@
 - [x] Agregar MCP de Context7
 - [x] Configure the production environment to have a separate database. 
 - [x] Registration should give feedback and guide through the flow *ux*  
+- [x] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*

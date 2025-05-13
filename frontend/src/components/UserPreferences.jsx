@@ -3,6 +3,7 @@ import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetFooter
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { supabase } from '../services/supabaseClient';
+import apiBase from '../utils/env';
 
 export default function UserPreferences({ trigger, onSaved }) {
   const [open, setOpen] = useState(false);
@@ -20,7 +21,7 @@ export default function UserPreferences({ trigger, onSaved }) {
           const { data: { session } } = await supabase.auth.getSession();
           const accessToken = session?.access_token;
           if (!accessToken) throw new Error('No access token');
-          const res = await fetch('/api/user/preferences', {
+          const res = await fetch(`${apiBase}/api/user/preferences`, {
             headers: { 'Authorization': `Bearer ${accessToken}` }
           });
           const data = await res.json();
@@ -42,7 +43,7 @@ export default function UserPreferences({ trigger, onSaved }) {
       const { data: { session } } = await supabase.auth.getSession();
       const accessToken = session?.access_token;
       if (!accessToken) throw new Error('No access token');
-      const res = await fetch('/api/user/preferences', {
+      const res = await fetch(`${apiBase}/api/user/preferences`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

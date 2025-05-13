@@ -5,6 +5,11 @@ import UploadComponent from '../UploadComponent';
 import ChatHistory from '../ChatHistory';
 import MainApp from '../MainApp';
 
+jest.mock('../../utils/env', () => ({
+  __esModule: true,
+  default: '',
+}));
+
 jest.mock('../../services/supabaseClient', () => ({
   supabase: {
     auth: {

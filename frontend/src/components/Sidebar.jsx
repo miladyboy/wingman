@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PencilIcon, CheckIcon, XMarkIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import UserPreferences from './UserPreferences';
 
 function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, onDeleteThread, user, onLogout }) {
   const [editingThreadId, setEditingThreadId] = useState(null);
@@ -128,6 +129,9 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
 
       {/* --- User Info & Logout --- */}
       <div className="p-4 border-t border-border mt-auto">
+        <UserPreferences
+          trigger={<Button className="w-full mb-2" variant="outline" data-testid="edit-preferences">Edit Preferences</Button>}
+        />
         {user && (
           <div className="text-sm text-muted-foreground mb-2 truncate" title={user.email} data-testid="user-info-display">
             Logged in as: {user.username || user.email}

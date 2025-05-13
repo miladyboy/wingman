@@ -218,6 +218,24 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             return;
         }
 
+        // --- Fetch User Preferences ---
+        let userPreferences = '';
+        if (supabaseAdmin) {
+          try {
+            const { data: prefData, error: prefError } = await supabaseAdmin
+              .from('profiles')
+              .select('preferences')
+              .eq('id', userId)
+              .single();
+            if (!prefError && prefData && typeof prefData.preferences === 'string') {
+              userPreferences = prefData.preferences;
+            }
+          } catch (prefFetchErr) {
+            // Log but do not block the request
+            console.warn('Failed to fetch user preferences:', prefFetchErr);
+          }
+        }
+
         // --- Extract Text and Files ---
         let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[];
         try {
@@ -329,7 +347,8 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             userPrompt({
                 history: historyString,
                 message: newMessageText,
-                imageDescription: generatedImageDescription ?? undefined
+                imageDescription: generatedImageDescription ?? undefined,
+                preferences: userPreferences
             })
         ].join('\n\n');
 

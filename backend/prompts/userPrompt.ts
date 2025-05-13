@@ -2,11 +2,15 @@ type UserPromptParams = {
   history?: string;
   message?: string;
   imageDescription?: string;
+  preferences?: string;
 };
 
-function userPrompt({ history, message, imageDescription }: UserPromptParams): string {
+function userPrompt({ history, message, imageDescription, preferences }: UserPromptParams): string {
   let prompt = "";
 
+  if (preferences) {
+    prompt += `User Preferences:\n${preferences}\n\n`;
+  }
   if (history) {
     prompt += `Chat history:\n${history}\n\n`;
   }

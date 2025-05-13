@@ -23,42 +23,45 @@
 # To-Do
 
 ## Code Quality
-- [ ] Create an audit / architect-mode rule that I can insert manually.  
-- [ ] Set up CI environment.  
-- [ ] Make it so that E2E tests use a much smaller model to save on costs.
-- [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. 
-- [ ] Add prettier so that we keep consistent styling. Add prettier to husky?
-- [ ] Fix the ugly messages that I get when the tests run.
-- [ ] Get to a good number of test coverage in the backend.
-- [ ] Understand, refactor and improve the frontend.
-- [ ] Migrate frontend to typescript.
-- [ ] Add running the E2E tests to the git push
-- [ ] Implement the AI lib from Vercel so that I can update which language I use for different things.
+- [ ] Create an audit / architect-mode rule that I can insert manually.  *code-quality*
+- [ ] Set up CI environment. *code-quality*
+- [ ] Make it so that E2E tests use a much smaller model to save on costs. *code-quality*
+- [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. *code-quality*
+- [ ] Add prettier so that we keep consistent styling. Add prettier to husky? *code-quality*
+- [ ] Fix the ugly messages that I get when the tests run. *code-quality*
+- [ ] Get to a good number of test coverage in the backend. *code-quality*
+- [ ] Understand, refactor and improve the frontend. *code-quality*
+- [ ] Migrate frontend to typescript. *code-quality*
+- [ ] Add running the E2E tests to the git push *code-quality*
+- [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
+- [ ] Fix automatic deploy de Render. *code-quality*
 
 ## Features
-- [ ] Setup reverse proxy para las stats de usuarios.
+- [ ] Setup reverse proxy para las stats de usuarios. *marketing*
 
 ## Polish 
 - [ ] Enter should send the message even if there's only an image and no text.
 - [ ] Improve the email that users get from Supabase.
+- [ ] Delete el chat optimisticamente de la UI.
+- [ ] Add login/signup with google. *ux*
+- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 
 # Good MVP
-- [ ] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
-- [ ] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
-- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Perfect the Landing Copywright
-- [ ] Perfect the prompting 100x
 - [ ] Make sure the experience works correctly in mobile 
-- [ ] Add login/signup with google. *ux*
-- [ ] Delete el chat optimisticamente de la UI.
 - [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
-- [ ] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
-- [ ] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
 - [ ] Manage when we get a negative title from the backend. Don't update the default.
 
 # Doing
+- [ ] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
+- [ ] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
+- [ ] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
+- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
+- [ ] Perfect the prompting 100x
+
+- [ ] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
+
 
 # Done
 - [x] Make the E2E suite go to green again.

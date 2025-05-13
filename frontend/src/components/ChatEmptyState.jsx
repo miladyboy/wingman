@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * ChatEmptyState displays a message when there are no chats or a new chat is being started.
  * Used in MainApp to provide a consistent empty state UI.

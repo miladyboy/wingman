@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { supabase } from './services/supabaseClient'
 import AppRoutes from './components/AppRoutes';
 import { useAuthSession } from './hooks/useAuthSession';
@@ -6,6 +6,8 @@ import { useUserProfile } from './hooks/useUserProfile';
 import useConversations from './hooks/useConversations';
 import useMessages from './hooks/useMessages';
 import useActiveConversationId from './hooks/useActiveConversationId';
+import { buildOptimisticUserMessage, serializeMessageHistory, extractImageUrlsFromFiles } from './utils/messageUtils';
+import { createConversation, sendMessageToBackend } from './services/messageService';
 
 function AppRouter() {
   const { session, loading: authLoading, error: authError } = useAuthSession();
@@ -26,6 +28,8 @@ function AppRouter() {
     setMessages
   } = useMessages(supabase, session, activeConversationId);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState(null);
+  const optimisticIdRef = useRef(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -46,31 +50,28 @@ function AppRouter() {
     setMessages([]);
   };
 
-  const handleSendMessage = useCallback(async (formData) => {
+  const handleSendMessage = useCallback((formData) => {
+    setPendingFormData(formData);
     setSendingMessage(true);
-    await Promise.resolve();
+  }, []);
 
-    setTimeout(async () => {
+  useEffect(() => {
+    if (!sendingMessage || !pendingFormData) return;
+    (async () => {
       let currentConversationId = activeConversationId;
+      let newConversationData = null;
+      const formData = pendingFormData;
       if (currentConversationId === 'new') {
         try {
           const initialTitle = `New Chat ${conversations.length + 1}`;
-          const { data, error } = await supabase
-            .from('conversations')
-            .insert({ user_id: session.user.id, title: initialTitle })
-            .select()
-            .single();
-          if (error) throw error;
-          if (data) {
-            setConversations(prevConversations => [data, ...prevConversations]);
-            setActiveConversationId(data.id);
-            currentConversationId = data.id;
-          } else {
-            throw new Error('Failed to create conversation: No data returned.');
-          }
+          newConversationData = await createConversation(supabase, session.user.id, initialTitle);
+          setConversations(prevConversations => [newConversationData, ...prevConversations]);
+          setActiveConversationId(newConversationData.id);
+          currentConversationId = newConversationData.id;
         } catch (error) {
           console.error('Error starting new conversation:', error);
           setSendingMessage(false);
+          setPendingFormData(null);
           return;
         }
       }
@@ -78,43 +79,26 @@ function AppRouter() {
       if (!currentConversationId || !session) {
         console.error('Please select or start a conversation first.');
         setSendingMessage(false);
+        setPendingFormData(null);
         return;
       }
-      // Optimistically add the user message to the UI immediately
-      const optimisticId = `user-${Date.now()}`;
-      const optimisticImageUrls = [];
-      if (formData.getAll('images').length > 0) {
-        for (const file of formData.getAll('images')) {
-          if (file instanceof File) {
-            optimisticImageUrls.push(URL.createObjectURL(file));
-          }
-        }
-      }
-      const optimisticUserMessage = {
-        id: optimisticId,
-        sender: 'user',
-        content: formData.get('newMessageText'),
-        imageUrls: optimisticImageUrls,
-        optimistic: true,
-      };
-      setMessages(prevMessages => [...prevMessages, optimisticUserMessage]);
-      const historyJson = JSON.stringify(messages.map(m => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.image_description ? `${m.content || ''}\n[Image Description: ${m.image_description}]` : m.content,
-      })));
+      // Optimistically add the user message to the UI immediately (only once)
+      const optimisticImageUrls = extractImageUrlsFromFiles(formData);
+      const optimisticUserMessage = buildOptimisticUserMessage(formData, optimisticImageUrls);
+      optimisticIdRef.current = optimisticUserMessage.id;
+      setMessages(prevMessages => {
+        // Remove any previous optimistic message with the same id (shouldn't happen, but safe)
+        const filtered = prevMessages.filter(msg => msg.id !== optimisticUserMessage.id);
+        return [...filtered, optimisticUserMessage];
+      });
+      const historyJson = serializeMessageHistory(messages);
       formData.append('historyJson', historyJson);
       // Start backend call
       let assistantMessageId = `ai-${Date.now()}`;
       let assistantMessageContent = '';
       try {
         const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-        const response = await fetch(`${backendUrl}/analyze`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: formData,
-        });
+        const response = await sendMessageToBackend(backendUrl, session.access_token, formData);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Unknown backend error' }));
           throw new Error(errorData.details || errorData.error || `Backend Error: ${response.statusText}`);
@@ -181,23 +165,25 @@ function AppRouter() {
         );
         setMessages(prevMessages =>
           prevMessages.map(msg =>
-            msg.id === optimisticId ? { ...msg, optimistic: false } : msg
+            msg.id === optimisticIdRef.current ? { ...msg, optimistic: false } : msg
           )
         );
         optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
         setSendingMessage(false);
+        setPendingFormData(null);
       } catch (error) {
         console.error('Backend communication error:', error);
         setMessages(prevMessages =>
           prevMessages.map(msg =>
-            msg.id === optimisticId ? { ...msg, failed: true } : msg
+            msg.id === optimisticIdRef.current ? { ...msg, failed: true } : msg
           )
         );
         optimisticImageUrls.forEach(url => URL.revokeObjectURL(url));
         setSendingMessage(false);
+        setPendingFormData(null);
       }
-    }, 0);
-  }, [activeConversationId, session, messages, conversations.length, setActiveConversationId]);
+    })();
+  }, [sendingMessage, pendingFormData]);
 
   const handleRenameThread = useCallback(async (conversationId, newName) => {
     const trimmedName = newName.trim();

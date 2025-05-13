@@ -17,6 +17,7 @@
 - [ ] Hacer mas solido el flow de confirmacion de emails. Para que puedan re-pedir el mail de confirmacion.
 - [ ] Improve security of the images by keeping them either encrypted or in a private bucket. Figure out how to work it out with OpenAI.
 - [ ] Fix the manifest.json and everything so that it works as a PWA
+- [ ] Add a search for the threads to find a specific girl name.
 
 # To-Do
 
@@ -46,15 +47,15 @@
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Delete el chat optimisticamente de la UI.
 
-# Today
+# Sprint
 - [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
+
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
 - [ ] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
 - [ ] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
 
 # Doing
-- [ ] Make sure the loading dots appear just as soon as the user hits send.
+- [ ] Improve the prompt that tries to generate a nickname to make sure that it extracts a name if at all possible. Name + 1-3 words that describe her, otherwise just the descripting words. Fix the feature as well.
 
 # Done
 - [x] Add visitor and user tracking. *growth*
@@ -129,3 +130,4 @@
 - [x] Registration should give feedback and guide through the flow *ux*  
 - [x] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
 - [x] The "loading" wheel disapeared and is not showing. *bug*
+- [x] Make sure the loading dots appear just as soon as the user hits send.

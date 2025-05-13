@@ -15,7 +15,6 @@
 - [ ] Manage true test isolation for the E2E tests.
 
 # To-Do
-
 ## Code Quality
 - [ ] Create an audit / architect-mode rule that I can insert manually.  
 - [ ] Set up CI environment.  
@@ -29,24 +28,24 @@
 
 ## Features
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
-- [ ] Add visitor and user tracking. *growth*
 - [ ] Add an easy user feedback loop. *growth* 
-- [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
-- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
-- [ ] I should be able to send a photo without a text message. *bug*
-- [ ] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
 
 # Today
 - [ ] Registration should give feedback and guide through the flow *ux*  
-- [ ] Create a logo for the app. 
-- [ ] Add a favicon. *ux* 
 - [ ] Add login/signup with google. *ux*
+- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
+- [ ] Improve "Pricing" aka payment page. *ux*
+- [ ] Add visitor and user tracking. *growth*
+- [ ] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
+- [ ] Add a custom nickname to the thread based on the initial message and image. *(Small) (Fix)*  
+- [ ] I should be able to send a photo without a text message. *bug*
 
 # Doing
-- [ ] Make sure Stripe works in production.  *important*
+- [ ] Add a favicon. *ux* 
 
 # Done
+- [x] Create a logo for the app. 
+- [x] Make sure Stripe works in production.  *important*
 - [x] A paid user shouldn't be able to access /subscribe
 - [x] Test the stripe subscription flow.
 - [x] Landing page loads and primary CTA works

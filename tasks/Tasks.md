@@ -13,6 +13,8 @@
 - [ ] Hacer un tear down de la DB que elimine todos los users de prueba?
 - [ ] The UI should be reactive and update when you do things in other devices.
 - [ ] Manage true test isolation for the E2E tests.
+- [ ] Maybe I should create the user just after the email is verified. To prevent DB spam.
+- [ ] Hacer mas solido el flow de confirmacion de emails. Para que puedan re-pedir el mail de confirmacion.
 
 # To-Do
 ## Code Quality
@@ -31,7 +33,6 @@
 - [ ] Add an easy user feedback loop. *growth* 
 
 # Today
-- [ ] Registration should give feedback and guide through the flow *ux*  
 - [ ] Add login/signup with google. *ux*
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *important*
 - [ ] Improve "Pricing" aka payment page. *ux*
@@ -41,9 +42,9 @@
 - [ ] I should be able to send a photo without a text message. *bug*
 
 # Doing
-- [ ] Add a favicon. *ux* 
 
 # Done
+- [x] Add a favicon. *ux* 
 - [x] Create a logo for the app. 
 - [x] Make sure Stripe works in production.  *important*
 - [x] A paid user shouldn't be able to access /subscribe
@@ -110,3 +111,4 @@
 - [x] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
 - [x] Agregar MCP de Context7
 - [x] Configure the production environment to have a separate database. 
+- [x] Registration should give feedback and guide through the flow *ux*  

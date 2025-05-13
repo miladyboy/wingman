@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,13 @@ export default function Auth() {
   const [isRegistering, setIsRegistering] = useState(false); 
   const [username, setUsername] = useState(''); 
   const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
 
   const handleAuth = async (event) => {
     event.preventDefault();
     setLoading(true);
     setFormError('');
+    setFormSuccess('');
 
     const { data, error } = isRegistering
       ? await supabase.auth.signUp({
@@ -34,8 +36,20 @@ export default function Auth() {
           password: password,
         });
 
+    const user = data?.user;
+    const session = data?.session;
+
     if (error) {
-      setFormError(error.error_description || error.message);
+      setFormError(error.message || 'An error occurred.');
+      setFormSuccess('');
+    } else if (isRegistering && user && !session) {
+      if (user.identities && user.identities.length === 0) {
+        setFormError('User already exists. Please sign in.');
+        setFormSuccess('');
+      } else {
+        setFormSuccess('Registration successful! Please check your email and confirm your account.');
+        setFormError('');
+      }
     } 
     setLoading(false);
   };
@@ -52,6 +66,12 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent className="py-6 px-6 flex flex-col gap-4">
+          {formSuccess && (
+            <Alert variant="success" className="mb-2">
+              <AlertTitle>Success</AlertTitle>
+              <AlertDescription>{formSuccess}</AlertDescription>
+            </Alert>
+          )}
           {formError && (
             <Alert variant="destructive" className="mb-2">
               <AlertTitle>Error</AlertTitle>
@@ -117,6 +137,7 @@ export default function Auth() {
             onClick={() => {
               setIsRegistering(!isRegistering);
               setFormError("");
+              setFormSuccess("");
             }}
             className="w-full mt-2 text-primary underline-offset-4 hover:underline"
           >

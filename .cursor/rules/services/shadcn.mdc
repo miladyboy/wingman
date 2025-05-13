@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When adding frontend components always default to looking for a shadcn component first before creating a custom one.

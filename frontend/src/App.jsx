@@ -7,6 +7,7 @@ import { useUserProfile } from './hooks/useUserProfile';
 import useConversations from './hooks/useConversations';
 import useMessages from './hooks/useMessages';
 import useActiveConversationId from './hooks/useActiveConversationId';
+import { ToastProvider } from './components/ui/toast';
 
 function AppRouter() {
   const { session, loading: authLoading, error: authError } = useAuthSession();
@@ -295,4 +296,10 @@ function AppRouter() {
   );
 }
 
-export default AppRouter;
+export default function App() {
+  return (
+    <ToastProvider>
+      <AppRouter />
+    </ToastProvider>
+  );
+}

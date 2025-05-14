@@ -3,7 +3,6 @@
 - [ ] Add Dark/Light theme.  
 - [ ] Make session management optional through a "Remember Me" toggle.  
 - [ ] Save memories based on what the bot sees in photos or what I say. (RAG) **(Hard)**  
-- [ ] Make image paste with ⌘ + V work. *(Small)*  
 - [ ] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  
 - [ ] Make the bot respond in Markdown.  
 - [ ] Implement a free trial for the Stripe membership.  
@@ -31,24 +30,26 @@
 - [ ] Get to a good number of test coverage in the backend. *code-quality*
 - [ ] Understand, refactor and improve the frontend. *code-quality*
 - [ ] Migrate frontend to typescript. *code-quality*
-- [ ] Add running the E2E tests to the git push *code-quality*
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
-- [ ] Fix automatic deploy de Render. *code-quality*
-- [ ] Setup reverse proxy para las stats de usuarios. *marketing*
-
-## Polish 
+- [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
+- [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. *bug*
 - [ ] Enter should send the message even if there's only an image and no text.
 - [ ] Improve the email that users get from Supabase.
 - [ ] Delete el chat optimisticamente de la UI.
 - [ ] Add login/signup with google. *ux*
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
-- [ ] Add an easy user feedback loop. *growth* 
 - [ ] Perfect the Landing Copywright *growth*
-- [ ] Make sure the experience works correctly in mobile *ux*
 - [ ] Improve "Pricing" aka payment page. *growth*
+- [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
+- [ ] Update stripe to charge weekly instead of monthly. *money*
+
+# Today
+- [ ] Make sure the experience works correctly in mobile *ux*
+- [ ] Add an easy user feedback loop. *growth* 
 
 # Doing
-
+- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
+- [ ] Make sure our analytics are legal *marketing*
 
 # Done
 - [x] Add so that the E2E suite runs on husky push.
@@ -135,3 +136,6 @@
 - [x] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
 - [x] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
 - [x] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
+- [x] Fix automatic deploy de Render. *code-quality*
+- [x] Add running the E2E tests to the git push *code-quality*
+- [x] Register for the apple store

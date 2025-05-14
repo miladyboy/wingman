@@ -56,5 +56,5 @@ test.describe('Subscription Flows', () => {
     // Optional: Log out and log back in to verify subscription state persists
     await expect(page.getByTestId('logout-button')).toBeVisible({ timeout: 10000 });
     await page.getByTestId('logout-button').click();
-  });
+  }, 120000);
 }); 

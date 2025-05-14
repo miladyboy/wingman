@@ -46,17 +46,14 @@
 - [ ] Perfect the Landing Copywright *growth*
 - [ ] Make sure the experience works correctly in mobile *ux*
 - [ ] Improve "Pricing" aka payment page. *growth*
-- [ ] Manage when we get a negative title from the backend. Don't update the default. *ux*
 
 # Doing
-- [ ] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
-- [ ] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
-- [ ] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
-- [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
-- [ ] Perfect the prompting 100x
-- [ ] Add so that the E2E suite runs on husky push.
+
 
 # Done
+- [x] Add so that the E2E suite runs on husky push.
+- [x] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
+- [x] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
 - [x] The loading animation isn't starting as soon as I send my images. It should also start optimistically. *ux*
 - [x] Make the E2E suite go to green again.
 - [x] Se sigue renderizando dos veces el mensaje de preview algunas veces *bug*
@@ -136,4 +133,5 @@
 - [x] The "loading" wheel disapeared and is not showing. *bug*
 - [x] Make sure the loading dots appear just as soon as the user hits send.
 - [x] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
-
+- [x] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
+- [x] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.

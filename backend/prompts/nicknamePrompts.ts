@@ -9,10 +9,33 @@ export function getNicknamePrompt(newMessageText: string): string {
   return `Based on the following message, invent a short, catchy, SFW nickname for the girl described. If a name is provided, include it in the nickname (e.g., Anna Bright Eyes). If not, use just 1-3 descriptive words (e.g., Bright Eyes, Sunshine Smile). Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described. The nickname must be in the same language as the input message.\n\n"${newMessageText}"\n\nNickname:`;
 }
 
-/**
- * Returns the prompt for generating an image description and nickname from image(s) and text.
- * Invent a short, catchy, SFW nickname for the girl in the image(s) based on her vibe, style, or features. If a name is provided in the text, include it in the nickname (e.g., Anna Bright Eyes). If not, use just 1-3 descriptive words (e.g., Bright Eyes, Sunshine Smile). Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described. The nickname must be in the same language as the input message.
- */
+// Prompt for image description and nickname generation
 export function getImageDescriptionAndNicknamePrompt(): string {
-  return 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe. Then, invent a short, catchy, SFW nickname for the girl in the image(s) based on her vibe, style, or features. If a name is provided in the text, include it in the nickname (e.g., Anna Bright Eyes). If not, use just 1-3 descriptive words (e.g., Bright Eyes, Sunshine Smile, Adventurous Spirit). Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described. The nickname must be in the same language as the input message. Output the description, then the nickname on a new line as Nickname:.';
-} 
+  return `=== Image Analysis & Nickname Generator ===
+
+INSTRUCTIONS
+
+1. IMAGE TYPE
+• Decide which category best fits the attachment:
+  – Photo             (a picture containing a person)
+  – ConversationShot  (screenshot of chat messages)
+  – ProfileMetadata   (screenshot of a dating‑app or social profile with bio/stats)
+
+2. DESCRIPTION
+• Produce a rich, multi‑sentence description with every detail useful for chat logic.
+  • Photo → appearance (hair colour, eye colour if visible, facial expression, physique), outfit & style, accessories, setting/background, activity, companions, overall vibe.
+  • ConversationShot → transcribe each message with sender labels, note the platform (Tinder, Bumble, IG, WhatsApp, etc.), capture emojis, reactions, timestamps.
+  • ProfileMetadata → extract every visible datapoint: bio lines, prompts, interests, job, education, distance, anthem, Spotify artists, etc.
+• Never attempt to identify the person by real name, and never mention any inability to identify.
+
+3. NICKNAME
+• Invent one short, catchy, SFW nickname for the girl:
+  • If the user text supplies her name, prepend it then add 1‑2 descriptive words (e.g., Anna Bright Eyes).
+  • Otherwise, use a 1‑3‑word descriptive nickname (e.g., Bright Eyes, Sunshine Smile).
+• The nickname must be in the SAME language as the input.
+
+4. OUTPUT FORMAT
+<Rich multi‑sentence description>
+
+Nickname: <nickname>`;
+}

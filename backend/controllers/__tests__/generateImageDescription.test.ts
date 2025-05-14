@@ -10,6 +10,7 @@ jest.mock('../../services/openaiService', () => {
 
 import { generateImageDescription } from '../analyzeController';
 import { OpenAIService } from '../../services/openaiService';
+import { getImageDescriptionPrompt } from '../../prompts/userPrompt';
 
 // Mock OpenAIService (can share mock setup if in same context or re-mock)
 // const mockCallOpenAI_for_generateImageDescription = jest.fn(); // Moved up
@@ -48,12 +49,12 @@ describe('generateImageDescription', () => {
             {
                 role: 'user',
                 content: [
-                    { type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe.' },
+                    { type: 'text', text: getImageDescriptionPrompt() },
                     ...sampleFinalUserMessageContent,
                 ],
             },
         ];
-        expect(mockCallOpenAI_for_generateImageDescription).toHaveBeenCalledWith(expectedPromptArgument, 100);
+        expect(mockCallOpenAI_for_generateImageDescription).toHaveBeenCalledWith(expectedPromptArgument, 250);
         expect(result).toBe(openAIResponse.trim());
     });
 

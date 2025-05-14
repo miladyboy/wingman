@@ -53,7 +53,7 @@ describe('generateImageDescriptionAndNickname', () => {
                 ],
             },
         ];
-        expect(mockCallOpenAI).toHaveBeenCalledWith(expectedPromptArgument, 100);
+        expect(mockCallOpenAI).toHaveBeenCalledWith(expectedPromptArgument, 250);
 
         expect(result.nickname).toBe('Anna Bright Eyes');
         expect(result.imageDescription).toBe('Image Description: A cat wearing a party hat.');

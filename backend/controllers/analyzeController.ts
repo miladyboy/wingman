@@ -10,6 +10,7 @@ import { compressImage } from '../utils/imageProcessor';
 // Import OpenAI types if available
 import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 import { getNicknamePrompt, getImageDescriptionAndNicknamePrompt } from '../prompts/nicknamePrompts';
+import { getFallbackImageAnalysisPrompt, getImageDescriptionPrompt } from '../prompts/userPrompt';
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey);
@@ -166,7 +167,7 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
         role: 'user',
         content: descriptionPromptContent as any
     }];
-    const descriptionAndNickname = await openaiInstance.callOpenAI(descriptionPrompt, 100);
+    const descriptionAndNickname = await openaiInstance.callOpenAI(descriptionPrompt, 250);
     const lines = descriptionAndNickname.split('\n');
     let parsedNickname = lines.find(line => line.toLowerCase().startsWith('nickname:'));
     let generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop()?.trim() || '';
@@ -178,13 +179,13 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
 
 async function generateImageDescription(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<string> {
     const descPromptContentSubsequent = [...finalUserMessageContent];
-    descPromptContentSubsequent.unshift({ type: 'text', text: 'Describe the image(s) briefly for context in a chat analysis. Focus on the people, setting, and overall vibe.' });
+    descPromptContentSubsequent.unshift({ type: 'text', text: getImageDescriptionPrompt() });
     const descriptionPromptSubsequent: ChatCompletionMessageParam[] = [{
         role: 'user',
         content: descPromptContentSubsequent as any
     }];
     try {
-        let generatedImageDescription = await openaiInstance.callOpenAI(descriptionPromptSubsequent, 100);
+        let generatedImageDescription = await openaiInstance.callOpenAI(descriptionPromptSubsequent, 250);
         return generatedImageDescription.trim() || 'Image(s) analyzed.';
     } catch (descError) {
         return 'Error analyzing image(s).';
@@ -299,7 +300,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         const isInitialUserMessage = !history || history.filter((msg: any) => msg.role === 'user').length === 0;
         let promptText = newMessageText;
         if ((!newMessageText || newMessageText.trim() === '') && imageUrlsForOpenAI.length > 0) {
-            promptText = 'Please analyze these images and give me your advice.';
+            promptText = getFallbackImageAnalysisPrompt();
         }
         if (promptText && promptText.trim() !== '') {
             finalUserMessageContent.push({ type: 'text', text: promptText });

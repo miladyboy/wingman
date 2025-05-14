@@ -6,7 +6,6 @@
  */
 export function filterThreadsByName(threads, query) {
   if (!Array.isArray(threads) || typeof query !== 'string') {
-    console.log('[filterThreadsByName] Entrada inválida:', { threads, query });
     return threads;
   }
   const normalizedQuery = query.trim().toLowerCase();
@@ -14,6 +13,5 @@ export function filterThreadsByName(threads, query) {
   const filtered = threads.filter(thread =>
     thread.name && thread.name.toLowerCase().includes(normalizedQuery)
   );
-  console.log('[filterThreadsByName] Resultado:', filtered.map(t => t.name));
   return filtered;
 } 

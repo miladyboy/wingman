@@ -42,13 +42,14 @@
 - [ ] Improve "Pricing" aka payment page. *growth*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Update stripe to charge weekly instead of monthly. *money*
+- [ ] Add section so that users can cancel their subscription. *ux*
 
 # Today
 - [ ] Make sure the experience works correctly in mobile *ux*
 - [ ] Add an easy user feedback loop. *growth* 
+- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 
 # Doing
-- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Make sure our analytics are legal *marketing*
 
 # Done

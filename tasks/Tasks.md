@@ -21,12 +21,11 @@
 - [ ] Implement google vision to extract the girls names. OpenAI screams.
 
 # To-Do
-
-## Code Quality
+- [ ] Fix the E2E tests to run with multiple workers. *test*
+- [ ] Make the E2E suite run in the three browsers. *test*
 - [ ] Create an audit / architect-mode rule that I can insert manually.  *code-quality*
 - [ ] Set up CI environment. *code-quality*
-- [ ] Make it so that E2E tests use a much smaller model to save on costs. *code-quality*
-- [ ] The loading animation isn't starting as soon as I send my images. It should also start optimistically. *code-quality*
+- [ ] Make it so that E2E tests use a much smaller model to save on costs. *cost*
 - [ ] Add prettier so that we keep consistent styling. Add prettier to husky? *code-quality*
 - [ ] Fix the ugly messages that I get when the tests run. *code-quality*
 - [ ] Get to a good number of test coverage in the backend. *code-quality*
@@ -35,8 +34,6 @@
 - [ ] Add running the E2E tests to the git push *code-quality*
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
 - [ ] Fix automatic deploy de Render. *code-quality*
-
-## Features
 - [ ] Setup reverse proxy para las stats de usuarios. *marketing*
 
 ## Polish 
@@ -45,13 +42,11 @@
 - [ ] Delete el chat optimisticamente de la UI.
 - [ ] Add login/signup with google. *ux*
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
-
-# Good MVP
 - [ ] Add an easy user feedback loop. *growth* 
-- [ ] Perfect the Landing Copywright
-- [ ] Make sure the experience works correctly in mobile 
-- [ ] Improve "Pricing" aka payment page. *ux*
-- [ ] Manage when we get a negative title from the backend. Don't update the default.
+- [ ] Perfect the Landing Copywright *growth*
+- [ ] Make sure the experience works correctly in mobile *ux*
+- [ ] Improve "Pricing" aka payment page. *growth*
+- [ ] Manage when we get a negative title from the backend. Don't update the default. *ux*
 
 # Doing
 - [ ] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
@@ -59,11 +54,10 @@
 - [ ] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
 - [ ] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
 - [ ] Perfect the prompting 100x
-
-- [ ] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
-
+- [ ] Add so that the E2E suite runs on husky push.
 
 # Done
+- [x] The loading animation isn't starting as soon as I send my images. It should also start optimistically. *ux*
 - [x] Make the E2E suite go to green again.
 - [x] Se sigue renderizando dos veces el mensaje de preview algunas veces *bug*
 - [x] No se esta mostrando el reply hasta que hago un refresh. *bug*
@@ -141,3 +135,5 @@
 - [x] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
 - [x] The "loading" wheel disapeared and is not showing. *bug*
 - [x] Make sure the loading dots appear just as soon as the user hits send.
+- [x] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
+

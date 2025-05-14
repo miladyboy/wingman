@@ -75,11 +75,13 @@ module.exports = {
 			'0%, 80%, 100%': { opacity: '0.3' },
 			'40%': { opacity: '1' },
 		  },
+		  'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
 		},
 		animation: {
 		  'accordion-down': 'accordion-down 0.25s ease-out',
 		  'accordion-up':   'accordion-up 0.25s ease-out',
 		  'dot-pulse': 'dot-pulse 1.2s infinite ease-in-out',
+		  'fade-in': 'fade-in 1s ease forwards',
 		},
 	  },
 	},

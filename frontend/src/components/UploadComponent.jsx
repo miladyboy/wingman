@@ -88,6 +88,21 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     }
   };
 
+  // Handler para pegar imágenes desde el portapapeles
+  const handlePaste = useCallback((event) => {
+    if (!event.clipboardData || !event.clipboardData.items) return;
+    const items = Array.from(event.clipboardData.items);
+    const imageFiles = items
+      .filter(item => item.kind === 'file' && item.type.startsWith('image/'))
+      .map(item => item.getAsFile())
+      .filter(Boolean);
+    if (imageFiles.length > 0) {
+      event.preventDefault(); // Evita que la imagen se pegue como base64 en el textarea
+      addFiles(imageFiles);
+      console.log('[UploadComponent] Imágenes pegadas desde el portapapeles:', imageFiles.map(f => f.name));
+    }
+  }, [addFiles]);
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -152,6 +167,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleTextareaKeyDown}
+          onPaste={handlePaste} // Permite pegar imágenes desde el portapapeles
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
           rows={3}
           disabled={disabled}

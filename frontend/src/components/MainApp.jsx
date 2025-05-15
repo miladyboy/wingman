@@ -184,6 +184,45 @@ export default function MainApp({
               variant="ghost"
               size="icon"
               onClick={handleProfileMenuToggle}
+              data-testid="profile-menu-button-drawer"
+              aria-label="Open profile menu"
+            >
+              <UserCircle className="h-7 w-7" />
+            </Button>
+            {isProfileMenuOpen && (
+              <div
+                ref={profileMenuRef}
+                className="absolute right-0 mt-2 w-48 bg-card border border-border rounded shadow-lg z-50"
+                data-testid="profile-menu-dropdown-mobile"
+              >
+                <button
+                  className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
+                  onClick={handleAccountOpen}
+                  data-testid="profile-menu-account-mobile"
+                >
+                  My Account
+                </button>
+                <button
+                  className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border profile-menu-item"
+                  onClick={handleLogout}
+                  data-testid="profile-menu-logout-mobile"
+                >
+                  Log out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden md:flex bg-card p-4 border-b border-border shadow-sm justify-between items-center">
+          <h2 className="text-xl font-semibold text-foreground">{activeConversation ? activeConversation.title : ''}</h2>
+          {/* Profile button (desktop) */}
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleProfileMenuToggle}
               data-testid="profile-menu-button"
               aria-label="Open profile menu"
             >
@@ -198,7 +237,7 @@ export default function MainApp({
                 <button
                   className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
                   onClick={handleAccountOpen}
-                  data-testid="profile-menu-account"
+                  data-testid="profile-menu-account-desktop"
                 >
                   My Account
                 </button>
@@ -213,47 +252,6 @@ export default function MainApp({
             )}
           </div>
         </div>
-
-        {/* Desktop Header */}
-        {activeConversation && (
-          <div className="hidden md:flex bg-card p-4 border-b border-border shadow-sm justify-between items-center">
-            <h2 className="text-xl font-semibold text-foreground">{activeConversation.title}</h2>
-            {/* Profile button (desktop) */}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleProfileMenuToggle}
-                data-testid="profile-menu-button"
-                aria-label="Open profile menu"
-              >
-                <UserCircle className="h-7 w-7" />
-              </Button>
-              {isProfileMenuOpen && (
-                <div
-                  ref={profileMenuRef}
-                  className="absolute right-0 mt-2 w-48 bg-card border border-border rounded shadow-lg z-50"
-                  data-testid="profile-menu-dropdown"
-                >
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
-                    onClick={handleAccountOpen}
-                    data-testid="profile-menu-account"
-                  >
-                    My Account
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border profile-menu-item"
-                    onClick={handleLogout}
-                    data-testid="profile-menu-logout"
-                  >
-                    Log out
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
           {showEmptyState ? (

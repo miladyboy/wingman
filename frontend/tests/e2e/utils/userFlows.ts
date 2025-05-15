@@ -22,7 +22,6 @@ const selectors = {
   // Subscription
   proceedToCheckoutButton: '[data-testid="proceed-to-checkout-button"]',
   // Main App / Logout
-  logoutButton: '[data-testid="logout-button"]', // Assuming this is consistently used
 };
 
 export function generateUniqueEmail(prefix = 'e2euser'): string {

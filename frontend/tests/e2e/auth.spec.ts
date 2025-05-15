@@ -33,8 +33,19 @@ test.describe('Supabase Auth Flows', () => {
     await expect(page).toHaveURL(routes.subscribe);
 
     // Log out
-    await expect(page.getByTestId('logout-button')).toBeVisible({ timeout: 10000 }); 
-    await page.getByTestId('logout-button').click();
+    // Try desktop first
+    const desktopButton = page.locator('[data-testid="profile-menu-button"]');
+    if (await desktopButton.count() > 0 && await desktopButton.first().isVisible()) {
+      await desktopButton.first().click();
+      await page.getByTestId('profile-menu-dropdown').waitFor({ state: 'visible', timeout: 5000 });
+      await page.getByTestId('profile-menu-logout').click();
+    } else {
+      // Fallback to mobile
+      const mobileButton = page.locator('[data-testid="profile-menu-button-drawer"]');
+      await mobileButton.first().click();
+      await page.getByTestId('profile-menu-dropdown-mobile').waitFor({ state: 'visible', timeout: 5000 });
+      await page.getByTestId('profile-menu-logout-mobile').click();
+    }
 
     await expect(page).toHaveURL('/');
 

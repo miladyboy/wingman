@@ -48,16 +48,22 @@ describe('handleStripeWebhook', () => {
   });
 
   it('should update is_paid and stripe_customer_id on valid checkout.session.completed', async () => {
+    jest.resetModules();
     mockConstructEvent.mockReturnValue({
       type: 'checkout.session.completed',
       data: { object: { metadata: { userId: 'user123' }, customer: 'cus_456' } },
     });
-    mockEq.mockResolvedValue({ error: null, data: { id: 'user123', is_paid: true, stripe_customer_id: 'cus_456' } });
+    const mockEq = jest.fn().mockResolvedValue({ error: null, data: { id: 'user123', is_paid: true, stripe_customer_id: 'cus_456' } });
+    const mockUpdate = jest.fn(() => ({ eq: mockEq }));
+    const mockFrom = jest.fn(() => ({ update: mockUpdate }));
+    jest.doMock('../../services/supabaseService', () => ({
+      supabaseAdmin: { from: mockFrom },
+    }));
+    const { handleStripeWebhook } = await import('../stripeWebhookController');
     const req = { ...baseReq } as any;
     await handleStripeWebhook(req, mockRes);
-    expect(
-      (require('../../services/supabaseService').supabaseAdmin.from().update as jest.Mock)
-    ).toHaveBeenCalledWith({ is_paid: true, stripe_customer_id: 'cus_456' });
+    expect(mockFrom).toHaveBeenCalledWith('profiles');
+    expect(mockUpdate).toHaveBeenCalledWith({ is_paid: true, stripe_customer_id: 'cus_456' });
     expect(mockEq).toHaveBeenCalledWith('id', 'user123');
     expect(mockJson).toHaveBeenCalledWith({ received: true });
   });
@@ -74,13 +80,22 @@ describe('handleStripeWebhook', () => {
   });
 
   it('should handle supabase update error', async () => {
+    jest.resetModules();
     mockConstructEvent.mockReturnValue({
       type: 'checkout.session.completed',
-      data: { object: { metadata: { userId: 'user123' } } },
+      data: { object: { metadata: { userId: 'user123' }, customer: 'cus_456' } },
     });
-    mockEq.mockResolvedValue({ error: 'fail', data: null });
+    const mockEq = jest.fn().mockResolvedValue({ error: 'fail', data: null });
+    const mockUpdate = jest.fn(() => ({ eq: mockEq }));
+    const mockFrom = jest.fn(() => ({ update: mockUpdate }));
+    jest.doMock('../../services/supabaseService', () => ({
+      supabaseAdmin: { from: mockFrom },
+    }));
+    const { handleStripeWebhook } = await import('../stripeWebhookController');
     const req = { ...baseReq } as any;
     await handleStripeWebhook(req, mockRes);
+    expect(mockFrom).toHaveBeenCalledWith('profiles');
+    expect(mockUpdate).toHaveBeenCalledWith({ is_paid: true, stripe_customer_id: 'cus_456' });
     expect(mockEq).toHaveBeenCalledWith('id', 'user123');
     expect(mockJson).toHaveBeenCalledWith({ received: true });
   });

@@ -8,16 +8,16 @@ test.describe('Landing Page', () => {
     // Check main headline
     const headline = page.getByTestId('landing-page-headline');
     await expect(headline).toBeVisible();
-    await expect(headline).toContainText('Your Personal AI Wingman');
+    await expect(headline).toContainText('Turn every DM into a date');
 
     // Check primary CTA button (if data-testid is available, prefer getByTestId)
     // Otherwise, fallback to getByRole
-    const startChattingBtn = page.getByRole('button', { name: /start chatting/i });
-    await expect(startChattingBtn).toBeVisible();
-    await expect(startChattingBtn).toBeEnabled();
+    const getAccessBtn = page.getByRole('button', { name: /get access/i });
+    await expect(getAccessBtn).toBeVisible();
+    await expect(getAccessBtn).toBeEnabled();
 
     // Optionally, check the final CTA
-    const requestAccessBtn = page.getByRole('button', { name: /request access/i });
-    await expect(requestAccessBtn).toBeVisible();
+    const startNowBtn = page.getByRole('button', { name: /start now/i });
+    await expect(startNowBtn).toBeVisible();
   });
 }); 

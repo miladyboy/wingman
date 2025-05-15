@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import UserPreferences from './UserPreferences';
 import { filterThreadsByName } from '../utils/threadUtils';
 
-function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, onDeleteThread, user, onLogout }) {
+function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, onDeleteThread, user, onLogout, isMobileSheetView = false }) {
   const [editingThreadId, setEditingThreadId] = useState(null);
   const [editText, setEditText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,15 +37,17 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
 
   return (
     <div className="w-64 bg-background text-foreground flex flex-col h-full shadow-lg border-r border-border">
-      {/* Header / New Chat Button */}
-      <div className="p-4 border-b border-border">
-        <Button
-          onClick={onNewThread}
-          className="w-full font-bold"
-          data-testid="new-chat-button"
-        >
-          + New Chat
-        </Button>
+      {/* Header Area: Contains New Chat button (desktop only) and Search Input (always) */}
+      <div className="px-4 pb-3 border-b border-border">
+        {!isMobileSheetView && (
+          <Button
+            onClick={onNewThread}
+            className="w-full font-bold mb-3"
+            data-testid="new-chat-button"
+          >
+            + New Chat
+          </Button>
+        )}
         <Input
           type="text"
           value={searchQuery}
@@ -54,7 +56,6 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
             console.log('[Sidebar] searchQuery:', e.target.value);
           }}
           placeholder="Search chats…"
-          className="mt-3"
           data-testid="chat-search-input"
           aria-label="Buscar chats"
         />
@@ -64,7 +65,6 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
       <nav className="flex-1 overflow-y-auto p-2 space-y-1">
         {(() => {
           const filteredThreads = filterThreadsByName(threads, searchQuery);
-          console.log('[Sidebar] filteredThreads:', filteredThreads.map(t => t.name));
           if (filteredThreads.length === 0) {
             return <p className="text-center text-muted-foreground text-sm mt-4 px-2">No chats found.</p>;
           }
@@ -150,14 +150,11 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         <UserPreferences
           trigger={<Button className="w-full mb-2" variant="outline" data-testid="edit-preferences">Edit Preferences</Button>}
         />
-        {user && (
-          <div className="text-sm text-muted-foreground mb-2 truncate" title={user.email} data-testid="user-info-display">
-            Logged in as: {user.username || user.email}
-          </div>
-        )}
+
         <Button
           onClick={onLogout}
-          className="w-full flex items-center justify-center font-bold text-sm bg-destructive hover:bg-destructive/80 text-destructive-foreground"
+          variant="outline"
+          className="w-full flex items-center justify-center font-bold text-sm"
           data-testid="logout-button"
         >
           <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />

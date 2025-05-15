@@ -43,14 +43,17 @@
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Update stripe to charge weekly instead of monthly. *money*
 - [ ] Add section so that users can cancel their subscription. *ux*
-
-# Today
-- [ ] Make sure the experience works correctly in mobile *ux*
+- [ ] Try to do a mobile frontend with Expo / React Native. *dev*
+- [ ] The loading animation is broken again. *bug* **important**
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
+- [ ] Make sure our analytics are legal *marketing*
+- [ ] Call less attention to the logout button. Hide it behind a settings button maybe.
+- [ ] Make it so that users can suspend their membership.
+- [ ] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
 
 # Doing
-- [ ] Make sure our analytics are legal *marketing*
+- [ ] Make sure the experience works correctly in mobile *ux*
 
 # Done
 - [x] Add so that the E2E suite runs on husky push.

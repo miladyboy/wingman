@@ -3,6 +3,10 @@ import ChatHistory from './ChatHistory';
 import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
 import ChatEmptyState from './ChatEmptyState';
+import { useState } from 'react';
+import { Menu, PlusSquare, SquarePen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
 
 export default function MainApp({
   profile,
@@ -23,6 +27,8 @@ export default function MainApp({
   const isNewChat = activeConversationId === 'new';
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const showEmptyState = conversations.length === 0 || isNewChat;
 
   const handleLogout = async () => {
@@ -42,20 +48,93 @@ export default function MainApp({
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar
-        threads={isNewChat ? conversations.map(c => ({ id: c.id, name: c.title })) : conversations.map(c => ({ id: c.id, name: c.title }) )}
-        activeThreadId={isNewChat ? null : activeConversationId}
-        onSelectThread={setActiveConversationId}
-        onNewThread={handleNewThread}
-        onRenameThread={handleRenameThread}
-        onDeleteThread={handleDeleteConversation}
-        user={profile}
-        onLogout={handleLogout}
-      />
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex md:flex-shrink-0">
+        <Sidebar
+          threads={isNewChat ? conversations.map(c => ({ id: c.id, name: c.title })) : conversations.map(c => ({ id: c.id, name: c.title }) )}
+          activeThreadId={isNewChat ? null : activeConversationId}
+          onSelectThread={(threadId) => {
+            setActiveConversationId(threadId);
+            // Potentially close sheet if open, though SheetClose below might handle it
+          }}
+          onNewThread={() => {
+            handleNewThread();
+             // Potentially close sheet if open
+          }}
+          onRenameThread={handleRenameThread}
+          onDeleteThread={handleDeleteConversation}
+          user={profile}
+          onLogout={handleLogout}
+        />
+      </div>
+
+      {/* Mobile Sidebar Sheet */}
+      <div className="md:hidden">
+        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+          {/* SheetTrigger is handled by the custom Menu button below */}
+          <SheetContent side="left" className="p-0 w-64 bg-background text-foreground flex flex-col h-full shadow-lg border-r border-border">
+            {/* New Mobile Sheet Header - Revised */}
+            <div className="p-3 border-b border-border flex justify-between items-center">
+              {/* Left side: Hamburger icon to close the sheet */}
+              <SheetClose asChild>
+                <Button variant="ghost" size="icon" data-testid="sheet-close-hamburger-button">
+                  <Menu className="h-5 w-5" /> {/* Changed from X to Menu */}
+                </Button>
+              </SheetClose>
+
+              {/* Right side: New Chat icon */}
+              <Button variant="ghost" size="icon" onClick={() => {
+                handleNewThread();
+                setIsSidebarOpen(false); // Close sheet after action
+              }}
+              data-testid="sheet-new-chat-button"
+              >
+                <SquarePen className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Sidebar component for mobile, without its default header */}
+            <Sidebar
+              isMobileSheetView={true} // Pass the new prop
+              threads={isNewChat ? conversations.map(c => ({ id: c.id, name: c.title })) : conversations.map(c => ({ id: c.id, name: c.title }) )}
+              activeThreadId={isNewChat ? null : activeConversationId}
+              onSelectThread={(threadId) => {
+                setActiveConversationId(threadId);
+                setIsSidebarOpen(false); // Close sheet after selection
+              }}
+              onNewThread={() => {
+                handleNewThread();
+                setIsSidebarOpen(false); // Close sheet after new thread
+              }}
+              onRenameThread={handleRenameThread}
+              onDeleteThread={handleDeleteConversation}
+              user={profile}
+              onLogout={() => {
+                handleLogout();
+                setIsSidebarOpen(false); // Close sheet after logout
+              }}
+            />
+          </SheetContent>
+        </Sheet>
+      </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-card p-2 border-b border-border shadow-sm flex justify-between items-center">
+          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} data-testid="mobile-menu-button">
+            <Menu className="h-6 w-6" />
+          </Button>
+          <h2 className="text-lg font-semibold text-foreground truncate px-2">
+            {activeConversation ? activeConversation.title : 'New Chat'}
+          </h2>
+          <Button variant="ghost" size="icon" onClick={handleNewThread} data-testid="mobile-new-chat-button">
+            <PlusSquare className="h-6 w-6" />
+          </Button>
+        </div>
+
+        {/* Desktop Header */}
         {activeConversation && (
-          <div className="bg-card p-4 border-b border-border shadow-sm flex justify-between items-center">
+          <div className="hidden md:flex bg-card p-4 border-b border-border shadow-sm justify-between items-center">
             <h2 className="text-xl font-semibold text-foreground">{activeConversation.title}</h2>
           </div>
         )}

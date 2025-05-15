@@ -8,6 +8,8 @@ import useMessages from './hooks/useMessages';
 import useActiveConversationId from './hooks/useActiveConversationId';
 import { buildOptimisticUserMessage, serializeMessageHistory, extractImageUrlsFromFiles } from './utils/messageUtils';
 import { createConversation, sendMessageToBackend } from './services/messageService';
+import posthog from 'posthog-js';
+import { getCookieConsent } from './utils/consent';
 
 function AppRouter() {
   const { session, loading: authLoading, error: authError } = useAuthSession();
@@ -307,6 +309,15 @@ function AppRouter() {
 }
 
 export default function App() {
+  useEffect(() => {
+    if (getCookieConsent() === 'accepted') {
+      posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
+        api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+      });
+    } else {
+      posthog.opt_out_capturing && posthog.opt_out_capturing();
+    }
+  }, []);
   return (
       <AppRouter />
   );

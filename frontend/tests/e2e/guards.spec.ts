@@ -15,7 +15,7 @@ test.describe('Route Guards', () => {
     test('unauthenticated user is redirected from /app to /landing', async ({ page }) => {
       await page.goto(routes.app);
       await expect(page).toHaveURL(routes.landing);
-      await expect(page.getByTestId('landing-page-headline')).toContainText('Your Personal AI Wingman');
+      await expect(page.getByTestId('landing-page-headline')).toContainText('Turn every DM into a date');
     });
   });
 

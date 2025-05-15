@@ -7,13 +7,12 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./
 import Logo from './assets/LOGO.png';
 
 
-// BrandLogo: muestra el logo + 'Harem' en naranja y 'AI' en blanco
+// BrandLogo: muestra el logo + 'Harem' en naranja (sin 'AI')
 function BrandLogo() {
   return (
     <span className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tight select-none">
-      <img src={Logo} alt="Harem AI logo" className="h-8 w-8 md:h-10 md:w-10" />
+      <img src={Logo} alt="Harem logo" className="h-8 w-8 md:h-10 md:w-10" />
       <span className="text-[#FFA726]">Harem</span>
-      <span className="text-white"> AI</span>
     </span>
   );
 }
@@ -271,7 +270,7 @@ export default function LandingPage() {
           Ajuste: El fondo del hero ahora usa el gradiente violeta principal del branding
           para máxima coherencia visual con el resto de la landing.
         */}
-        <h1 className="text-white font-extrabold text-4xl md:text-6xl lg:text-7xl mb-6 drop-shadow-lg">
+        <h1 className="text-white font-extrabold text-4xl md:text-6xl lg:text-7xl mb-6 drop-shadow-lg" data-testid="landing-page-headline">
           Turn every DM into a date.
         </h1>
         <p className="text-white/90 text-lg md:text-2xl max-w-2xl mx-auto mb-10">
@@ -300,7 +299,7 @@ export default function LandingPage() {
             number={2}
             emoji="📸"
             title="Share the Screen"
-            description="Upload a screenshot or paste the convo, your wingmanAI reads tone, intent, and momentum."
+            description="Upload a screenshot or paste the convo, your AI wingman reads tone, intent, and momentum."
           />
           <HowItWorksCard
             number={3}

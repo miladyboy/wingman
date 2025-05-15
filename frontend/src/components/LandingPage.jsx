@@ -2,99 +2,432 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { CheckCircle2, UserPlus, Image, Sparkles, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import React from "react";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./ui/accordion";
+import Logo from './assets/LOGO.png';
+
+
+// BrandLogo: muestra el logo + 'Harem' en naranja y 'AI' en blanco
+function BrandLogo() {
+  return (
+    <span className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tight select-none">
+      <img src={Logo} alt="Harem AI logo" className="h-8 w-8 md:h-10 md:w-10" />
+      <span className="text-[#FFA726]">Harem</span>
+      <span className="text-white"> AI</span>
+    </span>
+  );
+}
+
+// PrimaryCTAButton: botón naranjo grande reutilizable
+function PrimaryCTAButton({ onClick, children, className = "" }) {
+  return (
+    <Button
+      size="lg"
+      className={`bg-[#FFA726] text-white font-bold text-lg px-8 py-4 rounded-md shadow-xl hover:bg-[#ffb74d] transition ${className}`}
+      onClick={onClick}
+      data-testid="hero-cta-button"
+    >
+      {children}
+    </Button>
+  );
+}
+
+// HowItWorksCard: tarjeta numerada con animación y props
+function HowItWorksCard({ number, emoji, title, description }) {
+  return (
+    <div
+      className="flex flex-col items-center bg-[#23284A]/80 rounded-2xl shadow-lg border border-[#2d325a] px-6 py-10 min-w-[260px] max-w-xs mx-auto transition-transform duration-200 hover:scale-105 hover:shadow-2xl border-b-4 border-b-[#FFA726]"
+      tabIndex={0}
+      aria-label={title}
+      onMouseEnter={() => console.log(`[HowItWorksCard] Hover en tarjeta ${number}`)}
+    >
+      <div className="flex flex-col items-center mb-4">
+        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#FFA726] text-white text-xl font-bold mb-2 shadow">
+          {number}
+        </div>
+        <div className="text-3xl mb-2" aria-hidden="true">{emoji}</div>
+      </div>
+      <h3 className="text-white text-xl font-bold mb-2 text-center">{title}</h3>
+      <p className="text-white/80 text-base text-center">{description}</p>
+    </div>
+  );
+}
+
+// EdgeFeature: bloque de feature con hover y props
+function EdgeFeature({ emoji, title, description, onHover, onLeave, hovered }) {
+  return (
+    <div
+      className="flex flex-col sm:flex-row items-start gap-4 bg-transparent rounded-xl p-6 transition group cursor-pointer"
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      tabIndex={0}
+      aria-label={title}
+    >
+      <span className="text-3xl sm:mt-1 select-none" aria-hidden="true">{emoji}</span>
+      <div>
+        <h3 className={`text-2xl font-bold mb-1 transition-colors ${hovered ? 'text-[#FFA726]' : 'text-white'}`}>{title}</h3>
+        <p className="text-white/80 text-lg leading-snug">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+// VideoMockup: mockup de video con ícono de play
+function VideoMockup() {
+  return (
+    <div
+      className="relative w-full max-w-3xl aspect-video mx-auto rounded-3xl bg-[#23284A]/80 shadow-2xl flex items-center justify-center group cursor-pointer transition hover:shadow-[0_0_40px_0_rgba(255,167,38,0.2)]"
+      style={{ minHeight: 320 }}
+      onClick={() => console.log('[VideoMockup] Click en mockup de video')}
+      tabIndex={0}
+      aria-label="Demo video placeholder"
+    >
+      <div className="absolute inset-0 flex items-center justify-center">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="38" fill="#181C2A" fillOpacity="0.7" stroke="#FFA726" strokeWidth="4" />
+          <polygon points="34,28 58,40 34,52" fill="#FFA726" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// PricingBenefit: ítem de beneficio con check dorado, más grande y alineado
+function PricingBenefit({ text }) {
+  return (
+    <li className="flex items-center gap-4 text-white text-lg mb-5">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="14" fill="none" />
+        <path d="M8 15l4 4 8-8" stroke="#FFA726" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span>{text}</span>
+    </li>
+  );
+}
+
+// PricingCard: tarjeta de pricing (izquierda o derecha), glassmorphism y hover
+function PricingCard({ children, className = "", hoverable = false, compact = false }) {
+  return (
+    <div
+      className={`backdrop-blur-xl bg-white/10 rounded-[2.5rem] shadow-2xl ${compact ? 'p-6 md:py-8 md:px-10' : 'p-8 md:p-12'} flex flex-col justify-center transition-all duration-200 ${hoverable ? 'hover:scale-105 hover:shadow-[0_8px_40px_0_rgba(255,167,38,0.10)]' : ''} ${className}`}
+      style={{ boxShadow: '0 8px 40px 0 rgba(44, 24, 80, 0.18)' }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// PricingCTAButton: botón grande con animación de hover, más moderno
+function PricingCTAButton({ onClick, children }) {
+  return (
+    <button
+      className="w-full py-5 mt-4 mb-3 rounded-xl bg-[#FFA726] text-white text-2xl font-bold shadow-lg transition-all duration-200 hover:scale-105 hover:bg-[#ffb74d] focus:outline-none focus:ring-2 focus:ring-[#FFA726] focus:ring-offset-2"
+      onClick={onClick}
+      data-testid="pricing-cta-button"
+      style={{ boxShadow: '0 4px 24px 0 rgba(255,167,38,0.15)' }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// FaqAccordionItem: ítem de FAQ con estilos y logs
+function FaqAccordionItem({ value, question, answer, open, onClick }) {
+  return (
+    <AccordionItem value={value} className="mb-6 rounded-2xl bg-[#23284A]/80 border border-[#2d325a] overflow-hidden shadow-lg">
+      <AccordionTrigger
+        className={`text-2xl px-8 py-6 text-left font-bold transition-colors duration-200 ${open ? 'text-[#FFA726] underline underline-offset-4' : 'text-white'} focus:outline-none`}
+        onClick={onClick}
+        data-testid={`faq-question-${value}`}
+      >
+        {question}
+      </AccordionTrigger>
+      <AccordionContent className="px-8 pb-6 text-lg text-white/80">
+        {answer}
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
+
+// Footer: pie de página moderno y responsivo
+function Footer() {
+  return (
+    <footer className="w-full bg-[#181C2A] py-8 px-4 flex flex-col md:flex-row items-center justify-between text-gray-400 text-lg mt-0">
+      <div className="flex items-center gap-2 mb-4 md:mb-0">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" className="inline-block mr-1"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><text x="7" y="17" fontSize="12" fill="currentColor">©</text></svg>
+        <span>2025 Harem AI. All rights reserved.</span>
+      </div>
+      <div className="flex gap-8 text-gray-300 text-lg">
+        <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+        <a href="mailto:contact@harem.ai" className="hover:text-white transition-colors">Contact</a>
+      </div>
+    </footer>
+  );
+}
 
 export default function LandingPage() {
   const navigate = useNavigate();
 
-  const handleStartChatting = () => navigate('/auth');
+  // Log de montaje para debugging
+  React.useEffect(() => {
+    console.log("[LandingPage] Hero v2 montado");
+  }, []);
+
+  // Handlers de navegación
+  const handleGetStarted = () => {
+    console.log("[LandingPage] Click en Get Started");
+    navigate("/auth");
+  };
+  const handleCTA = () => {
+    console.log("[LandingPage] Click en CTA /subscribe");
+    navigate("/subscribe");
+  };
+
+  // Estado para hover global de la sección The Edge
+  const [edgeHovered, setEdgeHovered] = React.useState(false);
+  // Estado para hover individual de cada feature
+  const [hoveredIdx, setHoveredIdx] = React.useState(null);
+
+  // Features de The Edge
+  const edgeFeatures = [
+    {
+      emoji: '🧠',
+      title: 'Personal Memory Bank',
+      description: "No more mixing names or stories, Harem locks context per thread.",
+    },
+    {
+      emoji: '🌍',
+      title: 'Global Tongue',
+      description: "Switch languages mid-chat, the AI mirrors tone and culture with ease.",
+    },
+    {
+      emoji: '✨',
+      title: 'Built Around You',
+      description: "Whether you're playful or direct, into hiking or books, Harem reflects your energy.",
+    },
+    {
+      emoji: '💳',
+      title: 'Weekly Wins',
+      description: "$4 weekly, pause or cancel in one tap, only pay when you are active.",
+    },
+  ];
+
+  // Handler para el CTA de pricing
+  const handlePricingCTA = () => {
+    console.log('[Pricing] Click en Get Access');
+    navigate('/subscribe');
+  };
+
+  // Estado para FAQ abierto
+  const [openFaq, setOpenFaq] = React.useState('0');
+  // Preguntas y respuestas
+  const faqs = [
+    {
+      question: 'Does it work with photos or just text?',
+      answer: 'Both. You can drop screenshots or copy-paste chat text from anywhere.',
+    },
+    {
+      question: 'Can I set my flirting style or goals?',
+      answer: "Yes. You can tell Harem how you talk or what you're aiming for, and it tailors advice around that.",
+    },
+    {
+      question: 'Does it work outside Tinder?',
+      answer: 'Harem works with any dating app or messaging platform. Tinder, Bumble, Hinge, Instagram DMs, WhatsApp—you name it.',
+    },
+    {
+      question: 'Can women use it too?',
+      answer: 'Yes! Harem is designed for anyone who wants to improve their dating communication, regardless of gender or orientation.',
+    },
+    {
+      question: 'Is it a chatbot that texts for me?',
+      answer: 'No. Harem is your personal advisor, not an autopilot. It suggests replies that match your style, but you always have the final say on what to send.',
+    },
+  ];
+
+  // Handler para el CTA final
+  const handleFinalCTA = () => {
+    console.log('[ClosingCTA] Click en Start Winning');
+    navigate('/subscribe');
+  };
 
   return (
-    <main className="min-h-screen font-sans">
-      {/* Hero */}
-      <section className="py-16 px-4 text-center bg-ivory text-royal">
-        <h1 className="font-headline text-5xl md:text-6xl font-bold mb-6" data-testid='landing-page-headline'>
-          Your Personal <span className="text-luxe">AI Wingman</span>
-        </h1>
-        <p className="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto mb-8">
-          Chat smarter. Date better. Let Harem handle the strategy while you enjoy the conversation.
-        </p>
+    <main className="min-h-screen font-sans bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E]">
+      {/* Sticky Navbar Moderno */}
+      <header className="sticky top-0 z-30 w-full bg-[#181C2A]/90 backdrop-blur-md shadow-md flex justify-between items-center px-8 pt-6 pb-4">
+        <BrandLogo />
         <Button
-          size="lg"
-          className="bg-royal text-ivory hover:bg-royal/90 shadow-xl mb-0"
-          onClick={handleStartChatting}
+          size="sm"
+          className="bg-[#FFA726] text-white font-bold px-5 py-2 rounded-md shadow hover:bg-[#ffb74d] transition"
+          onClick={handleGetStarted}
+          data-testid="hero-get-started"
         >
-          Start Chatting
+          Get Started
         </Button>
+      </header>
+      {/* Hero central con fondo violeta branding */}
+      <section className="w-full h-[70vh] min-h-[400px] flex flex-col items-center justify-center text-center px-4 bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E]">
+        {/*
+          Ajuste: El fondo del hero ahora usa el gradiente violeta principal del branding
+          para máxima coherencia visual con el resto de la landing.
+        */}
+        <h1 className="text-white font-extrabold text-4xl md:text-6xl lg:text-7xl mb-6 drop-shadow-lg">
+          Turn every DM into a date.
+        </h1>
+        <p className="text-white/90 text-lg md:text-2xl max-w-2xl mx-auto mb-10">
+          Harem follows every convo, adjusts to your tone, and feeds you lines that move things forward.
+        </p>
+        <PrimaryCTAButton onClick={handleCTA} className="mb-4">
+          Get Access
+        </PrimaryCTAButton>
+        <div className="text-white/60 text-base mt-2">Cancel anytime, no questions.</div>
       </section>
-
-      {/* The Edge */}
-      <section className="py-12 px-4 bg-royal text-ivory border-t border-royal/10">
-        <div className="max-w-3xl mx-auto grid gap-6">
-          <h2 className="text-3xl font-semibold mb-6 text-center">The Edge</h2>
-          <ul className="space-y-5">
-            {[
-              'Personalized Profiles – Each connection gets its own sleek case file, so every detail stays fresh and follow-ups stay effortless.',
-              'Drop-and-Go Context – Upload a photo or chat screenshot and receive instant, situation-aware coaching.',
-              'Smart Signals – Harem spots mood shifts, ghosting risk, and prime timing, keeping you one confident step ahead.',
-              'Built for Winners – Crafted for men who demand results, discretion, and a genuine edge—minus the cringe.',
-            ].map((adv, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <CheckCircle2 className="text-luxe mt-1" />
-                <span className="text-lg">{adv}</span>
-              </li>
-            ))}
-          </ul>
+      {/* How It Works moderna */}
+      <section className="w-full py-24 px-4 bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E] border-b border-[#23284A]">
+        {/*
+          Ajuste: El fondo de 'How It Works' ahora usa el gradiente violeta principal del branding
+          para máxima coherencia visual con el hero y el resto de la landing.
+        */}
+        <h2 className="text-4xl md:text-5xl font-extrabold text-white text-center mb-16 drop-shadow-lg">How It Works</h2>
+        <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-5xl mx-auto">
+          <HowItWorksCard
+            number={1}
+            emoji="💬"
+            title="Open a Thread"
+            description="Start a private file for each girl, Harem tracks the full vibe and context."
+          />
+          <HowItWorksCard
+            number={2}
+            emoji="📸"
+            title="Share the Screen"
+            description="Upload a screenshot or paste the convo, your wingmanAI reads tone, intent, and momentum."
+          />
+          <HowItWorksCard
+            number={3}
+            emoji="📱"
+            title="Fire the Perfect Text"
+            description="Get ready-to-send replies tailored to your style and her energy."
+          />
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="bg-ivory text-royal py-16 px-4 border-b border-border">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-semibold mb-8 text-center">How It Works</h2>
-          <div className="flex flex-col md:flex-row gap-8 justify-center">
-            {[
-              {
-                icon: <UserPlus className="w-8 h-8 text-royal" />, title: "Create a Thread", desc: "Start a private case file for each connection."
-              },
-              {
-                icon: <Image className="w-8 h-8 text-royal" />, title: "Upload a Photo or Chat", desc: "Add a social photo or your chat history—just drop it in."
-              },
-              {
-                icon: <Sparkles className="w-8 h-8 text-royal" />, title: "Get Personalized Strategy", desc: "Instantly receive tailored advice and next moves from your AI strategist."
-              },
-            ].map((step, i) => (
-              <Card key={i} className="bg-white border border-royal/10 shadow-lg flex-1">
-                <CardContent className="flex flex-col items-center py-8">
-                  {step.icon}
-                  <h3 className="text-xl font-bold mt-4 mb-2">{step.title}</h3>
-                  <p className="text-base opacity-80 text-center text-royal/80">{step.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
+      {/* The Edge moderna */}
+      <section className="w-full py-24 px-4 bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E] border-b border-[#23284A]">
+        {/*
+          Ajuste: El fondo de 'The Edge' ahora usa el gradiente violeta principal del branding
+          para máxima coherencia visual con el hero y el resto de la landing.
+        */}
+        <h2
+          className={`text-4xl md:text-5xl font-extrabold text-center mb-16 drop-shadow-lg transition-colors ${edgeHovered ? 'text-[#FFA726]' : 'text-white'}`}
+        >
+          The Edge
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+          {edgeFeatures.map((f, idx) => (
+            <EdgeFeature
+              key={f.title}
+              emoji={f.emoji}
+              title={f.title}
+              description={f.description}
+              hovered={hoveredIdx === idx}
+              onHover={() => {
+                setEdgeHovered(true);
+                setHoveredIdx(idx);
+                console.log(`[EdgeFeature] Hover en feature: ${f.title}`);
+              }}
+              onLeave={() => {
+                setEdgeHovered(false);
+                setHoveredIdx(null);
+              }}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* See It In Action */}
+      <section className="w-full py-24 px-4 bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E] border-b border-[#23284A]">
+        {/*
+          Ajuste: El fondo de 'See It In Action' ahora usa el gradiente violeta principal del branding
+          para máxima coherencia visual con el hero y el resto de la landing.
+        */}
+        <h2 className="text-4xl md:text-5xl font-extrabold text-white text-center mb-12 drop-shadow-lg">See It In Action</h2>
+        <VideoMockup />
+        <div className="text-white/90 text-lg text-center mt-10 max-w-2xl mx-auto">
+          30-second demo: See how Harem analyzes conversations and suggests perfect replies
+        </div>
+      </section>
+
+      {/* Pricing Section moderna */}
+      <section className="w-full py-32 px-4 bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E] flex flex-col items-center justify-center">
+        {/*
+          Ajuste: El fondo de la sección de pricing ahora usa el gradiente violeta principal del branding
+          para máxima coherencia visual con el hero y el resto de la landing.
+        */}
+        <div className="flex flex-col md:flex-row gap-10 max-w-5xl w-full mx-auto">
+          {/* Card izquierda */}
+          <PricingCard className="flex-1 mb-8 md:mb-0">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-10">All-Access, $4 weekly</h2>
+            <ul className="mb-2">
+              <PricingBenefit text="Unlimited threads" />
+              <PricingBenefit text="Unlimited advice" />
+              <PricingBenefit text="Priority updates" />
+              <PricingBenefit text="Cancel anytime from settings—zero lock-in" />
+            </ul>
+          </PricingCard>
+          {/* Card derecha */}
+          <PricingCard className="flex-1 flex flex-col items-center justify-center" hoverable compact>
+            <PricingCTAButton onClick={handlePricingCTA}>
+              Upgrade Your Game
+            </PricingCTAButton>
+            <div className="text-white/80 text-center mt-4 text-lg">
+              Cancel anytime, no questions asked.
+            </div>
+          </PricingCard>
+        </div>
+      </section>
+
+      {/* FAQ Section moderna */}
+      <section className="w-full py-32 px-4 bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E] flex flex-col items-center justify-center">
+        {/*
+          Ajuste: El fondo de la sección FAQ ahora usa el gradiente violeta principal del branding
+          para máxima coherencia visual con el hero y el resto de la landing.
+        */}
+        <h2 className="text-4xl md:text-5xl font-extrabold text-white text-center mb-16 drop-shadow-lg">Frequently Asked Questions</h2>
+        <Accordion type="single" collapsible value={openFaq} onValueChange={setOpenFaq} className="w-full max-w-3xl mx-auto">
+          {faqs.map((faq, idx) => (
+            <FaqAccordionItem
+              key={idx}
+              value={String(idx)}
+              question={faq.question}
+              answer={faq.answer}
+              open={openFaq === String(idx)}
+              onClick={() => {
+                setOpenFaq(openFaq === String(idx) ? '' : String(idx));
+                console.log(`[FAQ] Click en pregunta: ${faq.question}`);
+              }}
+            />
+          ))}
+        </Accordion>
+      </section>
+      {/* Closing CTA Section */}
+      <section className="w-full py-40 px-4 bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E] flex flex-col items-center justify-center">
+        {/*
+          Ajuste: El fondo de la sección de cierre ahora usa el gradiente violeta principal del branding
+          para máxima coherencia visual con el hero y el resto de la landing.
+        */}
+        <h2 className="text-4xl md:text-6xl font-extrabold text-white text-center mb-12 drop-shadow-lg">Make every message count.</h2>
+        <div className="w-full flex justify-center mb-6">
+          <div className="max-w-xs w-full">
+            <PricingCTAButton onClick={handleFinalCTA}>
+              Start Now
+            </PricingCTAButton>
           </div>
         </div>
-      </section>
-
-      {/* AI-Driven Strategy */}
-      <section className="bg-royal text-ivory py-16 px-4 border-b border-royal/20">
-        <div className="max-w-2xl mx-auto text-center">
-          <Brain className="w-12 h-12 mx-auto text-luxe mb-4" />
-          <h2 className="text-3xl font-semibold mb-4">AI-Driven Strategy</h2>
-          <p className="text-lg opacity-90">
-            Harem's AI isn't just smart—it's tactical.<br />
-            It reads between the lines, senses shifts in mood, and calculates the perfect timing for your next move.<br />
-            Whether you need to escalate, cool off, or re-engage, Harem's advice is always discreet, always on your side, and always tailored to your style.
-          </p>
+        <div className="text-white/80 text-center mt-2 text-lg">
+          Cancel anytime, full control.
         </div>
       </section>
-
-      {/* Final CTA */}
-      <section className="bg-ivory text-royal py-20 px-4 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-6">Level up your game. Join Harem today.</h2>
-        <Button size="lg" className="bg-royal text-ivory font-bold shadow-md hover:bg-royal/90" onClick={handleStartChatting}>
-          Request Access
-        </Button>
-      </section>
+      <Footer />
     </main>
   );
 } 

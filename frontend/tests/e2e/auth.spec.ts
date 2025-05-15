@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getConfirmationLink } from './utils/mailtrap';
-import { TEST_PASSWORD, logoutUser, loginUser, registerAndConfirmUser } from './utils/userFlows';
+import {  logoutUser, loginUser, registerAndConfirmUser } from './utils/userFlows';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 

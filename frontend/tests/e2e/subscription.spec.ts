@@ -1,6 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
-import { getConfirmationLink } from './utils/mailtrap';
-import { generateUniqueEmail, TEST_PASSWORD, logoutUser } from './utils/userFlows';
+import { test, expect } from '@playwright/test';
+import { logoutUser, registerAndConfirmUser } from './utils/userFlows';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -11,28 +10,8 @@ const routes = {
 };
 
 test.describe('Subscription Flows', () => {
-  /**
-   * @param {import('@playwright/test').Page} page
-   */
   test('User can register, confirm email, and subscribe', async ({ page }) => {
-    const email = generateUniqueEmail();
-    const username = `user${Date.now()}`;
-    // Register
-    await page.goto(routes.auth);
-    await page.getByText('Need an account? Register').click();
-    await page.getByTestId('register-username').fill(username);
-    await page.getByTestId('register-email').fill(email);
-    await page.getByTestId('register-password').fill(TEST_PASSWORD);
-    await page.getByTestId('register-submit').click();
-    // Wait for the confirmation email to arrive
-    await page.waitForTimeout(4000); // Consider polling for robustness
-    // Fetch the confirmation link from Mailtrap
-    const confirmationLink = await getConfirmationLink();
-    expect(confirmationLink).toBeTruthy();
-    // Visit the confirmation link (lands on /, then frontend redirects to /subscribe)
-    await page.goto(confirmationLink);
-    // Wait for the frontend to redirect to /subscribe
-    await page.waitForURL('**/subscribe');
+    const { email, password } = await registerAndConfirmUser(page);
     await expect(page).toHaveURL(routes.subscribe);
    
     // Click the button to proceed to Stripe Checkout

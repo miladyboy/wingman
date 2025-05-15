@@ -196,14 +196,14 @@ export default function MainApp({
                 data-testid="profile-menu-dropdown"
               >
                 <button
-                  className="w-full text-left px-4 py-2 hover:bg-accent"
+                  className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
                   onClick={handleAccountOpen}
                   data-testid="profile-menu-account"
                 >
                   My Account
                 </button>
                 <button
-                  className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border"
+                  className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border profile-menu-item"
                   onClick={handleLogout}
                   data-testid="profile-menu-logout"
                 >
@@ -236,14 +236,14 @@ export default function MainApp({
                   data-testid="profile-menu-dropdown"
                 >
                   <button
-                    className="w-full text-left px-4 py-2 hover:bg-accent"
+                    className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
                     onClick={handleAccountOpen}
                     data-testid="profile-menu-account"
                   >
                     My Account
                   </button>
                   <button
-                    className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border"
+                    className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border profile-menu-item"
                     onClick={handleLogout}
                     data-testid="profile-menu-logout"
                   >
@@ -312,8 +312,8 @@ export default function MainApp({
               <span className="font-semibold">Subscription Status:</span> <span className="ml-2" data-testid="subscription-status">{subscriptionStatus}</span>
             </div>
             <Button
-              variant="destructive"
-              className="w-full"
+              variant="outline"
+              className="w-full deemphasized-action"
               onClick={handleSuspendMembership}
               data-testid="suspend-membership-button"
               disabled={suspendLoading || subscriptionStatus === 'Inactive'}

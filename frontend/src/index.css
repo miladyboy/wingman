@@ -79,3 +79,21 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+/* Profile menu item: white text on hover/focus for readability */
+.profile-menu-item:hover,
+.profile-menu-item:focus-visible {
+  color: #fff !important;
+}
+
+/* De-emphasized action button for less risky actions (e.g., suspend membership) */
+.deemphasized-action {
+  border-color: #d1d5db !important; /* Tailwind gray-300 */
+  color: #6b7280 !important;        /* Tailwind gray-500 */
+  background: #fff !important;
+}
+.deemphasized-action:hover,
+.deemphasized-action:focus-visible {
+  background: #f3f4f6 !important;  /* Tailwind gray-100 */
+  color: #374151 !important;        /* Tailwind gray-700 */
+}

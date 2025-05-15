@@ -27,16 +27,22 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
-    console.log('Checkout session completed for userId:', userId);
-    if (userId && supabaseAdmin) {
-      const { error, data } = await supabaseAdmin.from('profiles').update({ is_paid: true }).eq('id', userId);
+    const customerId = typeof session.customer === 'string' ? session.customer : undefined;
+    console.log('Checkout session completed for userId:', userId, 'customerId:', customerId);
+    if (userId && customerId && supabaseAdmin) {
+      const { error, data } = await supabaseAdmin
+        .from('profiles')
+        .update({ is_paid: true, stripe_customer_id: customerId })
+        .eq('id', userId);
       if (error) {
-        console.error('Failed to update is_paid in profiles:', error);
+        console.error('Failed to update is_paid and stripe_customer_id in profiles:', error);
       } else {
-        console.log('Successfully updated is_paid for userId:', userId, data);
+        console.log('Successfully updated is_paid and stripe_customer_id for userId:', userId, data);
       }
     } else {
-      console.error('userId missing in session metadata or supabaseAdmin not initialized');
+      if (!userId) console.error('userId missing in session metadata');
+      if (!customerId) console.error('customerId missing in session object');
+      if (!supabaseAdmin) console.error('supabaseAdmin not initialized');
     }
   }
 

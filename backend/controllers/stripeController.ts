@@ -80,6 +80,34 @@ export function makeStripeController(stripeService: StripeService) {
         return res.status(500).json({ error: 'Failed to check subscription status' });
       }
     },
+
+    /**
+     * Handler to cancel the authenticated user's active subscription.
+     * @param req Express request
+     * @param res Express response
+     */
+    cancelSubscription: async (req: Request, res: Response) => {
+      try {
+        const user = await getUserFromRequest(req);
+        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+        const customerId = user.stripe_customer_id;
+        if (!customerId) return res.status(400).json({ error: 'No Stripe customer ID' });
+        const cancelled = await stripeService.cancelActiveSubscription(customerId);
+        if (!cancelled) return res.status(400).json({ error: 'No active subscription found' });
+        // Update is_paid and stripe_customer_id in Supabase
+        if (supabaseAdmin) {
+          await supabaseAdmin.from('profiles').update({ is_paid: false, stripe_customer_id: null }).eq('id', user.id);
+        }
+        // Signal frontend to log the user out
+        return res.json({ success: true, logout: true });
+      } catch (err: any) {
+        if (err.message === 'Supabase not configured' || err.message === 'Supabase query error') {
+          return res.status(500).json({ error: 'Failed to cancel subscription' });
+        }
+        console.error('Error cancelling subscription:', err);
+        return res.status(500).json({ error: 'Failed to cancel subscription' });
+      }
+    },
   };
 }
 
@@ -88,4 +116,4 @@ const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || 'price_xxx';
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3001';
 const stripeService = new StripeService(STRIPE_SECRET_KEY, STRIPE_PRICE_ID, FRONTEND_URL);
-export const { createCheckoutSession, getSubscriptionStatus } = makeStripeController(stripeService); 
+export const { createCheckoutSession, getSubscriptionStatus, cancelSubscription } = makeStripeController(stripeService); 

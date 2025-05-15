@@ -47,22 +47,25 @@ describe('handleStripeWebhook', () => {
     expect(mockSend).toHaveBeenCalledWith(expect.stringContaining('Webhook Error'));
   });
 
-  it('should update is_paid on valid checkout.session.completed', async () => {
+  it('should update is_paid and stripe_customer_id on valid checkout.session.completed', async () => {
     mockConstructEvent.mockReturnValue({
       type: 'checkout.session.completed',
-      data: { object: { metadata: { userId: 'user123' } } },
+      data: { object: { metadata: { userId: 'user123' }, customer: 'cus_456' } },
     });
-    mockEq.mockResolvedValue({ error: null, data: { id: 'user123', is_paid: true } });
+    mockEq.mockResolvedValue({ error: null, data: { id: 'user123', is_paid: true, stripe_customer_id: 'cus_456' } });
     const req = { ...baseReq } as any;
     await handleStripeWebhook(req, mockRes);
+    expect(
+      (require('../../services/supabaseService').supabaseAdmin.from().update as jest.Mock)
+    ).toHaveBeenCalledWith({ is_paid: true, stripe_customer_id: 'cus_456' });
     expect(mockEq).toHaveBeenCalledWith('id', 'user123');
     expect(mockJson).toHaveBeenCalledWith({ received: true });
   });
 
-  it('should handle missing userId in metadata', async () => {
+  it('should handle missing customerId in session object', async () => {
     mockConstructEvent.mockReturnValue({
       type: 'checkout.session.completed',
-      data: { object: { metadata: {} } },
+      data: { object: { metadata: { userId: 'user123' } } },
     });
     const req = { ...baseReq } as any;
     await handleStripeWebhook(req, mockRes);

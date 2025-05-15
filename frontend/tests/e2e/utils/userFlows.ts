@@ -140,22 +140,12 @@ export async function completeSubscription(page: Page): Promise<void> {
  * @param page Playwright Page object
  */
 export async function logoutUser(page: Page): Promise<void> {
-  // Attempt to find a generic logout button first.
-  // This assumes the data-testid is consistently used.
-  const logoutButton = page.locator(selectors.logoutButton).first(); // Take the first one if multiple exist
-  
-  if (await logoutButton.isVisible()) {
-    await logoutButton.click();
-  } else {
-    // Fallback or specific logic if logout button location varies significantly
-    // For now, we'll assume it's generally available or the test will place the user appropriately.
-    console.warn("Logout button not found with common selector. Ensure user is on a page with a logout button.");
-    // As a last resort, try navigating to /app to find the sidebar logout, then proceed.
-    // This makes the helper more resilient but also slower if misused.
-    if (!page.url().includes(routes.app)) await page.goto(routes.app);
-    await page.locator(selectors.logoutButton).waitFor({ state: 'visible', timeout: 5000 });
-    await page.locator(selectors.logoutButton).click();
-
-  }
-  await page.waitForURL(`**${routes.landing}`);
+  // Open the profile menu
+  await page.getByTestId('profile-menu-button').click();
+  // Wait for the dropdown to appear
+  await page.getByTestId('profile-menu-dropdown').waitFor({ state: 'visible', timeout: 5000 });
+  // Click the logout button in the dropdown
+  await page.getByTestId('profile-menu-logout').click();
+  // Wait for redirect to landing page
+  await page.waitForURL('**/', { timeout: 10000 });
 } 

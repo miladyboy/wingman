@@ -24,6 +24,7 @@ describe('stripeController', () => {
     mockStripeService = {
       createCustomerIfNotExists: jest.fn().mockResolvedValue('cus_123'),
       createCheckoutSession: jest.fn().mockResolvedValue('https://stripe.com/session'),
+      cancelActiveSubscription: jest.fn().mockResolvedValue(true),
     };
     handlers = makeStripeController(mockStripeService);
   });
@@ -133,6 +134,27 @@ describe('stripeController', () => {
       await handlers.getSubscriptionStatus(req, res);
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Failed to check subscription status' });
+    });
+  });
+
+  describe('cancelSubscription', () => {
+    it('cancels subscription, nulls stripe_customer_id, and logs out', async () => {
+      jest.spyOn(authUtils, 'getUserIdFromAuthHeader').mockResolvedValue('user1');
+      const user = { id: 'user1', email: 'a@b.com', stripe_customer_id: 'cus_123' };
+      const mockUpdate = jest.fn(() => ({ eq: jest.fn() }));
+      (supabaseServiceModule as any).supabaseAdmin = {
+        from: () => ({
+          select: () => ({ eq: () => ({ single: () => ({ data: user, error: null }) }) }),
+          update: mockUpdate,
+        }),
+        update: mockUpdate,
+      };
+      mockStripeService.cancelActiveSubscription = jest.fn().mockResolvedValue(true);
+      req.headers.authorization = 'Bearer token';
+      await handlers.cancelSubscription(req, res);
+      // Should update is_paid and stripe_customer_id to null
+      expect(mockUpdate).toHaveBeenCalledWith({ is_paid: false, stripe_customer_id: null });
+      expect(mockJson).toHaveBeenCalledWith({ success: true, logout: true });
     });
   });
 }); 

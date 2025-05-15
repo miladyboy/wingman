@@ -53,4 +53,22 @@ export class StripeService {
     if (!session.url) throw new Error('Stripe session URL not returned');
     return session.url;
   }
+
+  /**
+   * Cancels the active subscription for a Stripe customer.
+   * @param customerId - The Stripe customer ID
+   * @returns true if cancelled, false if no active subscription
+   */
+  async cancelActiveSubscription(customerId: string): Promise<boolean> {
+    // List active subscriptions for the customer
+    const subs = await this.stripe.subscriptions.list({
+      customer: customerId,
+      status: 'active',
+      limit: 1,
+    });
+    if (!subs.data.length) return false;
+    const subId = subs.data[0].id;
+    await this.stripe.subscriptions.cancel(subId);
+    return true;
+  }
 } 

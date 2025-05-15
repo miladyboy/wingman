@@ -3,10 +3,12 @@ import ChatHistory from './ChatHistory';
 import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
 import ChatEmptyState from './ChatEmptyState';
-import { useState } from 'react';
-import { Menu, PlusSquare, SquarePen } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Menu, PlusSquare, SquarePen, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
+import apiBase from '@/utils/env';
+import { supabase } from '@/services/supabaseClient';
 
 export default function MainApp({
   profile,
@@ -28,6 +30,13 @@ export default function MainApp({
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const profileMenuRef = useRef(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('Active');
+  const [suspendLoading, setSuspendLoading] = useState(false);
+  const [suspendError, setSuspendError] = useState('');
+  const [suspendSuccess, setSuspendSuccess] = useState(false);
 
   const showEmptyState = conversations.length === 0 || isNewChat;
 
@@ -44,6 +53,48 @@ export default function MainApp({
     sessionStorage.clear();
     // If you use Redux or React context for user, reset it here
     window.location.href = '/';
+  };
+
+  // Profile menu dropdown logic
+  const handleProfileMenuToggle = () => setIsProfileMenuOpen((open) => !open);
+  const handleProfileMenuClose = () => setIsProfileMenuOpen(false);
+  const handleAccountOpen = () => {
+    setIsAccountModalOpen(true);
+    setIsProfileMenuOpen(false);
+  };
+  const handleAccountClose = () => setIsAccountModalOpen(false);
+
+  const handleSuspendMembership = async () => {
+    setSuspendLoading(true);
+    setSuspendError('');
+    setSuspendSuccess(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) throw new Error('No access token');
+      const res = await fetch(`${apiBase}/api/payments/cancel-subscription`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to cancel subscription');
+      }
+      const data = await res.json();
+      if (data.logout) {
+        await handleLogout();
+        return;
+      }
+      setSubscriptionStatus('Inactive');
+      setSuspendSuccess(true);
+    } catch (err) {
+      setSuspendError(err.message || 'Failed to cancel subscription');
+    } finally {
+      setSuspendLoading(false);
+    }
   };
 
   return (
@@ -127,15 +178,80 @@ export default function MainApp({
           <h2 className="text-lg font-semibold text-foreground truncate px-2">
             {activeConversation ? activeConversation.title : 'New Chat'}
           </h2>
-          <Button variant="ghost" size="icon" onClick={handleNewThread} data-testid="mobile-new-chat-button">
-            <SquarePen className="h-6 w-6" />
-          </Button>
+          {/* Profile button (mobile) */}
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleProfileMenuToggle}
+              data-testid="profile-menu-button"
+              aria-label="Open profile menu"
+            >
+              <UserCircle className="h-7 w-7" />
+            </Button>
+            {isProfileMenuOpen && (
+              <div
+                ref={profileMenuRef}
+                className="absolute right-0 mt-2 w-48 bg-card border border-border rounded shadow-lg z-50"
+                data-testid="profile-menu-dropdown"
+              >
+                <button
+                  className="w-full text-left px-4 py-2 hover:bg-accent"
+                  onClick={handleAccountOpen}
+                  data-testid="profile-menu-account"
+                >
+                  My Account
+                </button>
+                <button
+                  className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border"
+                  onClick={handleLogout}
+                  data-testid="profile-menu-logout"
+                >
+                  Log out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Desktop Header */}
         {activeConversation && (
           <div className="hidden md:flex bg-card p-4 border-b border-border shadow-sm justify-between items-center">
             <h2 className="text-xl font-semibold text-foreground">{activeConversation.title}</h2>
+            {/* Profile button (desktop) */}
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleProfileMenuToggle}
+                data-testid="profile-menu-button"
+                aria-label="Open profile menu"
+              >
+                <UserCircle className="h-7 w-7" />
+              </Button>
+              {isProfileMenuOpen && (
+                <div
+                  ref={profileMenuRef}
+                  className="absolute right-0 mt-2 w-48 bg-card border border-border rounded shadow-lg z-50"
+                  data-testid="profile-menu-dropdown"
+                >
+                  <button
+                    className="w-full text-left px-4 py-2 hover:bg-accent"
+                    onClick={handleAccountOpen}
+                    data-testid="profile-menu-account"
+                  >
+                    My Account
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border"
+                    onClick={handleLogout}
+                    data-testid="profile-menu-logout"
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -185,6 +301,33 @@ export default function MainApp({
           </div>
         )}
       </div>
+
+      {/* Account Modal (Sheet) */}
+      <Sheet open={isAccountModalOpen} onOpenChange={setIsAccountModalOpen}>
+        <SheetContent side="right" className="max-w-md w-full" data-testid="account-modal">
+          <div className="flex flex-col gap-4 p-4">
+            <h2 className="text-xl font-bold mb-2">My Account</h2>
+            <div className="text-sm text-muted-foreground mb-2">{profile?.email}</div>
+            <div className="mb-4">
+              <span className="font-semibold">Subscription Status:</span> <span className="ml-2" data-testid="subscription-status">{subscriptionStatus}</span>
+            </div>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={handleSuspendMembership}
+              data-testid="suspend-membership-button"
+              disabled={suspendLoading || subscriptionStatus === 'Inactive'}
+            >
+              {suspendLoading ? 'Suspending...' : 'Suspend Membership'}
+            </Button>
+            {suspendSuccess && <div className="text-green-600 text-sm mt-2" data-testid="suspend-success">Membership suspended successfully.</div>}
+            {suspendError && <div className="text-red-600 text-sm mt-2" data-testid="suspend-error">{suspendError}</div>}
+            <SheetClose asChild>
+              <Button variant="outline" className="w-full mt-2" onClick={handleAccountClose}>Close</Button>
+            </SheetClose>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 } 

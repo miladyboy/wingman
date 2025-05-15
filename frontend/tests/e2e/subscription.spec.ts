@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { getConfirmationLink } from './utils/mailtrap';
-import { generateUniqueEmail, TEST_PASSWORD } from './utils/userFlows';
+import { generateUniqueEmail, TEST_PASSWORD, logoutUser } from './utils/userFlows';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -11,6 +11,9 @@ const routes = {
 };
 
 test.describe('Subscription Flows', () => {
+  /**
+   * @param {import('@playwright/test').Page} page
+   */
   test('User can register, confirm email, and subscribe', async ({ page }) => {
     const email = generateUniqueEmail();
     const username = `user${Date.now()}`;
@@ -51,7 +54,6 @@ test.describe('Subscription Flows', () => {
     await expect(page).toHaveURL(routes.app);
 
     // Optional: Log out and log back in to verify subscription state persists
-    await expect(page.getByTestId('logout-button')).toBeVisible({ timeout: 10000 });
-    await page.getByTestId('logout-button').click();
+    await logoutUser(page);
   }, 120000);
 }); 

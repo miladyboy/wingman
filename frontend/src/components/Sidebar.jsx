@@ -150,16 +150,6 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         <UserPreferences
           trigger={<Button className="w-full mb-2" variant="outline" data-testid="edit-preferences">Edit Preferences</Button>}
         />
-
-        <Button
-          onClick={onLogout}
-          variant="outline"
-          className="w-full flex items-center justify-center font-bold text-sm"
-          data-testid="logout-button"
-        >
-          <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
-          Logout
-        </Button>
       </div>
       {/* --- End User Info & Logout --- */}
     </div>

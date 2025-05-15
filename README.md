@@ -78,6 +78,24 @@ npm run dev
 
 3. Open your browser and navigate to http://localhost:3000 (or the URL shown in your terminal)
 
+## Subscription Management & Stripe Integration
+
+The app uses Stripe Checkout for subscription payments. The integration is designed for robust subscription management:
+
+- **Stripe Customer ID Storage:**
+  - When a user completes a Stripe Checkout session, the backend webhook handler stores the Stripe customer ID (`stripe_customer_id`) in the user's profile in the database (Supabase), along with marking the user as paid (`is_paid: true`).
+  - This ensures every user who pays has their Stripe customer ID persisted for future subscription management.
+
+- **Subscription Cancellation:**
+  - When a user requests to cancel their subscription, the backend uses the stored `stripe_customer_id` to identify and cancel the correct Stripe subscription via the Stripe API.
+  - If the customer ID is missing, cancellation will not proceed and an error is returned.
+
+- **Webhook Role:**
+  - The backend listens for the `checkout.session.completed` event from Stripe.
+  - On this event, it updates the user's profile with both the Stripe customer ID and payment status.
+
+This approach ensures reliable, auditable subscription management and enables robust cancellation workflows.
+
 ## Usage
 
 1. Upload a screenshot of a conversation.

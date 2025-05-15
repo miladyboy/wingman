@@ -18,6 +18,7 @@
 - [ ] Fix the manifest.json and everything so that it works as a PWA
 - [ ] Add a search for the threads to find a specific girl name.
 - [ ] Implement google vision to extract the girls names. OpenAI screams.
+- [ ] Add success screen or toast component after they successfully pay their subscription.
 
 # To-Do
 - [ ] Fix the E2E tests to run with multiple workers. *test*
@@ -49,11 +50,11 @@
 - [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Make sure our analytics are legal *marketing*
 - [ ] Call less attention to the logout button. Hide it behind a settings button maybe.
-- [ ] Make it so that users can suspend their membership.
+- [ ] Add pino for logging. 
 - [ ] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
 
 # Doing
-- [ ] The mobile icon for new chat should be the same in the sidebar as in the top right.
+- [ ] Make it so that users can suspend their membership.
 
 # Done
 - [x] Make sure the experience works correctly in mobile *ux*
@@ -144,3 +145,4 @@
 - [x] Fix automatic deploy de Render. *code-quality*
 - [x] Add running the E2E tests to the git push *code-quality*
 - [x] Register for the apple store
+- [x] The mobile icon for new chat should be the same in the sidebar as in the top right.

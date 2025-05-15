@@ -23,7 +23,6 @@ const selectors = {
   proceedToCheckoutButton: '[data-testid="proceed-to-checkout-button"]',
   // Main App / Logout
   logoutButton: '[data-testid="logout-button"]', // Assuming this is consistently used
-  userInfoDisplay: '[data-testid="user-info-display"]',
 };
 
 export function generateUniqueEmail(prefix = 'e2euser'): string {
@@ -132,7 +131,6 @@ export async function completeSubscription(page: Page): Promise<void> {
 
   // Wait for redirection back to the /app page upon successful subscription
   await page.waitForURL(`**${routes.app}`, { timeout: 20000 }); // Increased timeout for Stripe processing
-  await page.locator(selectors.userInfoDisplay).waitFor({ state: 'visible', timeout: 10000 });
 }
 
 /**

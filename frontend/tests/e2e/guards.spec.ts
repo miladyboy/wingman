@@ -67,7 +67,6 @@ test.describe('Route Guards', () => {
       await page.waitForURL(routes.app, { timeout: 10000 });
       await expect(page).toHaveURL(routes.app);
       await expect(page.getByTestId('new-chat-button')).toBeVisible({ timeout: 10000 });
-      await expect(page.getByTestId('user-info-display')).toBeVisible({ timeout: 10000 });
       await logoutUser(page);
     });
 

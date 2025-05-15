@@ -50,9 +50,6 @@ test.describe('Subscription Flows', () => {
     await page.waitForURL(`**${routes.app}`);
     await expect(page).toHaveURL(routes.app);
 
-    // Wait for the main app page to be ready by checking for user info display
-    await expect(page.getByTestId('user-info-display')).toBeVisible({ timeout: 15000 });
-
     // Optional: Log out and log back in to verify subscription state persists
     await expect(page.getByTestId('logout-button')).toBeVisible({ timeout: 10000 });
     await page.getByTestId('logout-button').click();

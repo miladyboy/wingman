@@ -78,7 +78,7 @@ export default function MainApp({
               {/* Left side: Hamburger icon to close the sheet */}
               <SheetClose asChild>
                 <Button variant="ghost" size="icon" data-testid="sheet-close-hamburger-button">
-                  <Menu className="h-5 w-5" /> {/* Changed from X to Menu */}
+                  <Menu className="h-5 w-5" />
                 </Button>
               </SheetClose>
 
@@ -128,7 +128,7 @@ export default function MainApp({
             {activeConversation ? activeConversation.title : 'New Chat'}
           </h2>
           <Button variant="ghost" size="icon" onClick={handleNewThread} data-testid="mobile-new-chat-button">
-            <PlusSquare className="h-6 w-6" />
+            <SquarePen className="h-6 w-6" />
           </Button>
         </div>
 

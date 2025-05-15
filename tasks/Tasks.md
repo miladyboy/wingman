@@ -44,7 +44,7 @@
 - [ ] Update stripe to charge weekly instead of monthly. *money*
 - [ ] Add section so that users can cancel their subscription. *ux*
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
-- [ ] The loading animation is broken again. *bug* **important**
+- [ ] The loading dots animation is broken again. *bug* **important**
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Make sure our analytics are legal *marketing*
@@ -53,9 +53,10 @@
 - [ ] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
 
 # Doing
-- [ ] Make sure the experience works correctly in mobile *ux*
+- [ ] The mobile icon for new chat should be the same in the sidebar as in the top right.
 
 # Done
+- [x] Make sure the experience works correctly in mobile *ux*
 - [x] Add so that the E2E suite runs on husky push.
 - [x] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
 - [x] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)

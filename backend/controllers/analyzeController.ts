@@ -167,7 +167,7 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
     const promptText = typeof prompt.content === 'string' 
         ? prompt.content 
         : 'Please describe the image and suggest a nickname.';
-    descriptionPromptContent.unshift({ type: 'text', text: promptText });
+    descriptionPromptContent.unshift({ type: 'input_text', text: promptText });
     const descriptionPrompt: ChatCompletionMessageParam[] = [{
         role: 'user',
         content: descriptionPromptContent as any
@@ -188,7 +188,7 @@ async function generateImageDescription(finalUserMessageContent: any[], openaiIn
     const promptText = typeof prompt.content === 'string' 
         ? prompt.content 
         : 'Please describe the image.';
-    descPromptContentSubsequent.unshift({ type: 'text', text: promptText });
+    descPromptContentSubsequent.unshift({ type: 'input_text', text: promptText });
     const descriptionPromptSubsequent: ChatCompletionMessageParam[] = [{
         role: 'user',
         content: descPromptContentSubsequent as any
@@ -315,15 +315,15 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                 : 'Please analyze these images.';
         }
         if (promptText && promptText.trim() !== '') {
-            finalUserMessageContent.push({ type: 'text', text: promptText });
+            finalUserMessageContent.push({ type: 'input_text', text: promptText });
         }
         if (imageUrlsForOpenAI.length > 0) {
             if (finalUserMessageContent.length === 0) {
-                finalUserMessageContent.push({ type: 'text', text: '[Image(s) provided]' });
+                finalUserMessageContent.push({ type: 'input_text', text: '[Image(s) provided]' });
             }
             imageUrlsForOpenAI.forEach(url => {
                 finalUserMessageContent.push({
-                    type: 'image_url',
+                    type: 'input_image',
                     image_url: { url: url }
                 });
             });

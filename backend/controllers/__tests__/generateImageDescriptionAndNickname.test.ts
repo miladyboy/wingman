@@ -33,8 +33,8 @@ describe('generateImageDescriptionAndNickname', () => {
     });
 
     const sampleFinalUserMessageContent = [
-        { type: 'image_url', image_url: { url: 'http://example.com/image1.jpg' } },
-        { type: 'text', text: 'Look at this!' },
+        { type: 'input_image', image_url: { url: 'http://example.com/image1.jpg' } },
+        { type: 'input_text', text: 'Look at this!' },
     ];
 
     it('should call OpenAI with the correct prompt structure and parse nickname and description', async () => {
@@ -48,9 +48,9 @@ describe('generateImageDescriptionAndNickname', () => {
             {
                 role: 'user',
                 content: [
-                    { type: 'text', text: getImageDescriptionAndNicknamePrompt().content },
-                    { type: 'image_url', image_url: { url: 'http://example.com/image1.jpg' } },
-                    { type: 'text', text: 'Look at this!' },
+                    { type: 'input_text', text: getImageDescriptionAndNicknamePrompt().content },
+                    { type: 'input_image', image_url: { url: 'http://example.com/image1.jpg' } },
+                    { type: 'input_text', text: 'Look at this!' },
                 ],
             },
         ];

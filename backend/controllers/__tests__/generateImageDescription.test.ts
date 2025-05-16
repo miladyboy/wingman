@@ -34,8 +34,8 @@ describe('generateImageDescription', () => {
     });
 
     const sampleFinalUserMessageContent = [
-        { type: 'image_url', image_url: { url: 'http://example.com/image1.jpg' } },
-        { type: 'text', text: 'Image for description.' },
+        { type: 'input_image', image_url: { url: 'http://example.com/image1.jpg' } },
+        { type: 'input_text', text: 'Image for description.' },
     ];
 
     it('should call OpenAI with the correct prompt and return the description', async () => {
@@ -49,9 +49,9 @@ describe('generateImageDescription', () => {
             {
                 role: 'user',
                 content: [
-                    { type: 'text', text: getImageDescriptionPrompt().content },
-                    { type: 'image_url', image_url: { url: 'http://example.com/image1.jpg' } },
-                    { type: 'text', text: 'Image for description.' },
+                    { type: 'input_text', text: getImageDescriptionPrompt().content },
+                    { type: 'input_image', image_url: { url: 'http://example.com/image1.jpg' } },
+                    { type: 'input_text', text: 'Image for description.' },
                 ],
             },
         ];

@@ -1,3 +1,5 @@
+import type { ChatCompletionUserMessageParam } from 'openai/resources/chat/completions';
+
 type UserPromptParams = {
   history?: string;
   message?: string;
@@ -5,34 +7,54 @@ type UserPromptParams = {
   preferences?: string;
 };
 
-function userPrompt({ history, message, imageDescription, preferences }: UserPromptParams): string {
-  let prompt = "";
+/**
+ * Returns a structured user message for OpenAI API.
+ * @param params Parameters for constructing the user message
+ * @returns A structured user role message for OpenAI API
+ */
+function userPrompt({ history, message, imageDescription, preferences }: UserPromptParams): ChatCompletionUserMessageParam {
+  let content = "";
 
   if (preferences) {
-    prompt += `User Preferences:\n${preferences}\n\n`;
+    content += `User Preferences:\n${preferences}\n\n`;
   }
   if (history) {
-    prompt += `Chat history:\n${history}\n\n`;
+    content += `Chat history:\n${history}\n\n`;
   }
   if (message) {
-    prompt += `Latest message:\n${message}\n\n`;
+    content += `Latest message:\n${message}\n\n`;
   }
   if (imageDescription) {
-    prompt += `[Image Description: ${imageDescription}]\n`;
+    content += `[Image Description: ${imageDescription}]\n`;
   }
 
-  // Add more dynamic logic as needed
-  return prompt.trim();
+  return {
+    role: 'user',
+    content: content.trim()
+  };
 }
 
 export default userPrompt;
 
-export function getFallbackImageAnalysisPrompt(): string {
-  return 'Please analyze these images and give me your advice.';
+/**
+ * Returns a fallback user message for image analysis.
+ * @returns A structured user role message for OpenAI API
+ */
+export function getFallbackImageAnalysisPrompt(): ChatCompletionUserMessageParam {
+  return {
+    role: 'user',
+    content: 'Please analyze these images and give me your advice.'
+  };
 }
 
-export function getImageDescriptionPrompt(): string {
-  return `=== Image Analysis ===
+/**
+ * Returns a user message for requesting image description.
+ * @returns A structured user role message for OpenAI API
+ */
+export function getImageDescriptionPrompt(): ChatCompletionUserMessageParam {
+  return {
+    role: 'user',
+    content: `=== Image Analysis ===
 
 INSTRUCTIONS
 
@@ -50,5 +72,6 @@ INSTRUCTIONS
 • Never attempt to identify the person by real name, and never mention any inability to identify.
 
 3. OUTPUT FORMAT
-<Rich multi‑sentence description>`;
+<Rich multi‑sentence description>`
+  };
 } 

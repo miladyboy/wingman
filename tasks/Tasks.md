@@ -21,7 +21,7 @@
 - [ ] Add success screen or toast component after they successfully pay their subscription.
 
 # To-Do
-- [ ] Fix the E2E tests to run with multiple workers. *test*
+- [ ] Fix the E2E tests to run with multiple workers. *test* **important**
 - [ ] Make the E2E suite run in the three browsers. *test*
 - [ ] Create an audit / architect-mode rule that I can insert manually.  *code-quality*
 - [ ] Set up CI environment. *code-quality*
@@ -31,7 +31,6 @@
 - [ ] Get to a good number of test coverage in the backend. *code-quality*
 - [ ] Understand, refactor and improve the frontend. *code-quality*
 - [ ] Migrate frontend to typescript. *code-quality*
-- [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
 - [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
 - [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. *bug*
 - [ ] Enter should send the message even if there's only an image and no text.
@@ -43,18 +42,17 @@
 - [ ] Improve "Pricing" aka payment page. *growth*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Update stripe to charge weekly instead of monthly. *money*
-- [ ] Add section so that users can cancel their subscription. *ux*
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
 - [ ] The loading dots animation is broken again. *bug* **important**
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Make sure our analytics are legal *marketing*
-- [ ] Call less attention to the logout button. Hide it behind a settings button maybe.
 - [ ] Add pino for logging. 
-- [ ] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
+- [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
 
 # Doing
-- [ ] Make it so that users can suspend their membership.
+- [ ] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
+
 
 # Done
 - [x] Make sure the experience works correctly in mobile *ux*
@@ -146,3 +144,5 @@
 - [x] Add running the E2E tests to the git push *code-quality*
 - [x] Register for the apple store
 - [x] The mobile icon for new chat should be the same in the sidebar as in the top right.
+- [x] Make it so that users can suspend their membership.
+- [x] Call less attention to the logout button. Hide it behind a settings button maybe.

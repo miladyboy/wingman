@@ -1,17 +1,31 @@
+import type { ChatCompletionUserMessageParam } from 'openai/resources/chat/completions';
+
 /**
  * Returns the prompt for generating a nickname from a text message.
  * Instructs the LLM to invent a short, catchy, SFW nickname based on the vibe, style, or features described in the text.
  * If a name is provided in the text, include it in the nickname (e.g., 'Anna Bright Eyes').
  * Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described.
  * The nickname must be in the same language as the input message.
+ * 
+ * @param newMessageText The text message to generate a nickname from
+ * @returns A structured user role message for OpenAI API
  */
-export function getNicknamePrompt(newMessageText: string): string {
-  return `Based on the following message, invent a short, catchy, SFW nickname for the girl described. If a name is provided, include it in the nickname (e.g., Anna Bright Eyes). If not, use just 1-3 descriptive words (e.g., Bright Eyes, Sunshine Smile). Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described. The nickname must be in the same language as the input message.\n\n"${newMessageText}"\n\nNickname:`;
+export function getNicknamePrompt(newMessageText: string): ChatCompletionUserMessageParam {
+  return {
+    role: 'user',
+    content: `Based on the following message, invent a short, catchy, SFW nickname for the girl described. If a name is provided, include it in the nickname (e.g., Anna Bright Eyes). If not, use just 1-3 descriptive words (e.g., Bright Eyes, Sunshine Smile). Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described. The nickname must be in the same language as the input message.\n\n"${newMessageText}"\n\nNickname:`
+  };
 }
 
-// Prompt for image description and nickname generation
-export function getImageDescriptionAndNicknamePrompt(): string {
-  return `=== Image Analysis & Nickname Generator ===
+/**
+ * Returns the prompt for image description and nickname generation.
+ * 
+ * @returns A structured user role message for OpenAI API
+ */
+export function getImageDescriptionAndNicknamePrompt(): ChatCompletionUserMessageParam {
+  return {
+    role: 'user',
+    content: `=== Image Analysis & Nickname Generator ===
 
 INSTRUCTIONS
 
@@ -37,5 +51,6 @@ INSTRUCTIONS
 4. OUTPUT FORMAT
 <Rich multi‑sentence description>
 
-Nickname: <nickname>`;
+Nickname: <nickname>`
+  };
 }

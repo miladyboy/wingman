@@ -48,8 +48,9 @@ describe('generateImageDescriptionAndNickname', () => {
             {
                 role: 'user',
                 content: [
-                    { type: 'text', text: getImageDescriptionAndNicknamePrompt() },
-                    ...sampleFinalUserMessageContent,
+                    { type: 'text', text: getImageDescriptionAndNicknamePrompt().content },
+                    { type: 'image_url', image_url: { url: 'http://example.com/image1.jpg' } },
+                    { type: 'text', text: 'Look at this!' },
                 ],
             },
         ];

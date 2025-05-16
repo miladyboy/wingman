@@ -23,23 +23,26 @@ class OpenAIService {
   }
 
   /**
-   * Streams a response from OpenAI using the new Responses API.
-   * @param prompt - The prompt string to send to OpenAI
+   * Streams a response from OpenAI using the new Responses API with structured messages.
+   * @param messages - Array of chat messages (role/content)
    * @param onData - Callback for each text chunk
    * @param model - Optional model override
    * @throws Error if the OpenAI API or stream fails
    * @returns Promise that resolves when streaming is done
    */
   async streamChatCompletion(
-    prompt: string,
+    messages: ChatCompletionMessageParam[],
     onData: (text: string) => void,
     model?: string
   ): Promise<void> {
     try {
+      // The OpenAI Responses API accepts an array of messages 
+      // but TypeScript definitions are strict, so we use type assertion
       const stream = this.openai.responses.stream({
         model: model || this.defaultModel,
-        input: prompt,
+        input: messages as any,
       });
+      
       for await (const event of stream) {
         if (event.type === 'response.output_text.delta') {
           onData((event as ResponseTextDeltaEvent).delta);
@@ -52,9 +55,9 @@ class OpenAIService {
   }
 
   /**
-   * Calls OpenAI's chat completion endpoint and returns the result as a string.
+   * Calls OpenAI's responses endpoint and returns the result as a string.
    * @param messages - Array of chat messages (role/content)
-   * @param maxTokens - Optional max tokens for the response
+   * @param maxTokens - Optional max tokens for the response (not supported by Responses API currently)
    * @param model - Optional model override
    * @throws Error if the OpenAI API fails or returns an invalid response
    * @returns The completion result as a string
@@ -65,20 +68,16 @@ class OpenAIService {
     model?: string
   ): Promise<string> {
     try {
-      const response = await this.openai.chat.completions.create({
+      const response = await this.openai.responses.create({
         model: model || this.defaultModel,
-        messages,
-        max_tokens: maxTokens,
+        input: messages as any,
       });
-      // Defensive checks for response shape
-      if (!response || !Array.isArray(response.choices) || response.choices.length === 0) {
-        throw new Error('OpenAI API returned no choices.');
+      
+      if (!response || typeof response.output_text !== 'string') {
+        throw new Error('OpenAI API returned invalid or no content.');
       }
-      const content = response.choices[0]?.message?.content;
-      if (content == null) {
-        throw new Error('OpenAI API returned a null message content.');
-      }
-      return content;
+      
+      return response.output_text;
     } catch (err: any) {
       throw new Error(`OpenAI API Error: ${err.message || err}`);
     }

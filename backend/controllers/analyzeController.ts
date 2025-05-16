@@ -150,10 +150,11 @@ async function saveImageRecords(supabase: any, imageRecords: ImageRecord[]): Pro
 }
 
 async function generateNickname(newMessageText: string, openaiInstance: OpenAIService = openaiClient): Promise<string> {
-    const nicknamePrompt: ChatCompletionMessageParam[] = [{
-        role: 'user',
-        content: getNicknamePrompt(newMessageText)
-    }];
+    // Get the nickname prompt as a structured message
+    const nicknamePromptMessage = getNicknamePrompt(newMessageText);
+    // Create the messages array with just the user message
+    const nicknamePrompt: ChatCompletionMessageParam[] = [nicknamePromptMessage];
+    
     const result = await openaiInstance.callOpenAI(nicknamePrompt, 20);
     const nickname = result.trim();
     if (!nickname) return 'Chat Pal';
@@ -162,7 +163,11 @@ async function generateNickname(newMessageText: string, openaiInstance: OpenAISe
 
 async function generateImageDescriptionAndNickname(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<{ nickname: string; imageDescription: string }> {
     const descriptionPromptContent = [...finalUserMessageContent];
-    descriptionPromptContent.unshift({ type: 'text', text: getImageDescriptionAndNicknamePrompt() });
+    const prompt = getImageDescriptionAndNicknamePrompt();
+    const promptText = typeof prompt.content === 'string' 
+        ? prompt.content 
+        : 'Please describe the image and suggest a nickname.';
+    descriptionPromptContent.unshift({ type: 'text', text: promptText });
     const descriptionPrompt: ChatCompletionMessageParam[] = [{
         role: 'user',
         content: descriptionPromptContent as any
@@ -179,7 +184,11 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
 
 async function generateImageDescription(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<string> {
     const descPromptContentSubsequent = [...finalUserMessageContent];
-    descPromptContentSubsequent.unshift({ type: 'text', text: getImageDescriptionPrompt() });
+    const prompt = getImageDescriptionPrompt();
+    const promptText = typeof prompt.content === 'string' 
+        ? prompt.content 
+        : 'Please describe the image.';
+    descPromptContentSubsequent.unshift({ type: 'text', text: promptText });
     const descriptionPromptSubsequent: ChatCompletionMessageParam[] = [{
         role: 'user',
         content: descPromptContentSubsequent as any
@@ -300,7 +309,10 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         const isInitialUserMessage = !history || history.filter((msg: any) => msg.role === 'user').length === 0;
         let promptText = newMessageText;
         if ((!newMessageText || newMessageText.trim() === '') && imageUrlsForOpenAI.length > 0) {
-            promptText = getFallbackImageAnalysisPrompt();
+            const fallbackPrompt = getFallbackImageAnalysisPrompt();
+            promptText = typeof fallbackPrompt.content === 'string' 
+                ? fallbackPrompt.content 
+                : 'Please analyze these images.';
         }
         if (promptText && promptText.trim() !== '') {
             finalUserMessageContent.push({ type: 'text', text: promptText });
@@ -336,22 +348,27 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             await updateMessageWithImageDescription(supabaseAdmin, savedMessage.id, generatedImageDescription);
             savedMessage.image_description = generatedImageDescription;
         }
-        // --- Refactored prompt construction ---
+        
+        // --- Refactored prompt construction to use structured messages ---
         // Stringify history for userPrompt
         const historyString = (history || []).map((msg: any) => {
             return msg.imageDescription
                 ? `${msg.content}\n[Image Description: ${msg.imageDescription}]`
                 : msg.content;
         }).join('\n---\n');
-        const prompt = [
+        
+        // Create structured messages for OpenAI
+        const userPromptMessage = userPrompt({
+            history: historyString,
+            message: newMessageText,
+            imageDescription: generatedImageDescription ?? undefined,
+            preferences: userPreferences
+        });
+        
+        const messages: ChatCompletionMessageParam[] = [
             systemPrompt(),
-            userPrompt({
-                history: historyString,
-                message: newMessageText,
-                imageDescription: generatedImageDescription ?? undefined,
-                preferences: userPreferences
-            })
-        ].join('\n\n');
+            userPromptMessage
+        ];
 
         // --- Stream OpenAI response to client ---
         res.setHeader('Content-Type', 'text/event-stream');
@@ -362,7 +379,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         let aiResponseBuffer = '';
         let sentTitle = false;
         try {
-            await openaiClient.streamChatCompletion(prompt, (text) => {
+            await openaiClient.streamChatCompletion(messages, (text) => {
                 aiResponseBuffer += text;
                 // If we have a generated nickname and haven't sent it yet, include it in the SSE
                 if (!sentTitle && generatedNickname && isInitialUserMessage) {

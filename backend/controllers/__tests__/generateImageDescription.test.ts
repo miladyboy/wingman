@@ -49,8 +49,9 @@ describe('generateImageDescription', () => {
             {
                 role: 'user',
                 content: [
-                    { type: 'text', text: getImageDescriptionPrompt() },
-                    ...sampleFinalUserMessageContent,
+                    { type: 'text', text: getImageDescriptionPrompt().content },
+                    { type: 'image_url', image_url: { url: 'http://example.com/image1.jpg' } },
+                    { type: 'text', text: 'Image for description.' },
                 ],
             },
         ];

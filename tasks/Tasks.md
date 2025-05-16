@@ -51,7 +51,6 @@
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
 
 # Doing
-- [ ] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
 
 
 # Done
@@ -146,3 +145,4 @@
 - [x] The mobile icon for new chat should be the same in the sidebar as in the top right.
 - [x] Make it so that users can suspend their membership.
 - [x] Call less attention to the logout button. Hide it behind a settings button maybe.
+- [x] Improve prompting to use system/user roles instead of just a single string. **important** *llm*

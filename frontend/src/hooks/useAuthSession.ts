@@ -32,7 +32,9 @@ export function useAuthSession(): {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (isActive && !abortController.signal.aborted) setSession(session);
+      if (isActive && !abortController.signal.aborted) {
+        setSession(session);
+      }
     });
 
     return () => {
@@ -41,6 +43,10 @@ export function useAuthSession(): {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    // Removed debug log
+  }, [session, loading, error]);
 
   return { session, loading, error };
 } 

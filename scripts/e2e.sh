@@ -1,2 +1,2 @@
 #!/bin/sh
-cd frontend && npx playwright test --workers=1 "$@" 
+cd frontend && npx playwright test "$@" 

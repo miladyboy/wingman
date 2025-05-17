@@ -8,6 +8,7 @@ A personal AI wingman that analyzes chat screenshots and suggests flirty or clev
 - AI-powered analysis of chat context using OpenAI's Vision capabilities
 - Receive 2-3 suggested flirty or clever replies
 - Clean, modern desktop interface built with React and Tailwind CSS
+- Login with email/password or Google
 
 ## Tech Stack
 

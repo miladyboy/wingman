@@ -6,6 +6,7 @@ import analyzeRoutes from './routes/analyze';
 import paymentsRoutes from './routes/payments';
 import stripeWebhookRoutes from './routes/stripeWebhook';
 import userPreferencesRoutes from './routes/userPreferences';
+import authRoutes from './routes/auth';
 
 // Load environment variables from .env
 dotenv.config();
@@ -35,5 +36,6 @@ app.use('/analyze', analyzeRoutes);
 // app.use('/api/validate-invite-code', inviteRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/user/preferences', userPreferencesRoutes);
+app.use('/api/auth', authRoutes);
 
 export default app;

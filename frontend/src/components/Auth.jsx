@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import apiBase from '../utils/env';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -52,6 +53,23 @@ export default function Auth() {
       }
     } 
     setLoading(false);
+  };
+
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    setFormError('');
+    try {
+      const res = await fetch(`${apiBase}/api/auth/google`);
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No OAuth URL returned');
+      }
+    } catch (err) {
+      setFormError(err.message || 'Failed to start Google sign in');
+      setLoading(false);
+    }
   };
 
   return (
@@ -122,19 +140,28 @@ export default function Auth() {
                 data-testid={isRegistering ? "register-password" : "login-password"}
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full mt-2 bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90 transition-colors duration-200"
-              disabled={loading}
-              data-testid={isRegistering ? "register-submit" : "login-submit"}
-            >
-              {loading ? 'Loading...' : isRegistering ? 'Register' : 'Sign In'}
-            </Button>
-          </form>
           <Button
-            variant="link"
+            type="submit"
+            className="w-full mt-2 bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90 transition-colors duration-200"
+            disabled={loading}
+            data-testid={isRegistering ? "register-submit" : "login-submit"}
+          >
+            {loading ? 'Loading...' : isRegistering ? 'Register' : 'Sign In'}
+          </Button>
+          <Button
             type="button"
-            onClick={() => {
+            variant="outline"
+            onClick={handleGoogleAuth}
+            className="w-full mt-2"
+            data-testid="google-login-button"
+          >
+            Continue with Google
+          </Button>
+        </form>
+        <Button
+          variant="link"
+          type="button"
+          onClick={() => {
               setIsRegistering(!isRegistering);
               setFormError("");
               setFormSuccess("");

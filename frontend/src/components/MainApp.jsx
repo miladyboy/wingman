@@ -294,7 +294,7 @@ export default function MainApp({
         </div>
 
         {(showEmptyState || activeConversationId) && (
-          <div className="p-4 border-t border-border bg-card">
+          <div className="p-2 md:p-4 border-t border-border bg-card">
             <UploadComponent onSendMessage={handleSendMessage} disabled={sendingMessage} />
           </div>
         )}

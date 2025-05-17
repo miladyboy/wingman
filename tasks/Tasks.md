@@ -20,6 +20,7 @@
 - [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
 
 # To-Do
+- [ ] Remove "nickname" from the profile table.
 - [ ] Add more user flows to the E2E suite up to 25-30 tests. *tests*
 - [ ] Make the E2E suite run in the three browsers. *test*
 - [ ] Create an audit / architect-mode rule that I can insert manually.  *code-quality*
@@ -44,11 +45,9 @@
 
 # Today
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
-- [ ] Fix UI in mobile, it hides the menu. *bug*
 - [ ] Make sure our analytics are legal *marketing*
 - [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
-- [ ] Add login/signup with google. *ux*
 - [ ] Practice using the app and improve prompt engineering.
 
 # Doing
@@ -151,3 +150,5 @@
 - [x] Perfect the Landing Copywright *growth*
 - [x] Add a search for the threads to find a specific girl name.
 - [x] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  
+- [x] Add login/signup with google. *ux*
+- [x] Fix UI in mobile, it hides the menu. *bug*

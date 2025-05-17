@@ -143,12 +143,12 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   };
 
   return (
-    <div className="p-4 bg-card rounded-lg border border-border">
+    <div className="p-2 md:p-4 bg-card rounded-lg border border-border">
       <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col">
         {imagePreviews.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-2">
+          <div className="mb-2 md:mb-3 flex flex-wrap gap-1 md:gap-2">
             {imagePreviews.map((preview) => (
-              <div key={preview.id} className="relative group w-24 h-24 border border-border rounded overflow-hidden">
+              <div key={preview.id} className="relative group w-20 h-20 md:w-24 md:h-24 border border-border rounded overflow-hidden">
                 <img
                   src={preview.url}
                   alt={`Preview ${preview.name}`}
@@ -164,7 +164,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
                   aria-label={`Remove image ${preview.name}`}
                   disabled={disabled || isPending}
                 >
-                  <XCircleIcon className="h-4 w-4" />
+                  <XCircleIcon className="h-5 w-5" />
                 </Button>
               </div>
             ))}
@@ -174,7 +174,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
         {/* Textarea as Dropzone */}
         <div
           {...getRootProps()}
-          className={`mb-3 relative rounded-lg transition-colors border border-border ${isDragActive ? 'border-primary bg-primary/10' : ''}`}
+          className={`mb-2 md:mb-3 relative rounded-lg transition-colors border border-border ${isDragActive ? 'border-primary bg-primary/10' : ''}`}
         >
           <input {...getInputProps()} />
         <Textarea
@@ -185,7 +185,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
           rows={3}
           disabled={disabled || isPending}
-          className={`w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 ${isDragActive ? 'bg-primary/10' : ''}`}
+          className={`w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 ${isDragActive ? 'bg-primary/10' : ''} px-2 py-1 md:px-3 md:py-2 text-sm md:text-base min-h-[50px] md:min-h-[60px]`}
           data-testid="chat-input"
         />
           {isDragActive && (
@@ -213,21 +213,21 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             onClick={() => fileInputRef.current?.click()}
             size="icon"
             variant="ghost"
-            className="text-muted-foreground hover:text-primary"
+            className="text-muted-foreground hover:text-primary p-1"
             disabled={disabled || isPending}
             aria-label="Attach image(s)"
           >
-            <PhotoIcon className="h-6 w-6" />
+            <PhotoIcon className="h-10 w-10 md:h-7 md:w-7" />
           </Button>
 
           <Button
             type="submit"
-            className="font-semibold flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            className="font-semibold flex items-center gap-1 md:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base h-auto md:h-9"
             disabled={disabled || isPending || (selectedFiles.length === 0 && !text.trim())}
             data-testid="send-message-button"
           >
             {isPending ? 'Sending...' : 'Send'}
-            <PaperAirplaneIcon className="h-5 w-5" />
+            <PaperAirplaneIcon className="h-5 w-5 md:h-6 md:h-6" />
           </Button>
         </div>
       </form>

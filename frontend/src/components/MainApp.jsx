@@ -171,7 +171,7 @@ export default function MainApp({
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
-        <div className="md:hidden bg-card p-2 border-b border-border shadow-sm flex justify-between items-center">
+        <div className="md:hidden bg-card p-2 border-b border-border shadow-sm flex justify-between items-center sticky top-0 z-20">
           <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} data-testid="mobile-menu-button">
             <Menu className="h-6 w-6" />
           </Button>

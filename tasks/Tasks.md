@@ -3,7 +3,6 @@
 - [ ] Add Dark/Light theme.  
 - [ ] Make session management optional through a "Remember Me" toggle.  
 - [ ] Save memories based on what the bot sees in photos or what I say. (RAG) **(Hard)**  
-- [ ] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  
 - [ ] Make the bot respond in Markdown.  
 - [ ] Implement a free trial for the Stripe membership.  
 - [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.  
@@ -16,12 +15,12 @@
 - [ ] Hacer mas solido el flow de confirmacion de emails. Para que puedan re-pedir el mail de confirmacion.
 - [ ] Improve security of the images by keeping them either encrypted or in a private bucket. Figure out how to work it out with OpenAI.
 - [ ] Fix the manifest.json and everything so that it works as a PWA
-- [ ] Add a search for the threads to find a specific girl name.
 - [ ] Implement google vision to extract the girls names. OpenAI screams.
 - [ ] Add success screen or toast component after they successfully pay their subscription.
+- [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
 
 # To-Do
-- [ ] Fix the E2E tests to run with multiple workers. *test* **important**
+- [ ] Add more user flows to the E2E suite up to 25-30 tests. *tests*
 - [ ] Make the E2E suite run in the three browsers. *test*
 - [ ] Create an audit / architect-mode rule that I can insert manually.  *code-quality*
 - [ ] Set up CI environment. *code-quality*
@@ -31,24 +30,26 @@
 - [ ] Get to a good number of test coverage in the backend. *code-quality*
 - [ ] Understand, refactor and improve the frontend. *code-quality*
 - [ ] Migrate frontend to typescript. *code-quality*
-- [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
 - [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. *bug*
-- [ ] Enter should send the message even if there's only an image and no text.
-- [ ] Improve the email that users get from Supabase.
+- [ ] Enter should send the message even if there's only an image and no text. *ux*
+- [ ] Improve the email that users get from Supabase. *fran*
 - [ ] Delete el chat optimisticamente de la UI.
-- [ ] Add login/signup with google. *ux*
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
-- [ ] Perfect the Landing Copywright *growth*
 - [ ] Improve "Pricing" aka payment page. *growth*
-- [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Update stripe to charge weekly instead of monthly. *money*
-- [ ] Try to do a mobile frontend with Expo / React Native. *dev*
 - [ ] The loading dots animation is broken again. *bug* **important**
 - [ ] Add an easy user feedback loop. *growth* 
-- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
-- [ ] Make sure our analytics are legal *marketing*
 - [ ] Add pino for logging. 
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
+
+# Today
+- [ ] Try to do a mobile frontend with Expo / React Native. *dev*
+- [ ] Fix UI in mobile, it hides the menu. *bug*
+- [ ] Make sure our analytics are legal *marketing*
+- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
+- [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
+- [ ] Add login/signup with google. *ux*
+- [ ] Practice using the app and improve prompt engineering.
 
 # Doing
 
@@ -146,3 +147,7 @@
 - [x] Make it so that users can suspend their membership.
 - [x] Call less attention to the logout button. Hide it behind a settings button maybe.
 - [x] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
+- [x] Fix the E2E tests to run with multiple workers. *test* **important**
+- [x] Perfect the Landing Copywright *growth*
+- [x] Add a search for the threads to find a specific girl name.
+- [x] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  

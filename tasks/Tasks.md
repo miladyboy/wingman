@@ -63,7 +63,7 @@
 - [x] Make the E2E suite go to green again.
 - [x] Se sigue renderizando dos veces el mensaje de preview algunas veces *bug*
 - [x] No se esta mostrando el reply hasta que hago un refresh. *bug*
-- [x] Improve the prompt that tries to generate a nickname to make sure that it extracts a name if at all possible. Name + 1-3 words that describe her, otherwise just the descripting words. Fix the feature as well.
+- [x] Improve the prompt that tries to generate a nickname to make sure that it extracts a name if at all possible. Name + 1-3 words that describe her, otherwise just the descriptive words. Fix the feature as well.
 - [x] Add visitor and user tracking. *growth*
 - [x] I should be able to send a photo without a text message. *bug*
 - [x] Add a favicon. *ux* 

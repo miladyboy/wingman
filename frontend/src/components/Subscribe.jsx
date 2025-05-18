@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabaseClient';
 import { Button } from './ui/button';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './ui/accordion';
 import { UserCircle } from 'lucide-react';
 import ScreenshotCTA from './assets/ScreenshotCTA.png';
+import UserProfileMenu from './ui/UserProfileMenu';
 
 // Reutilizamos el beneficio visual de la landing
 function PricingBenefit({ text }) {
@@ -19,11 +20,21 @@ function PricingBenefit({ text }) {
   );
 }
 
+// Hook para detectar si es mobile (simple, usando window.innerWidth)
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < breakpoint);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 export default function Subscribe() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const profileMenuRef = useRef(null);
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState('0');
 
@@ -66,9 +77,6 @@ export default function Subscribe() {
     window.location.href = '/';
   };
 
-  // Lógica para mostrar/ocultar el menú de perfil
-  const handleProfileMenuToggle = () => setIsProfileMenuOpen((open) => !open);
-
   // Maneja el flujo de suscripción con Stripe
   const handleSubscribe = async () => {
     setLoading(true);
@@ -109,32 +117,12 @@ export default function Subscribe() {
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-white relative px-2 md:px-0">
       {/* Botón de perfil arriba a la derecha */}
       <div className="absolute top-4 right-4 z-50">
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleProfileMenuToggle}
-            data-testid="profile-menu-button"
-            aria-label="Open profile menu"
-          >
-            <UserCircle className="h-7 w-7" />
-          </Button>
-          {isProfileMenuOpen && (
-            <div
-              ref={profileMenuRef}
-              className="absolute right-0 mt-2 w-48 bg-card border border-border rounded shadow-lg z-50"
-              data-testid="profile-menu-dropdown"
-            >
-              <button
-                className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border"
-                onClick={handleLogout}
-                data-testid="profile-menu-logout"
-              >
-                Log out
-              </button>
-            </div>
-          )}
-        </div>
+        <UserProfileMenu
+          onLogout={handleLogout}
+          showAccountOption={false}
+          buttonTestId="profile-menu-button"
+          menuTestId="profile-menu-dropdown"
+        />
       </div>
 
       {/* Contenido principal */}
@@ -162,18 +150,8 @@ export default function Subscribe() {
           <PricingBenefit text="Avoid ghosting, dead ends, and awkward silences" />
           <PricingBenefit text="Know exactly what to text next" />
         </ul>
-        {/* Imagen de chat CTA y testimonio juntos en desktop, en columna en mobile */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full mb-6">
-          <img 
-            src={ScreenshotCTA} 
-            alt="Chat example" 
-            className="rounded-2xl shadow-lg w-full max-w-xs border border-gray-200 object-cover" 
-            style={{ aspectRatio: '2.2/3' }}
-          />
-          <div className="italic text-gray-600 text-center md:text-left max-w-md md:max-w-xs mx-auto md:mx-0 flex-1 flex items-center justify-center min-h-[180px]">
-            <span>"I like meeting girls, I just hate the small talk and guessing games. Harem makes it effortless, I just plug in the convo and it tells me what works."<br /><span className="not-italic font-semibold">— Beta User, M27</span></span>
-          </div>
-        </div>
+        {/* Imagen de chat CTA con tilt y glow, y testimonio al lado en desktop */}
+        <TiltedScreenshotWithGlow />
         {/* FAQ */}
         <Accordion type="single" collapsible value={openFaq} onValueChange={setOpenFaq} className="w-full max-w-md mx-auto mb-8">
           {faqs.map((faq, idx) => (
@@ -187,6 +165,70 @@ export default function Subscribe() {
             </AccordionItem>
           ))}
         </Accordion>
+      </div>
+    </div>
+  );
+}
+
+// Componente separado para el tilt y glow
+function TiltedScreenshotWithGlow() {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef(null);
+  const isMobile = useIsMobile();
+
+  // Reset tilt on mobile or mouse leave
+  const resetTilt = () => setTilt({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (isMobile) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    // Limitar el tilt máximo a 12 grados
+    const maxTilt = 12;
+    const tiltX = ((y - centerY) / centerY) * maxTilt * -1;
+    const tiltY = ((x - centerX) / centerX) * maxTilt;
+    setTilt({ x: tiltX, y: tiltY });
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full mb-6">
+      <div
+        ref={ref}
+        className="relative w-full max-w-xs mx-auto md:mx-0"
+        style={{ perspective: 900 }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => { resetTilt(); setHovered(false); }}
+        onMouseEnter={() => setHovered(true)}
+        tabIndex={-1}
+      >
+        {/* Glow violeta detrás */}
+        <div
+          className={`absolute inset-0 z-0 rounded-2xl pointer-events-none transition-all duration-300 ${hovered ? 'opacity-80 scale-105' : 'opacity-50 scale-100'}`}
+          style={{
+            background: 'radial-gradient(circle at 60% 40%, #6C47D6 0%, #fff0 70%)',
+            filter: 'blur(32px)',
+          }}
+        />
+        {/* Imagen con tilt */}
+        <img
+          src={ScreenshotCTA}
+          alt="Chat example"
+          className="relative z-10 rounded-2xl shadow-lg w-full border border-gray-200 object-cover transition-transform duration-300"
+          style={{
+            aspectRatio: '2.2/3',
+            transform: isMobile
+              ? 'none'
+              : `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${hovered ? 1.04 : 1})`,
+          }}
+          draggable={false}
+        />
+      </div>
+      <div className="italic text-gray-600 text-center md:text-left max-w-md md:max-w-xs mx-auto md:mx-0 flex-1 flex items-center justify-center min-h-[180px]">
+        <span>"I like meeting girls, I just hate the small talk and guessing games. Harem makes it effortless, I just plug in the convo and it tells me what works."<br /><span className="not-italic font-semibold">— Beta User, M27</span></span>
       </div>
     </div>
   );

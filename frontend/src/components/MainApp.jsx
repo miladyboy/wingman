@@ -3,12 +3,13 @@ import ChatHistory from './ChatHistory';
 import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
 import ChatEmptyState from './ChatEmptyState';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Menu, PlusSquare, SquarePen, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
 import apiBase from '@/utils/env';
 import { supabase } from '@/services/supabaseClient';
+import UserProfileMenu from './ui/UserProfileMenu';
 
 export default function MainApp({
   profile,
@@ -28,9 +29,7 @@ export default function MainApp({
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-  const profileMenuRef = useRef(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState('Active');
   const [suspendLoading, setSuspendLoading] = useState(false);
   const [suspendError, setSuspendError] = useState('');
@@ -54,10 +53,8 @@ export default function MainApp({
   };
 
   // Profile menu dropdown logic
-  const handleProfileMenuToggle = () => setIsProfileMenuOpen((open) => !open);
   const handleAccountOpen = () => {
     setIsAccountModalOpen(true);
-    setIsProfileMenuOpen(false);
   };
 
   const handleAccountClose = () => setIsAccountModalOpen(false);
@@ -169,79 +166,33 @@ export default function MainApp({
           <h2 className="text-lg font-semibold text-foreground truncate px-2">
             {activeConversation ? activeConversation.title : 'New Chat'}
           </h2>
-          {/* Profile button (mobile) */}
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleProfileMenuToggle}
-              data-testid="profile-menu-button-drawer"
-              aria-label="Open profile menu"
-            >
-              <UserCircle className="h-7 w-7" />
-            </Button>
-            {isProfileMenuOpen && (
-              <div
-                ref={profileMenuRef}
-                className="absolute right-0 mt-2 w-48 bg-card border border-border rounded shadow-lg z-50"
-                data-testid="profile-menu-dropdown-mobile"
-              >
-                <button
-                  className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
-                  onClick={handleAccountOpen}
-                  data-testid="profile-menu-account-mobile"
-                >
-                  My Account
-                </button>
-                <button
-                  className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border profile-menu-item"
-                  onClick={handleLogout}
-                  data-testid="profile-menu-logout-mobile"
-                >
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Profile button (mobile) - ahora UserProfileMenu */}
+          <UserProfileMenu
+            onLogout={handleLogout}
+            onAccount={handleAccountOpen}
+            showAccountOption={true}
+            buttonTestId="profile-menu-button-drawer"
+            menuTestId="profile-menu-dropdown-mobile"
+            userName={profile?.username}
+            // avatarUrl={profile?.avatarUrl} // Descomentar si hay avatar
+            className=""
+          />
         </div>
 
         {/* Desktop Header */}
         <div className="hidden md:flex bg-card p-4 border-b border-border shadow-sm justify-between items-center">
           <h2 className="text-xl font-semibold text-foreground">{activeConversation ? activeConversation.title : ''}</h2>
-          {/* Profile button (desktop) */}
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleProfileMenuToggle}
-              data-testid="profile-menu-button"
-              aria-label="Open profile menu"
-            >
-              <UserCircle className="h-7 w-7" />
-            </Button>
-            {isProfileMenuOpen && (
-              <div
-                ref={profileMenuRef}
-                className="absolute right-0 mt-2 w-48 bg-card border border-border rounded shadow-lg z-50"
-                data-testid="profile-menu-dropdown"
-              >
-                <button
-                  className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
-                  onClick={handleAccountOpen}
-                  data-testid="profile-menu-account-desktop"
-                >
-                  My Account
-                </button>
-                <button
-                  className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border profile-menu-item"
-                  onClick={handleLogout}
-                  data-testid="profile-menu-logout"
-                >
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Profile button (desktop) - ahora UserProfileMenu */}
+          <UserProfileMenu
+            onLogout={handleLogout}
+            onAccount={handleAccountOpen}
+            showAccountOption={true}
+            buttonTestId="profile-menu-button"
+            menuTestId="profile-menu-dropdown"
+            userName={profile?.username}
+            // avatarUrl={profile?.avatarUrl} // Descomentar si hay avatar
+            className=""
+          />
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">

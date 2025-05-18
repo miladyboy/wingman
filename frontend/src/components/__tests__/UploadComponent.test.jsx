@@ -34,9 +34,9 @@ describe('UploadComponent', () => {
     fireEvent.change(textarea, { target: { value: 'Hello world' } });
     fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter', charCode: 13 });
     // Wait for the async update
-    await waitFor(() => expect(mockSend).toHaveBeenCalledTimes(2));
-    // The second call should be with FormData
-    const formData = mockSend.mock.calls[1][0];
+    await waitFor(() => expect(mockSend).toHaveBeenCalledTimes(1));
+    // The call should be with FormData
+    const formData = mockSend.mock.calls[0][0];
     expect(formData.get('newMessageText')).toBe('Hello world');
   });
 

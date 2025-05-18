@@ -34,19 +34,21 @@
 - [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. *bug*
 - [ ] Enter should send the message even if there's only an image and no text. *ux*
 - [ ] Delete el chat optimisticamente de la UI.
-- [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Improve "Pricing" aka payment page. *growth*
 - [ ] Update stripe to charge weekly instead of monthly. *money*
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Add pino for logging. 
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
-
+- [ ] Add text bubble to the llm replies *UI*
+- [ ] Create cancel subscription flow *money*
+- [ ] Improve user logo at the top right corner. It looks small and it's hard to find. *UX*
 # Today
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
 - [ ] Make sure our analytics are legal *marketing*
 - [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Practice using the app and improve prompt engineering.
+
 
 # Doing
 
@@ -152,3 +154,4 @@
 - [x] Fix UI in mobile, it hides the menu. *bug*
 - [x] Improve the email that users get from Supabase. *fran*
 - [x] The loading dots animation is broken again. *bug* **important**
+- [x] Replace the confirmation alert for deleting a message with a nicer component. *ux*

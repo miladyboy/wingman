@@ -182,6 +182,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
             </Button>
             <Button
               variant="destructive"
+              data-testid="confirm-delete-chat"
               onClick={() => {
                 if (onDeleteThread && threadToDelete) onDeleteThread(threadToDelete);
                 setShowDeleteDialog(false);

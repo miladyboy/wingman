@@ -22,7 +22,7 @@ async function createNewChat(page: any, chatNumber: number) {
  * Helper: Deletes every chat visible in the sidebar and waits until none remain.
  * Assumes user is logged in and on a page where chat items are visible (e.g., /app)
  */
-async function deleteAllChats(page) {
+async function deleteAllChats(page: Page) {
   try {
     await page.getByTestId('chat-item').first().waitFor({ state: 'visible', timeout: 5000 });
   } catch (e) {
@@ -38,24 +38,24 @@ async function deleteAllChats(page) {
     const deleteBtn = firstChat.getByTestId('delete-chat');
     await firstChat.hover();
     await expect(deleteBtn).toBeVisible({ timeout: 2000 });
-    const confirmPromise = page.waitForEvent('dialog').then(dialog => dialog.accept());
     const prevCount = await chatItems.count();
-    await Promise.all([
-      deleteBtn.click(),
-      confirmPromise,
-      page.waitForFunction(
-        ({ selector, prev }) => {
-          const currentElements = document.querySelectorAll(selector);
-          return currentElements.length < prev;
-        },
-        { selector: '[data-testid="chat-item"]', prev: prevCount },
-        { timeout: 7000, polling: 500 }
-      ).catch(err => {
-        // Minimal error logging in case of failure, or re-throw
-        console.error('Error waiting for chat item count to decrease:', err.message);
-        throw err;
-      })
-    ]);
+    await deleteBtn.click();
+    // Espera a que el modal aparezca y confirma
+    const confirmBtn = page.getByTestId('confirm-delete-chat');
+    await expect(confirmBtn).toBeVisible({ timeout: 2000 });
+    await confirmBtn.click();
+    await page.waitForFunction(
+      ({ selector, prev }: { selector: string, prev: number }) => {
+        const currentElements = document.querySelectorAll(selector);
+        return currentElements.length < prev;
+      },
+      { selector: '[data-testid="chat-item"]', prev: prevCount },
+      { timeout: 7000, polling: 500 }
+    ).catch((err: Error) => {
+      // Minimal error logging in case of failure, or re-throw
+      console.error('Error waiting for chat item count to decrease:', err.message);
+      throw err;
+    });
   }
   if (safetyNet === 0) {
     console.warn('[deleteAllChats] Safety net triggered. Final count:', await page.getByTestId('chat-item').count());
@@ -98,8 +98,11 @@ test.describe('Core Chat Functionality', () => {
     const chatItemToDelete = page.getByTestId('chat-item').filter({ has: page.getByTestId('chat-item-name').filter({ hasText: chatToDeleteTitle }) });
     await chatItemToDelete.hover();
     const deleteButton = chatItemToDelete.getByTestId('delete-chat');
-    page.once('dialog', (dialog: any) => dialog.accept());
     await deleteButton.click();
+    // Espera y confirma en el modal
+    const confirmBtn = page.getByTestId('confirm-delete-chat');
+    await expect(confirmBtn).toBeVisible({ timeout: 2000 });
+    await confirmBtn.click();
     await expect(page.getByTestId('chat-item-name').filter({ hasText: chatToDeleteTitle })).not.toBeVisible({ timeout: 5000 });
     await expect(page.getByTestId('chat-item-name').filter({ hasText: chatToKeepTitle })).toBeVisible();
   });

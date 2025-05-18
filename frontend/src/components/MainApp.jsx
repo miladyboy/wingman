@@ -19,12 +19,10 @@ export default function MainApp({
   handleRenameThread,
   handleDeleteConversation,
   messages,
-  loading,
   loadingMessages,
   error,
   handleSendMessage,
   sendingMessage,
-  supabase
 }) {
   const isNewChat = activeConversationId === 'new';
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
@@ -57,11 +55,11 @@ export default function MainApp({
 
   // Profile menu dropdown logic
   const handleProfileMenuToggle = () => setIsProfileMenuOpen((open) => !open);
-  const handleProfileMenuClose = () => setIsProfileMenuOpen(false);
   const handleAccountOpen = () => {
     setIsAccountModalOpen(true);
     setIsProfileMenuOpen(false);
   };
+
   const handleAccountClose = () => setIsAccountModalOpen(false);
 
   const handleSuspendMembership = async () => {
@@ -114,8 +112,6 @@ export default function MainApp({
           }}
           onRenameThread={handleRenameThread}
           onDeleteThread={handleDeleteConversation}
-          user={profile}
-          onLogout={handleLogout}
         />
       </div>
 
@@ -159,11 +155,6 @@ export default function MainApp({
               }}
               onRenameThread={handleRenameThread}
               onDeleteThread={handleDeleteConversation}
-              user={profile}
-              onLogout={() => {
-                handleLogout();
-                setIsSidebarOpen(false); // Close sheet after logout
-              }}
             />
           </SheetContent>
         </Sheet>

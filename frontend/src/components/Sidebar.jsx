@@ -4,11 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import UserPreferences from './UserPreferences';
 import { filterThreadsByName } from '../utils/threadUtils';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription
+} from './ui/dialog';
 
-function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, onDeleteThread, user, onLogout, isMobileSheetView = false }) {
+function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, onDeleteThread, isMobileSheetView = false }) {
   const [editingThreadId, setEditingThreadId] = useState(null);
   const [editText, setEditText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [threadToDelete, setThreadToDelete] = useState(null);
 
   const handleStartEdit = (thread) => {
     setEditingThreadId(thread.id);
@@ -131,7 +142,11 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={(e) => { e.stopPropagation(); onDeleteThread && onDeleteThread(thread.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setThreadToDelete(thread.id);
+                      setShowDeleteDialog(true);
+                    }}
                     className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-1"
                     aria-label="Delete chat"
                     data-testid="delete-chat"
@@ -152,6 +167,32 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         />
       </div>
       {/* --- End User Info & Logout --- */}
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Conversation?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this conversation and all its messages and images? This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (onDeleteThread && threadToDelete) onDeleteThread(threadToDelete);
+                setShowDeleteDialog(false);
+                setThreadToDelete(null);
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

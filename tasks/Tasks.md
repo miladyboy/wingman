@@ -1,7 +1,7 @@
 # Wishlist
 - [ ] Let the user store things to long-term memory during a chat, perhaps by explicitly asking for it.
 - [ ] Add Dark/Light theme.  
-- [ ] Make session management optional through a "Remember Me" toggle.  
+- [ ] Make session management optional through a "Remember Me" toggle.
 - [ ] Save memories based on what the bot sees in photos or what I say. (RAG) **(Hard)**  
 - [ ] Make the bot respond in Markdown.
 - [ ] Implement a free trial for the Stripe membership.
@@ -37,7 +37,6 @@
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Improve "Pricing" aka payment page. *growth*
 - [ ] Update stripe to charge weekly instead of monthly. *money*
-- [ ] The loading dots animation is broken again. *bug* **important**
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Add pino for logging. 
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
@@ -152,3 +151,4 @@
 - [x] Add login/signup with google. *ux*
 - [x] Fix UI in mobile, it hides the menu. *bug*
 - [x] Improve the email that users get from Supabase. *fran*
+- [x] The loading dots animation is broken again. *bug* **important**

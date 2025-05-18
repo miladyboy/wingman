@@ -13,10 +13,9 @@ import { getCookieConsent } from './utils/consent';
 
 function AppRouter() {
   const { session, loading: authLoading, error: authError } = useAuthSession();
-  const { profile, loading: profileLoading, error: profileError } = useUserProfile(session?.user?.id);
+  const { profile } = useUserProfile(session?.user?.id);
   const {
     conversations,
-    loading: conversationsLoading,
     error: conversationsError,
     fetchConversations,
     setConversations
@@ -26,7 +25,6 @@ function AppRouter() {
     messages,
     loadingMessages,
     error: messagesError,
-    fetchMessages,
     setMessages
   } = useMessages(supabase, session, activeConversationId);
   const [sendingMessage, setSendingMessage] = useState(false);
@@ -169,7 +167,7 @@ function AppRouter() {
                       conv.id === currentConversationId ? { ...conv, title: updatedConversationTitle } : conv
                     ));
                   }
-                } catch {}
+                } catch {/* ignore JSON parse errors in SSE stream */}
               }
             }
           }
@@ -228,7 +226,6 @@ function AppRouter() {
 
   // Delete a conversation and all related data (images, messages, conversation)
   const handleDeleteConversation = useCallback(async (conversationId) => {
-    if (!window.confirm('Are you sure you want to delete this conversation and all its messages and images? This cannot be undone.')) return;
     try {
       // 1. Fetch all messages for the conversation
       const { data: messagesData, error: messagesError } = await supabase

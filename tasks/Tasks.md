@@ -3,9 +3,9 @@
 - [ ] Add Dark/Light theme.  
 - [ ] Make session management optional through a "Remember Me" toggle.  
 - [ ] Save memories based on what the bot sees in photos or what I say. (RAG) **(Hard)**  
-- [ ] Make the bot respond in Markdown.  
-- [ ] Implement a free trial for the Stripe membership.  
-- [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.  
+- [ ] Make the bot respond in Markdown.
+- [ ] Implement a free trial for the Stripe membership.
+- [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.
 - [ ] Build a React Native app for mobile. **(Hard)**  
 - [ ] Upload user chats to mimic their style. **(Mid)**  
 - [ ] Hacer un tear down de la DB que elimine todos los users de prueba?
@@ -33,7 +33,6 @@
 - [ ] Migrate frontend to typescript. *code-quality*
 - [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. *bug*
 - [ ] Enter should send the message even if there's only an image and no text. *ux*
-- [ ] Improve the email that users get from Supabase. *fran*
 - [ ] Delete el chat optimisticamente de la UI.
 - [ ] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [ ] Improve "Pricing" aka payment page. *growth*
@@ -152,3 +151,4 @@
 - [x] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  
 - [x] Add login/signup with google. *ux*
 - [x] Fix UI in mobile, it hides the menu. *bug*
+- [x] Improve the email that users get from Supabase. *fran*

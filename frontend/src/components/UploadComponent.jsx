@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { flushSync } from 'react-dom';
 import { useDropzone } from 'react-dropzone';
 import { PhotoIcon, XCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,7 +9,6 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   const [text, setText] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [isPending, setIsPending] = useState(false);
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
 
@@ -112,26 +110,16 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
       return;
     }
 
-    // Step 1: Force React to update the loading state and flush to DOM
-    flushSync(() => {
-      setIsPending(true);
-      onSendMessage(null, true); // loadingOnly = true
-    });
-
-    // Step 2: Yield to the browser so the UI can update
-    await Promise.resolve();
-
-    // Step 3: Now do the heavy work
+    // Construir el FormData y enviarlo inmediatamente
     const formData = new FormData();
     formData.append('newMessageText', text);
     selectedFiles.forEach((file) => {
       formData.append('images', file, file.name);
     });
 
-    // Step 4: Send the actual message
     onSendMessage(formData);
 
-    // Step 5: Clear the form
+    // Limpiar el formulario
     setText('');
     imagePreviews.forEach(preview => URL.revokeObjectURL(preview.url));
     setSelectedFiles([]);
@@ -139,7 +127,6 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    setIsPending(false);
   };
 
   return (
@@ -162,7 +149,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
                   variant="ghost"
                   className="absolute top-0.5 right-0.5 bg-background/80 text-foreground rounded-full p-0.5 hover:bg-background/90 opacity-0 group-hover:opacity-100 transition-opacity"
                   aria-label={`Remove image ${preview.name}`}
-                  disabled={disabled || isPending}
+                  disabled={disabled}
                 >
                   <XCircleIcon className="h-5 w-5" />
                 </Button>
@@ -181,10 +168,10 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleTextareaKeyDown}
-          onPaste={handlePaste} // Permite pegar imágenes desde el portapapeles
+          onPaste={handlePaste}
           placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
           rows={3}
-          disabled={disabled || isPending}
+          disabled={disabled}
           className={`w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 ${isDragActive ? 'bg-primary/10' : ''} px-2 py-1 md:px-3 md:py-2 text-sm md:text-base min-h-[50px] md:min-h-[60px]`}
           data-testid="chat-input"
         />
@@ -204,7 +191,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             className="hidden"
             ref={fileInputRef}
             multiple
-            disabled={disabled || isPending}
+            disabled={disabled}
             data-testid="chat-file-input"
           />
           <Label htmlFor="file-input" className="sr-only">Attach image(s)</Label>
@@ -214,7 +201,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             size="icon"
             variant="ghost"
             className="text-muted-foreground hover:text-primary p-1"
-            disabled={disabled || isPending}
+            disabled={disabled}
             aria-label="Attach image(s)"
           >
             <PhotoIcon className="h-10 w-10 md:h-7 md:w-7" />
@@ -223,10 +210,10 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           <Button
             type="submit"
             className="font-semibold flex items-center gap-1 md:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base h-auto md:h-9"
-            disabled={disabled || isPending || (selectedFiles.length === 0 && !text.trim())}
+            disabled={disabled || (selectedFiles.length === 0 && !text.trim())}
             data-testid="send-message-button"
           >
-            {isPending ? 'Sending...' : 'Send'}
+            Send
             <PaperAirplaneIcon className="h-5 w-5 md:h-6 md:h-6" />
           </Button>
         </div>

@@ -40,7 +40,7 @@
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
 - [ ] Add text bubble to the llm replies *UI*
 - [ ] Create cancel subscription flow *money*
-- [ ] Improve user logo at the top right corner. It looks small and it's hard to find. *UX*
+
 # Today
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
 - [ ] Make sure our analytics are legal *marketing*
@@ -58,3 +58,4 @@
 - [x] The loading dots animation is broken again. *bug* **important**
 - [x] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [x] Improve "Pricing" aka payment page. *growth*
+- [x] Improve user logo at the top right corner. Make it a component to be reutilizable. It looks small and it's hard to find. *UX*

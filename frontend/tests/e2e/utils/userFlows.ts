@@ -24,7 +24,7 @@ const selectors = {
   // Main App / Logout
 };
 
-export function generateUniqueEmail(prefix = 'e2euser'): string {
+export function generateUniqueEmail(prefix = 'e2euser') {
   return `${prefix}+${Date.now()}@example.com`;
 }
 

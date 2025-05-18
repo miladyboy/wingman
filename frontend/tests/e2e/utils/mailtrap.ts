@@ -1,16 +1,12 @@
-/* eslint-env node */
 import { MailtrapClient } from "mailtrap";
 
 const MAILTRAP_API_TOKEN = process.env.MAILTRAP_API_TOKEN;
-const _MAILTRAP_INBOX_ID = process.env.MAILTRAP_INBOX_ID ? Number(process.env.MAILTRAP_INBOX_ID) : null;
-const _MAILTRAP_ACCOUNT_ID = process.env.MAILTRAP_ACCOUNT_ID ? Number(process.env.MAILTRAP_ACCOUNT_ID) : null;
+const MAILTRAP_INBOX_ID = Number(process.env.MAILTRAP_INBOX_ID);
+const MAILTRAP_ACCOUNT_ID = Number(process.env.MAILTRAP_ACCOUNT_ID);
 
-if (!MAILTRAP_API_TOKEN || _MAILTRAP_INBOX_ID === null || _MAILTRAP_ACCOUNT_ID === null) {
-  throw new Error('Missing Mailtrap environment variables. Please set MAILTRAP_API_TOKEN, MAILTRAP_INBOX_ID, and MAILTRAP_ACCOUNT_ID.');
+if (!MAILTRAP_API_TOKEN || !MAILTRAP_INBOX_ID || !MAILTRAP_ACCOUNT_ID) {
+  throw new Error('Mailtrap environment variables are not set correctly.');
 }
-
-const MAILTRAP_INBOX_ID = Number(_MAILTRAP_INBOX_ID);
-const MAILTRAP_ACCOUNT_ID = Number(_MAILTRAP_ACCOUNT_ID);
 
 const client = new MailtrapClient({ token: MAILTRAP_API_TOKEN, testInboxId: MAILTRAP_INBOX_ID, accountId: MAILTRAP_ACCOUNT_ID });
 
@@ -28,11 +24,7 @@ export async function getLatestMail() {
   return messages[0];
 }
 
-// eslint-disable-next-line no-undef
-// @ts-ignore
-// process is provided by Node.js
-
-// Decodes HTML entities in a string (specifically &amp; to &).
+/* eslint-disable no-undef */
 function decodeHtmlEntities(str) {
   return str.replace(/&amp;/g, '&');
 }
@@ -45,25 +37,26 @@ export async function getConfirmationLink() {
   const email = await getLatestMail();
   const html = await client.testing.messages.getHtmlMessage(MAILTRAP_INBOX_ID, email.id);
 
-  // Busca el <a> cuyo texto sea 'Confirm your mail'
+  // Busca el <a> cuyo texto es "Confirm your mail"
   const match = html.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm your mail\s*<\/a>/i);
-  const link = match ? match[1] : null;
-  if (!link) {
-    throw new Error('No confirmation link with text "Confirm your mail" found in email');
+  if (!match) {
+    throw new Error('No confirmation link found in email (button text: Confirm your mail)');
   }
-  return decodeHtmlEntities(link);
+  return decodeHtmlEntities(match[1]);
 }
 
-// Extrae el enlace de reset password del email
+/**
+ * Extracts the reset password link from the latest email's HTML body.
+ * Throws if no link is found.
+ */
 export async function getResetPasswordLink() {
   const email = await getLatestMail();
   const html = await client.testing.messages.getHtmlMessage(MAILTRAP_INBOX_ID, email.id);
 
-  // Busca el <a> cuyo texto sea 'Reset Password'
+  // Busca el <a> cuyo texto es "Reset Password"
   const match = html.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Reset Password\s*<\/a>/i);
-  const link = match ? match[1] : null;
-  if (!link) {
-    throw new Error('No reset password link with text "Reset Password" found in email');
+  if (!match) {
+    throw new Error('No reset password link found in email (button text: Reset Password)');
   }
-  return decodeHtmlEntities(link);
+  return decodeHtmlEntities(match[1]);
 }

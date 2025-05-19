@@ -38,8 +38,10 @@
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Add pino for logging. 
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
-- [ ] Add text bubble to the llm replies *UI*
 - [ ] Create cancel subscription flow *money*
+- [ ] Add "re-roll" button for llm answers (use MessageBranching.md to kickstart) *Mau*
+- [ ] Somehow create a way for the user to copy the message that the LLM is sending with one click. *UX*
+- [ ] Add like or dislike button to improve llm answers *Prompt quality*
 
 # Today
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
@@ -50,6 +52,9 @@
 
 
 
+# Mau
+- [ ] Give feedback about the new subscription page 
+
 
 # Doing
 
@@ -59,3 +64,5 @@
 - [x] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [x] Improve "Pricing" aka payment page. *growth*
 - [x] Improve user logo at the top right corner. Make it a component to be reutilizable. It looks small and it's hard to find. *UX*
+- [x] Add text bubble to the llm replies *UI*
+- [x] Separar un poco el boton de "new chat" del limite superior

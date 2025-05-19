@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabaseClient';
 import { Button } from './ui/button';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './ui/accordion';
-import { UserCircle } from 'lucide-react';
 import ScreenshotCTA from './assets/ScreenshotCTA.png';
 import UserProfileMenu from './ui/UserProfileMenu';
 

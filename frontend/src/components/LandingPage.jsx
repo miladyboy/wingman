@@ -1,45 +1,62 @@
 import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { CheckCircle2, UserPlus, Image, Sparkles, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import React from "react";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./ui/accordion";
 import Logo from './assets/LOGO.png';
+import CustomCard from './ui/CustomCard';
 
 
-// BrandLogo: muestra el logo + 'Harem' en naranja (sin 'AI')
-function BrandLogo() {
+// BrandLogo: muestra el logo + 'Harem' en naranja (sin 'AI') y permite navegar al inicio
+function BrandLogo({ onClick }) {
   return (
-    <span className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tight select-none">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-2 font-bold text-2xl md:text-3xl tracking-tight select-none bg-transparent border-none p-0 m-0 cursor-pointer focus:outline-none"
+      style={{ background: 'none' }}
+      aria-label="Go to home"
+      tabIndex={0}
+    >
       <img src={Logo} alt="Harem logo" className="h-8 w-8 md:h-10 md:w-10" />
       <span className="text-[#FFA726]">Harem</span>
-    </span>
+    </button>
   );
 }
 
-// PrimaryCTAButton: botón naranjo grande reutilizable
-function PrimaryCTAButton({ onClick, children, className = "" }) {
+// CTAButton: botón grande reutilizable para todas las secciones (hero, pricing, closing)
+function CTAButton({ onClick, children, className = "", size = "lg", ...rest }) {
+  // Determinar clases según tamaño
+  const sizeClasses = size === "lg"
+    ? "text-lg px-8 py-4"
+    : size === "xl"
+      ? "text-2xl py-5"
+      : "text-base px-5 py-2";
   return (
-    <Button
-      size="lg"
-      className={`bg-[#FFA726] text-white font-bold text-lg px-8 py-4 rounded-md shadow-xl hover:bg-[#ffb74d] transition ${className}`}
+    <button
+      className={`w-full font-bold rounded-2xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${sizeClasses} ${className}
+        bg-gradient-to-r from-[#FFA726] to-[#FFB74D]
+        hover:from-[#FFB74D] hover:to-[#FFA726]
+        hover:scale-105
+        hover:shadow-[0_4px_32px_0_rgba(255,167,38,0.25)]
+        active:scale-98
+        transition-transform transition-shadow transition-colors
+      `}
+      style={{
+        color: "#fff",
+      }}
       onClick={onClick}
-      data-testid="hero-cta-button"
+      data-testid="cta-button"
+      {...rest}
     >
-      {children}
-    </Button>
+      <span className="relative z-10">{children}</span>
+    </button>
   );
 }
 
 // HowItWorksCard: tarjeta numerada con animación y props
 function HowItWorksCard({ number, emoji, title, description }) {
   return (
-    <div
-      className="flex flex-col items-center bg-[#23284A]/80 rounded-2xl shadow-lg border border-[#2d325a] px-6 py-10 min-w-[260px] max-w-xs mx-auto transition-transform duration-200 hover:scale-105 hover:shadow-2xl border-b-4 border-b-[#FFA726]"
-      tabIndex={0}
-      aria-label={title}
-      onMouseEnter={() => console.log(`[HowItWorksCard] Hover en tarjeta ${number}`)}
-    >
+    <CustomCard className="flex flex-col items-center min-w-[260px] max-w-xs mx-auto" borderColor="#FFA726" hoverEffect>
       <div className="flex flex-col items-center mb-4">
         <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#FFA726] text-white text-xl font-bold mb-2 shadow">
           {number}
@@ -48,25 +65,90 @@ function HowItWorksCard({ number, emoji, title, description }) {
       </div>
       <h3 className="text-white text-xl font-bold mb-2 text-center">{title}</h3>
       <p className="text-white/80 text-base text-center">{description}</p>
-    </div>
+    </CustomCard>
   );
 }
 
-// EdgeFeature: bloque de feature con hover y props
+// Hook para tilt y glow (inspirado en Subscribe)
+function useTilt(maxTilt = 12) {
+  const [tilt, setTilt] = React.useState({ x: 0, y: 0 });
+  const [hovered, setHovered] = React.useState(false);
+  const ref = React.useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const tiltX = ((y - centerY) / centerY) * maxTilt * -1;
+    const tiltY = ((x - centerX) / centerX) * maxTilt;
+    setTilt({ x: tiltX, y: tiltY });
+  };
+
+  const resetTilt = () => setTilt({ x: 0, y: 0 });
+
+  return {
+    ref,
+    tilt,
+    hovered,
+    setHovered,
+    handleMouseMove,
+    resetTilt,
+  };
+}
+
+// EdgeFeature: bloque de feature con tilt y glow
 function EdgeFeature({ emoji, title, description, onHover, onLeave, hovered }) {
+  const tiltProps = useTilt(12);
+  // Glow violeta detrás
   return (
     <div
-      className="flex flex-col sm:flex-row items-start gap-4 bg-transparent rounded-xl p-6 transition group cursor-pointer"
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
+      ref={tiltProps.ref}
+      className={`relative group cursor-pointer select-none`}
+      style={{ perspective: 900 }}
+      onMouseMove={(e) => {
+        tiltProps.handleMouseMove(e);
+        if (onHover) onHover();
+        tiltProps.setHovered(true);
+      }}
+      onMouseLeave={() => {
+        tiltProps.resetTilt();
+        if (onLeave) onLeave();
+        tiltProps.setHovered(false);
+      }}
+      onMouseEnter={() => {
+        if (onHover) onHover();
+        tiltProps.setHovered(true);
+      }}
       tabIndex={0}
       aria-label={title}
     >
-      <span className="text-3xl sm:mt-1 select-none" aria-hidden="true">{emoji}</span>
-      <div>
-        <h3 className={`text-2xl font-bold mb-1 transition-colors ${hovered ? 'text-[#FFA726]' : 'text-white'}`}>{title}</h3>
-        <p className="text-white/80 text-lg leading-snug">{description}</p>
-      </div>
+      {/* Glow violeta detrás */}
+      <div
+        className={`absolute inset-0 z-0 rounded-2xl pointer-events-none transition-all duration-300 ${tiltProps.hovered ? 'opacity-80 scale-105' : 'opacity-50 scale-100'}`}
+        style={{
+          background: 'radial-gradient(circle at 60% 40%, #6C47D6 0%, #fff0 70%)',
+          filter: 'blur(32px)',
+        }}
+      />
+      {/* Tarjeta con tilt */}
+      <CustomCard
+        className={`flex flex-col sm:flex-row items-start gap-4 bg-transparent rounded-xl p-6 group cursor-pointer relative z-10 ${hovered ? 'ring-2 ring-[#FFA726]' : ''}`}
+        borderColor="#FFA726"
+        glass={false}
+        style={{
+          transform: `rotateX(${tiltProps.tilt.x}deg) rotateY(${tiltProps.tilt.y}deg) scale(${tiltProps.hovered ? 1.04 : 1})`,
+          transition: 'transform 0.3s cubic-bezier(.25,.8,.25,1)',
+        }}
+      >
+        <span className="text-3xl sm:mt-1 select-none" aria-hidden="true">{emoji}</span>
+        <div>
+          <h3 className={`text-2xl font-bold mb-1 transition-colors ${hovered ? 'text-[#FFA726]' : 'text-white'}`}>{title}</h3>
+          <p className="text-white/80 text-lg leading-snug">{description}</p>
+        </div>
+      </CustomCard>
     </div>
   );
 }
@@ -101,32 +183,6 @@ function PricingBenefit({ text }) {
       </svg>
       <span>{text}</span>
     </li>
-  );
-}
-
-// PricingCard: tarjeta de pricing (izquierda o derecha), glassmorphism y hover
-function PricingCard({ children, className = "", hoverable = false, compact = false }) {
-  return (
-    <div
-      className={`backdrop-blur-xl bg-white/10 rounded-[2.5rem] shadow-2xl ${compact ? 'p-6 md:py-8 md:px-10' : 'p-8 md:p-12'} flex flex-col justify-center transition-all duration-200 ${hoverable ? 'hover:scale-105 hover:shadow-[0_8px_40px_0_rgba(255,167,38,0.10)]' : ''} ${className}`}
-      style={{ boxShadow: '0 8px 40px 0 rgba(44, 24, 80, 0.18)' }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// PricingCTAButton: botón grande con animación de hover, más moderno
-function PricingCTAButton({ onClick, children }) {
-  return (
-    <button
-      className="w-full py-5 mt-4 mb-3 rounded-xl bg-[#FFA726] text-white text-2xl font-bold shadow-lg transition-all duration-200 hover:scale-105 hover:bg-[#ffb74d] focus:outline-none focus:ring-2 focus:ring-[#FFA726] focus:ring-offset-2"
-      onClick={onClick}
-      data-testid="pricing-cta-button"
-      style={{ boxShadow: '0 4px 24px 0 rgba(255,167,38,0.15)' }}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -250,11 +306,20 @@ export default function LandingPage() {
     navigate('/subscribe');
   };
 
+  // Handler para el logo: si ya está en '/', hace scroll arriba; si no, navega a '/'
+  const handleLogoClick = () => {
+    if (window.location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <main className="min-h-screen font-sans bg-gradient-to-br from-[#2B185A] via-[#3B217C] to-[#1A1A2E]">
       {/* Sticky Navbar Moderno */}
       <header className="sticky top-0 z-30 w-full bg-[#181C2A]/90 backdrop-blur-md shadow-md flex justify-between items-center px-8 pt-6 pb-4">
-        <BrandLogo />
+        <BrandLogo onClick={handleLogoClick} />
         <Button
           size="sm"
           className="bg-[#FFA726] text-white font-bold px-5 py-2 rounded-md shadow hover:bg-[#ffb74d] transition"
@@ -276,9 +341,13 @@ export default function LandingPage() {
         <p className="text-white/90 text-lg md:text-2xl max-w-2xl mx-auto mb-10">
           Harem follows every convo, adjusts to your tone, and feeds you lines that move things forward.
         </p>
-        <PrimaryCTAButton onClick={handleCTA} className="mb-4">
-          Get Access
-        </PrimaryCTAButton>
+        <div className="w-full flex justify-center">
+          <div className="max-w-xs w-full">
+            <CTAButton onClick={handleCTA} className="mb-4" size="lg">
+              Get Access
+            </CTAButton>
+          </div>
+        </div>
         <div className="text-white/60 text-base mt-2">Cancel anytime, no questions.</div>
       </section>
       {/* How It Works moderna */}
@@ -363,8 +432,8 @@ export default function LandingPage() {
           para máxima coherencia visual con el hero y el resto de la landing.
         */}
         <div className="flex flex-col md:flex-row gap-10 max-w-5xl w-full mx-auto">
-          {/* Card izquierda */}
-          <PricingCard className="flex-1 mb-8 md:mb-0">
+          {/* Card izquierda - ahora usando CustomCard */}
+          <CustomCard className="flex-1 mb-8 md:mb-0">
             <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-10">All-Access, $4 weekly</h2>
             <ul className="mb-2">
               <PricingBenefit text="Unlimited threads" />
@@ -372,16 +441,16 @@ export default function LandingPage() {
               <PricingBenefit text="Priority updates" />
               <PricingBenefit text="Cancel anytime from settings—zero lock-in" />
             </ul>
-          </PricingCard>
-          {/* Card derecha */}
-          <PricingCard className="flex-1 flex flex-col items-center justify-center" hoverable compact>
-            <PricingCTAButton onClick={handlePricingCTA}>
+          </CustomCard>
+          {/* Card derecha - ahora usando CustomCard con hover y compacto */}
+          <CustomCard className="flex-1 flex flex-col items-center justify-center" hoverEffect compact>
+            <CTAButton onClick={handlePricingCTA} size="xl">
               Upgrade Your Game
-            </PricingCTAButton>
+            </CTAButton>
             <div className="text-white/80 text-center mt-4 text-lg">
               Cancel anytime, no questions asked.
             </div>
-          </PricingCard>
+          </CustomCard>
         </div>
       </section>
 
@@ -417,9 +486,9 @@ export default function LandingPage() {
         <h2 className="text-4xl md:text-6xl font-extrabold text-white text-center mb-12 drop-shadow-lg">Make every message count.</h2>
         <div className="w-full flex justify-center mb-6">
           <div className="max-w-xs w-full">
-            <PricingCTAButton onClick={handleFinalCTA}>
+            <CTAButton onClick={handleFinalCTA} size="xl">
               Start Now
-            </PricingCTAButton>
+            </CTAButton>
           </div>
         </div>
         <div className="text-white/80 text-center mt-2 text-lg">

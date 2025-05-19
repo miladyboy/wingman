@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { PencilIcon, CheckIcon, XMarkIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/solid';
+import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import UserPreferences from './UserPreferences';
 import { filterThreadsByName } from '../utils/threadUtils';
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogFooter,
@@ -53,7 +52,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         {!isMobileSheetView && (
           <Button
             onClick={onNewThread}
-            className="w-full font-bold mb-3"
+            className="w-full font-bold mb-3 mt-4"
             data-testid="new-chat-button"
           >
             + New Chat

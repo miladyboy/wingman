@@ -4,7 +4,7 @@ import UploadComponent from './UploadComponent';
 import LoadingDots from './LoadingDots';
 import ChatEmptyState from './ChatEmptyState';
 import { useState } from 'react';
-import { Menu, PlusSquare, SquarePen, UserCircle } from 'lucide-react';
+import { Menu, SquarePen} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
 import apiBase from '@/utils/env';

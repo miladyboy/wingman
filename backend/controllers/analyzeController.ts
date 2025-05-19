@@ -323,7 +323,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             }
             imageUrlsForOpenAI.forEach(url => {
                 finalUserMessageContent.push({
-                    type: 'image_url',
+                    type: 'input_image',
                     image_url: url
                 });
             });

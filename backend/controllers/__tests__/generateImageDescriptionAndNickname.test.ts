@@ -33,7 +33,7 @@ describe('generateImageDescriptionAndNickname', () => {
     });
 
     const sampleFinalUserMessageContent = [
-        { type: 'image_url', image_url: 'http://example.com/image1.jpg' },
+        { type: 'input_image', image_url: 'http://example.com/image1.jpg' },
         { type: 'input_text', text: 'Look at this!' },
     ];
 
@@ -49,7 +49,7 @@ describe('generateImageDescriptionAndNickname', () => {
                 role: 'user',
                 content: [
                     { type: 'input_text', text: getImageDescriptionAndNicknamePrompt().content },
-                    { type: 'image_url', image_url: 'http://example.com/image1.jpg' },
+                    { type: 'input_image', image_url: 'http://example.com/image1.jpg' },
                     { type: 'input_text', text: 'Look at this!' },
                 ],
             },

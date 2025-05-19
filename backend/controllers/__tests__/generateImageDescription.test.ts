@@ -34,7 +34,7 @@ describe('generateImageDescription', () => {
     });
 
     const sampleFinalUserMessageContent = [
-        { type: 'image_url', image_url: 'http://example.com/image1.jpg' },
+        { type: 'input_image', image_url: 'http://example.com/image1.jpg' },
         { type: 'input_text', text: 'Image for description.' },
     ];
 
@@ -50,7 +50,7 @@ describe('generateImageDescription', () => {
                 role: 'user',
                 content: [
                     { type: 'input_text', text: getImageDescriptionPrompt().content },
-                    { type: 'image_url', image_url: 'http://example.com/image1.jpg' },
+                    { type: 'input_image', image_url: 'http://example.com/image1.jpg' },
                     { type: 'input_text', text: 'Image for description.' },
                 ],
             },

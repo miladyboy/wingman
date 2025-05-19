@@ -19,20 +19,12 @@ const PrivacyPolicy = () => (
 
     {/* 1. Who We Are */}
     <section className="mb-8">
-<<<<<<< HEAD
       <h2 className="text-2xl font-semibold mb-4 text-gray-900">1 Who We Are</h2>
       <p className="mb-4"><strong>Capybara Studios Ltd.</strong> (trading as <strong>Capybara Inc.</strong>, "<em>we</em>", "<em>our</em>", or "<em>us</em>") operates the Harem web application (<code className="bg-gray-100 px-1 rounded">getharem.com</code>, the <strong>"Service"</strong>). Our registered office is:</p>
       <blockquote className="mb-4 pl-4 italic border-l-2 border-gray-300 text-gray-600">
         <p>71-75 Shelton Street, Covent Garden, London, WC2H 9JQ</p>
         <p>Email: <a href="mailto:team@capystudios.xyz" className="text-blue-600 hover:underline">team@capystudios.xyz</a></p>
         <p>Data‑Protection Officer (DPO): <em>N/A</em></p>
-=======
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900">1. Who We Are</h2>
-      <p className="mb-2"><strong>Capybara Studios Ltd.</strong> (trading as <strong>Capybara Inc.</strong>, "we," "our," "us") operates the Harem web application located at <a href="https://getharem.com" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://getharem.com</a> (the <strong>"Service"</strong>).</p>
-      <blockquote className="mb-2 pl-4 italic border-l-2 border-gray-300 text-gray-600">
-        <p>Registered office: 71-75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom</p>
-        <p>Primary privacy email: <a href="mailto:team@capystudios.xyz" className="text-blue-600 hover:underline">team@capystudios.xyz</a></p>
->>>>>>> 8924e72 (privacy policies v2)
       </blockquote>
       <p className="mb-2">We are the <strong>controller</strong> of your personal data except where this Policy states otherwise. We do not currently appoint a Data-Protection Officer.</p>
     </section>

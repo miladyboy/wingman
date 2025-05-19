@@ -1,4 +1,5 @@
 import { MailtrapClient } from "mailtrap";
+import * as cheerio from "cheerio";
 
 const MAILTRAP_API_TOKEN = process.env.MAILTRAP_API_TOKEN!;
 const MAILTRAP_INBOX_ID = Number(process.env.MAILTRAP_INBOX_ID!);
@@ -28,16 +29,17 @@ function decodeHtmlEntities(str: string) {
 }
 
 /**
- * Extracts the first confirmation link from the latest email's HTML body.
- * Throws if no link is found.
+ * Extracts the confirmation link (with data-confirmation-link) from the latest email's HTML body.
+ * Throws if no such link is found.
  */
 export async function getConfirmationLink() {
   const email = await getLatestMail();
   const html = await client.testing.messages.getHtmlMessage(MAILTRAP_INBOX_ID, email.id);
-  
-  const match = html.match(/https?:\/\/[^"\s]+/);
-  if (!match) {
-    throw new Error('No confirmation link found in email');
+
+  const $ = cheerio.load(html);
+  const link = $('a[data-confirmation-link]').attr('href');
+  if (!link) {
+    throw new Error('No <a data-confirmation-link> found in email');
   }
-  return decodeHtmlEntities(match[0]);
+  return decodeHtmlEntities(link);
 }

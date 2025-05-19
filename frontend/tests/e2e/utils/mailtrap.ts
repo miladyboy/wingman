@@ -42,13 +42,8 @@ export async function getConfirmationLink() {
   const link = $('a[data-confirmation-link]').attr('href');
   if (!link) {
     throw new Error('No <a data-confirmation-link> found in email');
-
-  // Busca el <a> cuyo texto es "Confirm your mail"
-  const match = html.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm your mail\s*<\/a>/i);
-  if (!match) {
-    throw new Error('No confirmation link found in email (button text: Confirm your mail)');
   }
-  return decodeHtmlEntities(match[1]);
+  return decodeHtmlEntities(link);
 }
 
 /**
@@ -64,6 +59,5 @@ export async function getResetPasswordLink() {
   if (!match) {
     throw new Error('No reset password link found in email (button text: Reset Password)');
   }
-  return decodeHtmlEntities(link);
   return decodeHtmlEntities(match[1]);
 }

@@ -1,5 +1,3 @@
-// Utility for managing cookie consent in localStorage
-
 export function setCookieConsent(value) {
   localStorage.setItem('cookie_consent', value);
 }

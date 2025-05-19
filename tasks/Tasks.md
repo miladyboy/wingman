@@ -42,16 +42,19 @@
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Add pino for logging. 
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
+- [ ] Add 2FA to all Supabase and Cloud accounts *security*
+- [ ] Do a security review *security*
+- [ ] Let users delete their accounts and all their data.
 
 # Today
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
-- [ ] Make sure our analytics are legal *marketing*
-- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Practice using the app and improve prompt engineering.
 
 # Doing
-
+- [ ] Move the Supabase DBs to the EU
+- [ ] Show cookies banner to users from the US and relevant jurisdictions *legal*
+- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 
 # Done
 - [x] Make sure the experience works correctly in mobile *ux*
@@ -152,3 +155,6 @@
 - [x] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  
 - [x] Add login/signup with google. *ux*
 - [x] Fix UI in mobile, it hides the menu. *bug*
+- [x] Do a privacy policy *legal*
+- [x] Do the terms and conditions for the app. *legal*
+- [x] Link to the terms and privacy from the landing page.

@@ -7,6 +7,8 @@ import Auth from './Auth';
 import LandingPage from './LandingPage';
 import Subscribe from './Subscribe';
 import MainApp from './MainApp';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfUse from './TermsOfUse';
 
 /**
  * AppRoutes handles all application routing and route guards.
@@ -83,6 +85,8 @@ function AppRoutes({
           </RequireSubscription>
         </RequireAuth>
       } />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfUse />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

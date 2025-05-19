@@ -1,13 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import * as consentUtils from '../../../utils/consent';
+import * as consentUtils from '../../utils/consent';
 
 // Mock env.js exports
-jest.mock('../../../utils/env', () => ({
+jest.mock('../../utils/env', () => ({
   POSTHOG_KEY: 'test-key',
   POSTHOG_HOST: 'https://test.host',
 }));
 
-import CookieConsent from '../../CookieConsent';
+import CookieConsent from '../CookieConsent';
 
 // Mock posthog
 jest.mock('posthog-js', () => ({

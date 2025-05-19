@@ -115,19 +115,17 @@ describe('compressImage utility', () => {
     expect(metadata.format).toBe('jpeg');
   });
 
-  // This test is approximate due to difficulty in creating exact >1MB dummy images programmatically for all formats.
-  it('should compress an image larger than MAX_FILE_SIZE_MB (approximate test)', async () => {
-    // Create a large JPEG, aiming for just over 1MB. This is hard to do precisely.
-    const largeImageBuffer = await createDummyImage(2000, 1500, 'jpeg', MAX_FILE_SIZE_BYTES + 50000); 
-    if (largeImageBuffer.length > MAX_FILE_SIZE_BYTES) { // Only run if dummy is actually large enough
-        const compressedBuffer = await compressImage(largeImageBuffer);
-        expect(compressedBuffer.length).toBeLessThanOrEqual(MAX_FILE_SIZE_BYTES);
-        const metadata = await sharp(compressedBuffer).metadata();
-        expect(metadata.format).toBe('jpeg');
-    } else {
-        console.warn('Skipping oversized test: dummy image was not > 1MB after generation.');
-        expect(true).toBe(true); // Avoid test failure if dummy gen is imperfect
-    }
+  // This test now uses a static >1MB JPEG fixture for reliability.
+  it('should compress an image larger than MAX_FILE_SIZE_MB', async () => {
+    const fs = require('fs');
+    const path = require('path');
+    const fixturePath = path.join(__dirname, '__fixtures__', 'large-test-image.png');
+    const largeImageBuffer = fs.readFileSync(fixturePath);
+    expect(largeImageBuffer.length).toBeGreaterThan(MAX_FILE_SIZE_BYTES);
+    const compressedBuffer = await compressImage(largeImageBuffer);
+    expect(compressedBuffer.length).toBeLessThanOrEqual(MAX_FILE_SIZE_BYTES);
+    const metadata = await sharp(compressedBuffer).metadata();
+    expect(metadata.format).toBe('jpeg');
   });
 
   it('should handle an image that needs both resize and compression', async () => {
@@ -156,7 +154,9 @@ describe('compressImage utility', () => {
   });
 
   it('should throw an error for invalid image buffer', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const invalidBuffer = Buffer.from('this is not an image');
     await expect(compressImage(invalidBuffer)).rejects.toThrow('Failed to process image.');
+    consoleErrorSpy.mockRestore();
   });
 }); 

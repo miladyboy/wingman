@@ -62,6 +62,7 @@ describe('stripeController', () => {
     });
 
     it('returns 500 on error', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       jest.spyOn(authUtils, 'getUserIdFromAuthHeader').mockImplementation(() => { throw new Error('fail'); });
       (supabaseServiceModule as any).supabaseAdmin = {
         from: () => ({ select: () => ({ eq: () => ({ single: () => ({ data: null, error: null }) }) }) }),
@@ -70,6 +71,7 @@ describe('stripeController', () => {
       await handlers.createCheckoutSession(req, res);
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Failed to create checkout session' });
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -86,12 +88,14 @@ describe('stripeController', () => {
     });
 
     it('returns 500 if supabaseAdmin is not configured', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       jest.spyOn(authUtils, 'getUserIdFromAuthHeader').mockResolvedValue('user1');
       (supabaseServiceModule as any).supabaseAdmin = null;
       req.headers.authorization = 'Bearer token';
       await handlers.getSubscriptionStatus(req, res);
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Failed to check subscription status' });
+      consoleErrorSpy.mockRestore();
     });
 
     it('returns active true if is_paid is true', async () => {
@@ -115,6 +119,7 @@ describe('stripeController', () => {
     });
 
     it('returns 500 if Supabase returns error', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       jest.spyOn(authUtils, 'getUserIdFromAuthHeader').mockResolvedValue('user1');
       (supabaseServiceModule as any).supabaseAdmin = {
         from: () => ({ select: () => ({ eq: () => ({ single: () => ({ data: { is_paid: false }, error: { message: 'fail' } }) }) }) }),
@@ -123,9 +128,11 @@ describe('stripeController', () => {
       await handlers.getSubscriptionStatus(req, res);
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Failed to check subscription status' });
+      consoleErrorSpy.mockRestore();
     });
 
     it('returns 500 on unexpected error', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       jest.spyOn(authUtils, 'getUserIdFromAuthHeader').mockImplementation(() => { throw new Error('fail'); });
       (supabaseServiceModule as any).supabaseAdmin = {
         from: () => ({ select: () => ({ eq: () => ({ single: () => ({ data: null, error: null }) }) }) }),
@@ -134,6 +141,7 @@ describe('stripeController', () => {
       await handlers.getSubscriptionStatus(req, res);
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Failed to check subscription status' });
+      consoleErrorSpy.mockRestore();
     });
   });
 

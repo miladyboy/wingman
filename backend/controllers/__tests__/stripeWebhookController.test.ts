@@ -40,11 +40,13 @@ describe('handleStripeWebhook', () => {
   });
 
   it('should 400 on invalid signature', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockConstructEvent.mockImplementation(() => { throw new Error('Invalid signature'); });
     const req = { ...baseReq } as any;
     await handleStripeWebhook(req, mockRes);
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockSend).toHaveBeenCalledWith(expect.stringContaining('Webhook Error'));
+    consoleErrorSpy.mockRestore();
   });
 
   it('should update is_paid and stripe_customer_id on valid checkout.session.completed', async () => {
@@ -69,6 +71,7 @@ describe('handleStripeWebhook', () => {
   });
 
   it('should handle missing customerId in session object', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockConstructEvent.mockReturnValue({
       type: 'checkout.session.completed',
       data: { object: { metadata: { userId: 'user123' } } },
@@ -77,9 +80,11 @@ describe('handleStripeWebhook', () => {
     await handleStripeWebhook(req, mockRes);
     expect(mockEq).not.toHaveBeenCalled();
     expect(mockJson).toHaveBeenCalledWith({ received: true });
+    consoleErrorSpy.mockRestore();
   });
 
   it('should handle supabase update error', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.resetModules();
     mockConstructEvent.mockReturnValue({
       type: 'checkout.session.completed',
@@ -98,6 +103,7 @@ describe('handleStripeWebhook', () => {
     expect(mockUpdate).toHaveBeenCalledWith({ is_paid: true, stripe_customer_id: 'cus_456' });
     expect(mockEq).toHaveBeenCalledWith('id', 'user123');
     expect(mockJson).toHaveBeenCalledWith({ received: true });
+    consoleErrorSpy.mockRestore();
   });
 
   it('should ignore unhandled event types', async () => {
@@ -112,14 +118,17 @@ describe('handleStripeWebhook', () => {
   });
 
   it('should 400 if stripe-signature header missing', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const req = { ...baseReq, headers: {} } as any;
     mockConstructEvent.mockImplementation(() => { throw new Error('No signature'); });
     await handleStripeWebhook(req, mockRes);
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockSend).toHaveBeenCalledWith(expect.stringContaining('Webhook Error'));
+    consoleErrorSpy.mockRestore();
   });
 
   it('should handle supabaseAdmin not initialized', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.resetModules();
     mockConstructEvent = jest.fn();
     mockEq = jest.fn();
@@ -142,5 +151,6 @@ describe('handleStripeWebhook', () => {
     await handleStripeWebhook(req, mockRes);
     expect(mockEq).not.toHaveBeenCalled();
     expect(mockJson).toHaveBeenCalledWith({ received: true });
+    consoleErrorSpy.mockRestore();
   });
 }); 

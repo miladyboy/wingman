@@ -79,6 +79,20 @@ npm run dev
 
 3. Open your browser and navigate to http://localhost:3000 (or the URL shown in your terminal)
 
+## Mobile App
+
+A minimal mobile version built with Expo is located in the `mobile` directory. It shares the backend API and Supabase project used by the web frontend.
+
+### Running the Mobile App
+
+```bash
+cd mobile
+npm install
+npm start
+```
+
+This will launch the Expo development tools where you can run the app on iOS, Android or the web.
+
 ## Subscription Management & Stripe Integration
 
 The app uses Stripe Checkout for subscription payments. The integration is designed for robust subscription management:

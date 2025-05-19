@@ -37,6 +37,7 @@
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Add pino for logging. 
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
+<<<<<<< HEAD
 - [ ] Create cancel subscription flow *money*
 - [ ] Add "re-roll" button for llm answers (use MessageBranching.md to kickstart) *Mau*
 - [ ] Somehow create a way for the user to copy the message that the LLM is sending with one click. *UX*
@@ -45,6 +46,17 @@
 - [ ] Do a security review *security*
 - [ ] Let users delete their accounts and all their data.
 - [ ] Add E2E test that user can cancel their subscription *e2e*
+<<<<<<< HEAD
+=======
+
+=======
+- [ ] Add 2FA to all Supabase and Cloud accounts *security*
+- [ ] Do a security review *security*
+- [ ] Let users delete their accounts and all their data.
+- [ ] fix burbuja chat of the LLM 
+>>>>>>> 8924e72 (privacy policies v2)
+# Today
+>>>>>>> 954ffd4 (privacy policies v2)
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Practice using the app and improve prompt engineering.

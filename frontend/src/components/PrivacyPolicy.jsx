@@ -23,7 +23,7 @@ const PrivacyPolicy = () => (
       <p className="mb-4"><strong>Capybara Studios Ltd.</strong> (trading as <strong>Capybara Inc.</strong>, "<em>we</em>", "<em>our</em>", or "<em>us</em>") operates the Harem web application (<code className="bg-gray-100 px-1 rounded">getharem.com</code>, the <strong>"Service"</strong>). Our registered office is:</p>
       <blockquote className="mb-4 pl-4 italic border-l-2 border-gray-300 text-gray-600">
         <p>71-75 Shelton Street, Covent Garden, London, WC2H 9JQ</p>
-        <p>Email: <a href="mailto:team@capystudios.xyz" className="text-blue-600 hover:underline">privacy@harem.ai</a></p>
+        <p>Email: <a href="mailto:team@capystudios.xyz" className="text-blue-600 hover:underline">team@capystudios.xyz</a></p>
         <p>Data‑Protection Officer (DPO): <em>N/A</em></p>
       </blockquote>
       <p>We are the <strong>controller</strong> of your personal data except where stated otherwise in this Policy.</p>

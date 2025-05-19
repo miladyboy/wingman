@@ -215,7 +215,7 @@ function Footer() {
       <div className="flex gap-8 text-gray-300 text-lg">
         <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
         <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
-        <a href="mailto:contact@harem.ai" className="hover:text-white transition-colors">Contact</a>
+        <a href="mailto:team@capystudios.xyz" className="hover:text-white transition-colors">Contact</a>
       </div>
     </footer>
   );

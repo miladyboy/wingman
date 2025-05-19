@@ -13,7 +13,7 @@ import type { ChatCompletionUserMessageParam } from 'openai/resources/chat/compl
 export function getNicknamePrompt(newMessageText: string): ChatCompletionUserMessageParam {
   return {
     role: 'user',
-    content: `Based on the following message, invent a short, catchy, SFW nickname for the girl described. If a name is provided, include it in the nickname (e.g., Anna Bright Eyes). If not, use just 1-3 descriptive words (e.g., Bright Eyes, Sunshine Smile). Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described. The nickname must be in the same language as the input message.\n\n"${newMessageText}"\n\nNickname:`
+    content: `Based on the following message, invent a short, catchy, SFW nickname for the person described. If a name is provided, include it in the nickname (e.g., Anna Bright Eyes). If not, use just 1-3 descriptive words (e.g., Bright Eyes, Sunshine Smile). Do not attempt to recognize or identify anyone. Do not say you cannot identify people. Just invent a fun nickname as described. The nickname must be in the same language as the input message.\n\n"${newMessageText}"\n\nNickname:`
   };
 }
 
@@ -43,8 +43,8 @@ INSTRUCTIONS
 • Never attempt to identify the person by real name, and never mention any inability to identify.
 
 3. NICKNAME
-• Invent one short, catchy, SFW nickname for the girl:
-  • If the user text supplies her name, prepend it then add 1‑2 descriptive words (e.g., Anna Bright Eyes).
+• Invent one short, catchy, SFW nickname for the person:
+  • If the user text provides a name, prepend it then add 1‑2 descriptive words (e.g., Anna Bright Eyes).
   • Otherwise, use a 1‑3‑word descriptive nickname (e.g., Bright Eyes, Sunshine Smile).
 • The nickname must be in the SAME language as the input.
 

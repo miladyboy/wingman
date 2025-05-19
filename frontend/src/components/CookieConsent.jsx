@@ -4,42 +4,38 @@ import { Button } from './ui/button';
 import posthog from 'posthog-js';
 import { POSTHOG_KEY, POSTHOG_HOST } from '../utils/env';
 
+/**
+ * CookieConsent banner component.
+ * Shows only if user has not accepted or refused cookies.
+ * Hides after user makes a choice.
+ * @param {{ onConsentChange?: (value: 'accepted'|'refused') => void }} props
+ */
 export default function CookieConsent({ onConsentChange }) {
   const [visible, setVisible] = useState(false);
   const bannerHeight = 64; // px, adjust if needed
 
   useEffect(() => {
     const existingConsent = getCookieConsent();
-    console.log('Cookie consent status:', existingConsent);
-    
+    // Only show if consent is not set
     if (!existingConsent) {
       setVisible(true);
     } else if (existingConsent === 'accepted') {
-      console.log('PostHog: Initializing from stored consent preferences');
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
       });
-      console.log('PostHog initialized with key:', POSTHOG_KEY);
     }
   }, []);
 
   const handleConsent = (value) => {
-    console.log('User consent choice:', value);
     setCookieConsent(value);
     setVisible(false);
-    
     if (value === 'accepted') {
-      console.log('PostHog: Initializing analytics tracking');
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
       });
-      console.log('PostHog initialized successfully');
     } else {
-      console.log('PostHog: User opted out of tracking');
       posthog.opt_out_capturing && posthog.opt_out_capturing();
-      console.log('PostHog tracking disabled');
     }
-    
     if (onConsentChange) onConsentChange(value);
   };
 

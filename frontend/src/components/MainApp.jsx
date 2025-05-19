@@ -49,9 +49,13 @@ export default function MainApp({
     } catch (e) {
       console.error('Logout exception:', e);
     }
-    localStorage.clear();
+    // Selectively clear localStorage except 'cookie_consent'
+    Object.keys(localStorage).forEach((key) => {
+      if (key !== 'cookie_consent') {
+        localStorage.removeItem(key);
+      }
+    });
     sessionStorage.clear();
-    // If you use Redux or React context for user, reset it here
     window.location.href = '/';
   };
 

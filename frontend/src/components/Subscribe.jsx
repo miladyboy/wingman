@@ -71,7 +71,12 @@ export default function Subscribe() {
     } catch (e) {
       console.error('Logout exception:', e);
     }
-    localStorage.clear();
+    // Selectively clear localStorage except 'cookie_consent'
+    Object.keys(localStorage).forEach((key) => {
+      if (key !== 'cookie_consent') {
+        localStorage.removeItem(key);
+      }
+    });
     sessionStorage.clear();
     window.location.href = '/';
   };

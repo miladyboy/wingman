@@ -1,4 +1,5 @@
 import { MailtrapClient } from "mailtrap";
+import * as cheerio from "cheerio";
 
 const MAILTRAP_API_TOKEN = process.env.MAILTRAP_API_TOKEN;
 const MAILTRAP_INBOX_ID = Number(process.env.MAILTRAP_INBOX_ID);
@@ -30,12 +31,17 @@ function decodeHtmlEntities(str) {
 }
 
 /**
- * Extracts the first confirmation link from the latest email's HTML body.
- * Throws if no link is found.
+ * Extracts the confirmation link (with data-confirmation-link) from the latest email's HTML body.
+ * Throws if no such link is found.
  */
 export async function getConfirmationLink() {
   const email = await getLatestMail();
   const html = await client.testing.messages.getHtmlMessage(MAILTRAP_INBOX_ID, email.id);
+
+  const $ = cheerio.load(html);
+  const link = $('a[data-confirmation-link]').attr('href');
+  if (!link) {
+    throw new Error('No <a data-confirmation-link> found in email');
 
   // Busca el <a> cuyo texto es "Confirm your mail"
   const match = html.match(/<a[^>]+href="([^"]+)"[^>]*>\s*Confirm your mail\s*<\/a>/i);
@@ -58,5 +64,6 @@ export async function getResetPasswordLink() {
   if (!match) {
     throw new Error('No reset password link found in email (button text: Reset Password)');
   }
+  return decodeHtmlEntities(link);
   return decodeHtmlEntities(match[1]);
 }

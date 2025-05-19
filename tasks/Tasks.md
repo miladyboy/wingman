@@ -38,15 +38,19 @@
 - [ ] Add an easy user feedback loop. *growth* 
 - [ ] Add pino for logging. 
 - [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
+<<<<<<< HEAD
 - [ ] Create cancel subscription flow *money*
 - [ ] Add "re-roll" button for llm answers (use MessageBranching.md to kickstart) *Mau*
 - [ ] Somehow create a way for the user to copy the message that the LLM is sending with one click. *UX*
 - [ ] Add like or dislike button to improve llm answers *Prompt quality*
+=======
+- [ ] Add 2FA to all Supabase and Cloud accounts *security*
+- [ ] Do a security review *security*
+- [ ] Let users delete their accounts and all their data.
+>>>>>>> main
 
 # Today
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
-- [ ] Make sure our analytics are legal *marketing*
-- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Practice using the app and improve prompt engineering.
 
@@ -57,12 +61,117 @@
 
 
 # Doing
-
+- [ ] Move the Supabase DBs to the EU
+- [ ] Show cookies banner to users from the US and relevant jurisdictions *legal*
+- [ ] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 
 # Done
+
 - [x] The loading dots animation is broken again. *bug* **important**
 - [x] Replace the confirmation alert for deleting a message with a nicer component. *ux*
 - [x] Improve "Pricing" aka payment page. *growth*
 - [x] Improve user logo at the top right corner. Make it a component to be reutilizable. It looks small and it's hard to find. *UX*
 - [x] Add text bubble to the llm replies *UI*
 - [x] Separar un poco el boton de "new chat" del limite superior
+- [x] Make sure the experience works correctly in mobile *ux*
+- [x] Add so that the E2E suite runs on husky push.
+- [x] Improve prompt engineering: better responses, shorter texts, and suggestions to naturally split long messages into 2–3 parts. *prompt*
+- [x] Add to the system prompt how it should treat different pictures. There are three types, photos, conversations and metadata (Like tinder stats)
+- [x] The loading animation isn't starting as soon as I send my images. It should also start optimistically. *ux*
+- [x] Make the E2E suite go to green again.
+- [x] Se sigue renderizando dos veces el mensaje de preview algunas veces *bug*
+- [x] No se esta mostrando el reply hasta que hago un refresh. *bug*
+- [x] Improve the prompt that tries to generate a nickname to make sure that it extracts a name if at all possible. Name + 1-3 words that describe her, otherwise just the descriptive words. Fix the feature as well.
+- [x] Add visitor and user tracking. *growth*
+- [x] I should be able to send a photo without a text message. *bug*
+- [x] Add a favicon. *ux* 
+- [x] Create a logo for the app. 
+- [x] Make sure Stripe works in production.  *important*
+- [x] A paid user shouldn't be able to access /subscribe
+- [x] Test the stripe subscription flow.
+- [x] Landing page loads and primary CTA works
+- [x] User can register, login, and logout
+- [x] Implement streaming API.  
+- [x] Add a complete project rule teaching the LLM to use GitHub.  
+- [x] Add automated testing to part of the backend (testing).  
+- [x] Make image upload a drag-and-drop zone. *(Small)*  
+- [x] Remove or improve the *App* component test.  
+- [x] Prevent a new thread from being created until the first message is processed. **(Mid) (Important)**  
+- [x] Set up Husky.  
+- [x] Remove the image description from the bot reply.  
+- [x] Save image description info for all uploaded photos. **(Hard)**  
+- [x] Verify that multiple image uploads work. **(Mid)**  
+- [x] Store actual photos in the database and display them in the chat. **(Mid)**  
+- [x] Fix images not displaying in the chat after a refresh. *(Bug)*  
+- [x] Deploy the site on a custom domain.  
+- [x] Enable Fran to use the product.  
+- [x] Set up initial unit testing.  
+- [x] Save actual images in the database and show them in the UI on the right. **(Hard)**  
+- [x] Pressing **Enter** in the chat input sends the message. *(Small)*  
+- [x] Add *shadcn* components for better styling.  
+- [x] Create a landing page.  
+- [x] Add routing to the app.  
+- [x] Remove unused *App.js* file.  
+- [x] Fix name editing.  
+- [x] Allow deleting a conversation and removing everything from the database. *(Small) (Important)*  
+- [x] Migrate backend to TypeScript.  
+- [x] Fix deployment failures on Vercel and Render.  
+- [x] Generate a style guide or template.  
+- [x] Remove bubbles from the agent's response text.  
+- [x] Improve the "processing" animation while the bot thinks (less robotic).  
+- [x] Create polished MVP landing content and styles.  
+- [x] Integrate Cypress or Playwright for automated E2E testing. **(Hard)**  
+- [x] Add Stripe integration for payments.  
+- [x] Remove text indicating the backend is reviewing subscription status.  
+- [x] Refreshing inside the app reopens the last conversation (or at least the first chat).  
+- [x] Update the page title.  
+- [x] Add linting to both frontend and backend.  
+- [x] Log-out redirects to the homepage.  
+- [x] Don't always give 2–3 suggestions—sometimes one or a normal reply is enough.
+- [x] Make sure the LLM knows which project to use in Supabase instead of defaulting to the first one.
+- [x] The last chat you interacted with should move to the top on the left.  
+- [x] Log-in with no chats should open the app in the "new chat" component.
+- [x] Build the next version of my task manager.  
+- [x] Fix frontend tests.  
+- [x] Fix optimistic image preview bug 
+- [x] When I add images in the web or send a new message, we should scroll to the bottom. 
+- [x] Extract the Subscribe page into its own component.
+- [x] Authenticated user is redirected to `/app`
+- [x] Unsubscribed user is redirected to `/subscribe` and can complete the subscription flow
+- [x] Subscribed user is redirected away from `/subscribe`
+- [x] Test all Auth guards
+- [x] Refactor other tests to use getByTestId()
+- [x] User can start a new chat, send a message, and see it appear
+- [x] User can rename a conversation
+- [x] User can delete a conversation
+- [x] User can upload an image in chat and see the preview
+- [x] Refreshing the app restores the last active chat
+- [x] Handle large images (currently times out with a 400 error); maybe resize images. 
+- [x] Solve mailtrap integration (upgrade?)
+- [x] Establish a proper way to run supabase migrations and bring the production schema into a single initializer migration commited to git. 
+- [x] Agregar MCP de Context7
+- [x] Configure the production environment to have a separate database. 
+- [x] Registration should give feedback and guide through the flow *ux*  
+- [x] The instant preview is showing two messages after sending a message. One with the text and one with the text and image. *bug*
+- [x] The "loading" wheel disapeared and is not showing. *bug*
+- [x] Make sure the loading dots appear just as soon as the user hits send.
+- [x] Let the user add their preferences in a message. What they're looking for, what they like, etc. Use that as part of the prompt.
+- [x] Improve prompting: The system prompt should consider three modes: Opening, Continuing conversation, or re-engaging.
+- [x] Add to the system prompt how it should treat when it receives multiple images at a time. It should treat them as a whole, as the user is asking for something together.
+- [x] Fix automatic deploy de Render. *code-quality*
+- [x] Add running the E2E tests to the git push *code-quality*
+- [x] Register for the apple store
+- [x] The mobile icon for new chat should be the same in the sidebar as in the top right.
+- [x] Make it so that users can suspend their membership.
+- [x] Call less attention to the logout button. Hide it behind a settings button maybe.
+- [x] Improve prompting to use system/user roles instead of just a single string. **important** *llm*
+- [x] Fix the E2E tests to run with multiple workers. *test* **important**
+- [x] Perfect the Landing Copywright *growth*
+- [x] Add a search for the threads to find a specific girl name.
+- [x] Add "global data" preferences for the user: what they're looking for and ways to connect with girls through commonalities.  
+- [x] Add login/signup with google. *ux*
+- [x] Fix UI in mobile, it hides the menu. *bug*
+- [x] Do a privacy policy *legal*
+- [x] Do the terms and conditions for the app. *legal*
+- [x] Link to the terms and privacy from the landing page.
+

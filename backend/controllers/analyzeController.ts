@@ -162,28 +162,56 @@ async function generateNickname(newMessageText: string, openaiInstance: OpenAISe
 }
 
 async function generateImageDescriptionAndNickname(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<{ nickname: string; imageDescription: string }> {
-    const descriptionPromptContent = [...finalUserMessageContent];
+    // Revert to Node SDK-supported types for OpenAI Vision API
+    const descriptionPromptContent = finalUserMessageContent.map(item => {
+        if (item.type === 'text') {
+            return { type: 'input_text', text: item.text };
+        } else if (item.type === 'image_url') {
+            return { type: 'input_image', image_url: item.image_url.url };
+        } else if (item.type === 'input_text' || item.type === 'input_image') {
+            return item;
+        }
+        return item;
+    });
     const prompt = getImageDescriptionAndNicknamePrompt();
     const promptText = typeof prompt.content === 'string' 
         ? prompt.content 
-        : 'Please describe the image and suggest a nickname.';
+        : 'Please describe the image.';
     descriptionPromptContent.unshift({ type: 'input_text', text: promptText });
     const descriptionPrompt: ChatCompletionMessageParam[] = [{
         role: 'user',
         content: descriptionPromptContent as any
     }];
     const descriptionAndNickname = await openaiInstance.callOpenAI(descriptionPrompt, 250);
+    console.log('[VisionAPI] Raw response from generateImageDescriptionAndNickname:', descriptionAndNickname);
     const lines = descriptionAndNickname.split('\n');
-    let parsedNickname = lines.find(line => line.toLowerCase().startsWith('nickname:'));
-    let generatedNickname = parsedNickname ? parsedNickname.replace(/nickname:/i, '').trim() : lines.pop()?.trim() || '';
-    if (!generatedNickname) generatedNickname = 'Mystery Girl';
-    const generatedImageDescription = lines.filter(line => !line.toLowerCase().startsWith('nickname:') && line.trim() !== generatedNickname).join('\n').trim();
+    let parsedNickname = lines.find((line: string) => line.toLowerCase().startsWith('nickname:'));
+    let generatedNickname: string;
+    let generatedImageDescription: string;
+    if (parsedNickname) {
+      generatedNickname = parsedNickname.replace(/nickname:/i, '').trim();
+      generatedImageDescription = lines.filter((line: string) => !line.toLowerCase().startsWith('nickname:')).join('\n').trim();
+    } else {
+      // No explicit nickname, treat the whole response as the image description
+      generatedNickname = 'Mystery Woman';
+      generatedImageDescription = descriptionAndNickname.trim();
+    }
     const imageDescription = generatedImageDescription || 'Image(s) received.';
     return { nickname: generatedNickname, imageDescription };
 }
 
 async function generateImageDescription(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<string> {
-    const descPromptContentSubsequent = [...finalUserMessageContent];
+    // Revert to Node SDK-supported types for OpenAI Vision API
+    const descPromptContentSubsequent = finalUserMessageContent.map(item => {
+        if (item.type === 'text') {
+            return { type: 'input_text', text: item.text };
+        } else if (item.type === 'image_url') {
+            return { type: 'input_image', image_url: item.image_url.url };
+        } else if (item.type === 'input_text' || item.type === 'input_image') {
+            return item;
+        }
+        return item;
+    });
     const prompt = getImageDescriptionPrompt();
     const promptText = typeof prompt.content === 'string' 
         ? prompt.content 
@@ -195,6 +223,7 @@ async function generateImageDescription(finalUserMessageContent: any[], openaiIn
     }];
     try {
         let generatedImageDescription = await openaiInstance.callOpenAI(descriptionPromptSubsequent, 250);
+        console.log('[VisionAPI] Raw response from generateImageDescription:', generatedImageDescription);
         return generatedImageDescription.trim() || 'Image(s) analyzed.';
     } catch (descError) {
         return 'Error analyzing image(s).';
@@ -217,6 +246,23 @@ async function generateSuggestions(conversation: any[], openaiInstance: OpenAISe
             return withoutMarkers.trim();
         })
         .filter(s => s.length > 5 && s.length < 500);
+}
+
+/**
+ * Generates a nickname using both the user message and the image description.
+ * @param userMessage The user's message text
+ * @param imageDescription The image description (if any)
+ * @param openaiInstance Optional OpenAIService instance
+ */
+async function generateNicknameWithImageDescription(userMessage: string, imageDescription: string, openaiInstance: OpenAIService = openaiClient): Promise<string> {
+    const prompt = `Based on the following message and image description, invent a short, playful, SFW nickname for the subject described.\nMessage: "${userMessage}"\nImage Description: "${imageDescription}"\nNickname:`;
+    const nicknamePrompt: ChatCompletionMessageParam[] = [
+        { role: 'user', content: prompt }
+    ];
+    const result = await openaiInstance.callOpenAI(nicknamePrompt, 20);
+    const nickname = result.trim();
+    if (!nickname) return 'Chat Pal';
+    return nickname;
 }
 
 export async function analyze(req: Request, res: Response): Promise<void> {
@@ -250,13 +296,16 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[];
         try {
             ({ history, newMessageText, conversationId, files } = parseAnalyzeRequest(req));
+            console.log('[Analyze] Parsed request:', { history, newMessageText, conversationId, files: files.map(f => ({ name: f.originalname, size: f.size, mimetype: f.mimetype })) });
         } catch (err: any) {
             res.status(400).json({ error: err.message });
+            console.error('[Analyze] Error parsing request:', err);
             return;
         }
 
         if (!supabaseAdmin) {
             res.status(500).json({ error: 'Backend Supabase client not configured.' });
+            console.error('[Analyze] Supabase client not configured');
             return;
         }
 
@@ -268,6 +317,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         // --- Save the Message Stub (without AI response yet) ---
         try {
             savedMessage = await saveMessageStub(supabaseAdmin, conversationId, newMessageText);
+            console.log('[Analyze] Saved message stub:', savedMessage);
             // Update conversation's last_message_at to the new message's created_at
             if (savedMessage && savedMessage.id) {
                 // Fetch the created_at timestamp of the new message
@@ -281,10 +331,12 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                     .from('conversations')
                     .update({ last_message_at: msgData.created_at })
                     .eq('id', conversationId);
+                  console.log('[Analyze] Updated conversation last_message_at:', msgData.created_at);
                 }
             }
         } catch (dbError: any) {
             res.status(500).json({ error: 'Database operation failed.', details: dbError.message });
+            console.error('[Analyze] Error saving message stub:', dbError);
             return;
         }
 
@@ -294,10 +346,13 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             imageRecords = uploadResult.imageRecords;
             imageUrlsForOpenAI = uploadResult.imageUrlsForOpenAI;
             imageUrlsForFrontend = uploadResult.imageUrlsForFrontend;
+            console.log('[Analyze] Uploaded images:', { imageRecords, imageUrlsForOpenAI, imageUrlsForFrontend });
             try {
                 await saveImageRecords(supabaseAdmin, imageRecords);
+                console.log('[Analyze] Saved image records to DB');
             } catch (imageDbError: any) {
                 res.status(500).json({ error: imageDbError.message });
+                console.error('[Analyze] Error saving image records:', imageDbError);
                 return;
             }
         }
@@ -314,7 +369,8 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                 ? fallbackPrompt.content 
                 : 'Please analyze these images.';
         }
-        if (promptText && promptText.trim() !== '') {
+        // Only add the user message if there are NO images; otherwise, skip it for Vision API
+        if (imageUrlsForOpenAI.length === 0 && promptText && promptText.trim() !== '') {
             finalUserMessageContent.push({ type: 'input_text', text: promptText });
         }
         if (imageUrlsForOpenAI.length > 0) {
@@ -328,25 +384,44 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                 });
             });
         }
+        console.log('[Analyze] Final user message content for OpenAI:', finalUserMessageContent);
         if (isInitialUserMessage && finalUserMessageContent.length > 0) {
             if (imageUrlsForOpenAI.length > 0) {
-                const { nickname, imageDescription } = await generateImageDescriptionAndNickname(finalUserMessageContent);
-                generatedNickname = nickname;
+                // 1. First call: get image description
+                console.log('[OpenAI] generateImageDescriptionAndNickname prompt:', JSON.stringify(finalUserMessageContent, null, 2));
+                const { imageDescription } = await generateImageDescriptionAndNickname(finalUserMessageContent);
+                console.log('[OpenAI] imageDescription:', imageDescription);
                 generatedImageDescription = imageDescription;
+                // 2. Second call: generate nickname using user message and image description
+                generatedNickname = await generateNicknameWithImageDescription(newMessageText, imageDescription);
+                console.log('[OpenAI] generatedNickname:', generatedNickname);
             } else {
-                generatedNickname = await generateNickname(newMessageText);
+                // No images: fallback to old nickname logic
+                console.log('[OpenAI] generateNickname prompt:', newMessageText);
+                const nickname = await generateNickname(newMessageText);
+                console.log('[OpenAI] generateNickname response:', nickname);
+                generatedNickname = nickname;
             }
             // --- Set conversation title to nickname if generated ---
             if (generatedNickname && conversationId) {
                 await supabaseAdmin.from('conversations').update({ title: generatedNickname }).eq('id', conversationId);
+                console.log('[Supabase] Updated conversation title:', generatedNickname);
             }
         } else if (finalUserMessageContent.length > 0 && imageUrlsForOpenAI.length > 0) {
+            // 1. First call: get image description
+            console.log('[OpenAI] generateImageDescription prompt:', JSON.stringify(finalUserMessageContent, null, 2));
+            const imageDescription = await generateImageDescription(finalUserMessageContent);
+            console.log('[OpenAI] generateImageDescription response:', imageDescription);
             generatedNickname = null;
-            generatedImageDescription = await generateImageDescription(finalUserMessageContent);
+            generatedImageDescription = imageDescription;
+            // 2. Second call: generate nickname using user message and image description
+            generatedNickname = await generateNicknameWithImageDescription(newMessageText, imageDescription);
+            console.log('[OpenAI] generatedNickname:', generatedNickname);
         }
         if (savedMessage && generatedImageDescription) {
             await updateMessageWithImageDescription(supabaseAdmin, savedMessage.id, generatedImageDescription);
             savedMessage.image_description = generatedImageDescription;
+            console.log('[Supabase] Updated message with image description:', generatedImageDescription);
         }
         
         // --- Refactored prompt construction to use structured messages ---
@@ -364,11 +439,11 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             imageDescription: generatedImageDescription ?? undefined,
             preferences: userPreferences
         });
-        
         const messages: ChatCompletionMessageParam[] = [
             systemPrompt(),
             userPromptMessage
         ];
+        console.log('[Analyze] Final OpenAI prompt for main AI response:', messages);
 
         // --- Stream OpenAI response to client ---
         res.setHeader('Content-Type', 'text/event-stream');
@@ -390,6 +465,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                 }
             });
             res.write(`data: ${JSON.stringify({ text: '', done: true, conversationTitle: generatedNickname || undefined })}\n\n`);
+            console.log('[OpenAI] streamChatCompletion full response:', aiResponseBuffer);
             // Save the full AI message to the database
             if (savedMessage && aiResponseBuffer.trim()) {
                 try {
@@ -398,6 +474,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                         sender: 'ai',
                         content: aiResponseBuffer.trim(),
                     });
+                    console.log('[Supabase] Saved AI message to DB:', aiResponseBuffer.trim());
                 } catch (saveErr) {
                     // Log but do not interrupt the client
                     console.error('Failed to save AI message:', saveErr);
@@ -407,9 +484,11 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         } catch (err) {
             res.write(`data: ${JSON.stringify({ text: 'Error streaming response', done: true })}\n\n`);
             res.end();
+            console.error('[OpenAI] streamChatCompletion error:', err);
         }
     } catch (error: any) {
         res.status(500).json({ error: 'Failed to analyze message', details: error.message });
+        console.error('[Analyze] Fatal error:', error);
     }
 }
 

@@ -71,7 +71,7 @@ describe('generateImageDescriptionAndNickname', () => {
     it('should handle edge case: LLM returns only whitespace', async () => {
         mockCallOpenAI.mockResolvedValue('   ');
         const result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
-        expect(result.nickname).toBe('Mystery Girl');
+        expect(result.nickname).toBe('Mystery Woman');
         expect(result.imageDescription).toBe('Image(s) received.');
     });
 
@@ -93,7 +93,7 @@ describe('generateImageDescriptionAndNickname', () => {
         mockCallOpenAI.mockClear();
         mockCallOpenAI.mockResolvedValue('');
         result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
-        expect(result.nickname).toBe('Mystery Girl');
+        expect(result.nickname).toBe('Mystery Woman');
         expect(result.imageDescription).toBe('Image(s) received.');
     });
 

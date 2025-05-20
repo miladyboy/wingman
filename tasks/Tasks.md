@@ -19,6 +19,7 @@
 - [ ] Add success screen or toast component after they successfully pay their subscription.
 - [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
 - [ ] Only show cookies banner to users from the EU and relevant jurisdictions *legal*
+- [ ] Hacer un modulo de post-processing del mensaje del user antes de mandarlo como prompt (para que openai no joda)
 
 # To-Do
 - [ ] Remove "nickname" from the profile table.
@@ -47,9 +48,13 @@
 - [ ] Try to do a mobile frontend with Expo / React Native. *dev*
 - [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
 - [ ] Practice using the app and improve prompt engineering.
+- [ ] Add E2E tests that the backend is properly processing images.
+- [ ] Add E2E tests for multi-step conversations.
+- [ ] Add E2E tests for the dots to load as soon as the conversation starts.
+- [ ] Make the buckets private to avoid data issues. *legal*
 
 # Doing
-- [ ] Fix so that users can send an image in the first message. *bug*
+- [ ] Fix correct handling of first image and nickname generation. Fix image handling in general.
 
 # Done
 - [x] Give feedback about the new subscription page 
@@ -58,3 +63,4 @@
 - [x] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
 - [x] Send my personal data to the stripe peple so they keep accepting money.
 - [x] Create cancel subscription flow *money*
+- [x] Fix so that users can send an image in the first message. *bug*

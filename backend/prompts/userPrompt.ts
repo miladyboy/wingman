@@ -5,6 +5,7 @@ type UserPromptParams = {
   message?: string;
   imageDescription?: string;
   preferences?: string;
+  nickname?: string;
 };
 
 /**
@@ -12,7 +13,7 @@ type UserPromptParams = {
  * @param params Parameters for constructing the user message
  * @returns A structured user role message for OpenAI API
  */
-function userPrompt({ history, message, imageDescription, preferences }: UserPromptParams): ChatCompletionUserMessageParam {
+function userPrompt({ history, message, imageDescription, preferences, nickname }: UserPromptParams): ChatCompletionUserMessageParam {
   let content = "";
 
   if (preferences) {
@@ -26,6 +27,9 @@ function userPrompt({ history, message, imageDescription, preferences }: UserPro
   }
   if (imageDescription) {
     content += `[Image Description: ${imageDescription}]\n`;
+  }
+  if (nickname) {
+    content += `[Nickname: ${nickname}]\n`;
   }
 
   return {

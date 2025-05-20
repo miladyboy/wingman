@@ -1,0 +1,24 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- **No file may exceed 200 lines of code (excluding comments and blank lines).**
+  - As soon as a file reaches 200 lines, the agent must proactively refactor it into smaller, focused modules.
+  - The agent should split logic by responsibility (e.g., controllers, services, utilities, types) and move code into new files as needed.
+  - Each new file must also remain under 200 lines.
+- **Refactor Guidance:**
+  - Extract reusable functions, types, and classes into separate files.
+  - Move business logic out of controllers and into service or utility modules.
+  - Isolate side effects and keep pure functions in their own files when possible.
+  - Use clear, descriptive file and folder names to reflect the code's purpose.
+- **Documentation:**
+  - Update all imports/exports to reflect the new structure.
+  - Add or update JSDoc comments for all exported functions and classes.
+- **Testing:**
+  - Move or create corresponding test files for any extracted logic.
+- **Reporting:**
+  - Summarize all file splits and moves in the "What I just tweaked" section for reviewer clarity.
+
+> **Rationale:**  
+> Keeping files under 200 lines enforces modularity, improves readability, and makes code easier to test and maintain. This rule is always in effect and must be followed for all code changes.

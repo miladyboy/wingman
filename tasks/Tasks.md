@@ -21,6 +21,15 @@
 - [ ] Only show cookies banner to users from the EU and relevant jurisdictions *legal*
 - [ ] Hacer un modulo de post-processing del mensaje del user antes de mandarlo como prompt (para que openai no joda)
 
+# Next features
+- [ ] Tener una feature "modo aprendizaje" que te explica porque hace sentido cada mensaje para ir aprendiendo *pro feature*
+- [ ] Feature para one click resumen de cada piba y su historial *pro feature*
+- [ ] Feature para usar @ para citar otros chats y relacionar chats sabiendo que son la misma piba *pro feature*
+- [ ] CRM + Recordatorios para reengagear o marcar como concretada la date. *pro feature*
+- [ ] Input de texto por voz ??(no necesario maybe) *pro feature*
+- [ ] Context Chips: Small badges above the typing area: 🔥 High Interest, 🚩 Red Flag, etc. Clicking a chip auto-inserts context hints into the next prompt.	Chips map to hidden text snippets that prepend to latestMessage.
+
+
 # To-Do
 - [ ] Remove "nickname" from the profile table.
 - [ ] Add more user flows to the E2E suite up to 25-30 tests. *tests*
@@ -52,6 +61,10 @@
 - [ ] Add E2E tests for multi-step conversations.
 - [ ] Add E2E tests for the dots to load as soon as the conversation starts.
 - [ ] Make the buckets private to avoid data issues. *legal*
+- [ ] Mejorar critique agent prompt *prompt*
+- [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios *prompt*
+
+ 
 
 # Doing
 - [ ] Fix correct handling of first image and nickname generation. Fix image handling in general.

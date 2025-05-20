@@ -23,6 +23,13 @@ class OpenAIService {
   }
 
   /**
+   * Exposes the underlying OpenAI client for advanced use cases (e.g., Critique Agent).
+   */
+  getOpenAIClient(): OpenAI {
+    return this.openai;
+  }
+
+  /**
    * Streams a response from OpenAI using the new Responses API with structured messages.
    * @param messages - Array of chat messages (role/content)
    * @param onData - Callback for each text chunk

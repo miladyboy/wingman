@@ -11,6 +11,8 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
+  const [intent, setIntent] = useState('OneOffReply');
+  const [stage, setStage] = useState('Opening');
 
   useEffect(() => {
     const currentPreviewUrls = imagePreviews.map(p => p.url);
@@ -113,6 +115,8 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     // Construir el FormData y enviarlo inmediatamente
     const formData = new FormData();
     formData.append('newMessageText', text);
+    formData.append('intent', intent);
+    formData.append('stage', stage);
     selectedFiles.forEach((file) => {
       formData.append('images', file, file.name);
     });
@@ -121,6 +125,8 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
 
     // Limpiar el formulario
     setText('');
+    setIntent('OneOffReply');
+    setStage('Opening');
     imagePreviews.forEach(preview => URL.revokeObjectURL(preview.url));
     setSelectedFiles([]);
     setImagePreviews([]);
@@ -131,7 +137,36 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
 
   return (
     <div className="p-2 md:p-4 bg-card rounded-lg border border-border">
-      <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col">
+      <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-2">
+        {/* Dropdowns para Intent y Stage */}
+        <div className="flex flex-col md:flex-row gap-2 mb-2">
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">What do you want?</label>
+            <select
+              value={intent}
+              onChange={e => setIntent(e.target.value)}
+              className="border rounded px-2 py-1"
+              disabled={disabled}
+            >
+              <option value="OneOffReply">One-off reply</option>
+              <option value="NewSuggestions">New suggestions</option>
+              <option value="RefineDraft">Refine draft</option>
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Where are you in the convo?</label>
+            <select
+              value={stage}
+              onChange={e => setStage(e.target.value)}
+              className="border rounded px-2 py-1"
+              disabled={disabled}
+            >
+              <option value="Opening">First message</option>
+              <option value="Continue">Mid-chat</option>
+              <option value="ReEngage">She ghosted</option>
+            </select>
+          </div>
+        </div>
         {imagePreviews.length > 0 && (
           <div className="mb-2 md:mb-3 flex flex-wrap gap-1 md:gap-2">
             {imagePreviews.map((preview) => (

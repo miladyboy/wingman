@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { supabaseAdmin } from '../services/supabaseService';
 import { getUserIdFromAuthHeader } from '../utils/auth';
 
@@ -16,14 +16,26 @@ export async function getUserPreferences(req: Request, res: Response): Promise<v
   }
   const { data, error } = await supabaseAdmin
     .from('profiles')
-    .select('preferences')
+    .select('preferences, preferred_language, simp_preference')
     .eq('id', userId)
     .single();
   if (error) {
     res.status(500).json({ error: 'Failed to fetch preferences' });
     return;
   }
-  res.json({ preferences: data?.preferences || '' });
+  let preferences = data?.preferences || '';
+  // If preferences is a JSON string, extract the text field, else use as is
+  try {
+    const parsed = JSON.parse(preferences);
+    if (parsed && typeof parsed === 'object' && parsed.text) {
+      preferences = parsed.text;
+    }
+  } catch { /* ignore JSON parse errors, fallback to plain string */ }
+  res.json({
+    preferences,
+    preferredLanguage: data?.preferred_language || 'auto',
+    simpPreference: data?.simp_preference || 'auto',
+  });
 }
 
 export async function updateUserPreferences(req: Request, res: Response): Promise<void> {
@@ -36,14 +48,24 @@ export async function updateUserPreferences(req: Request, res: Response): Promis
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  const { preferences } = req.body;
+  let { preferences, preferredLanguage, simpPreference } = req.body;
+  console.log('[updateUserPreferences] Received body:', req.body); // Debug log
   if (typeof preferences !== 'string' || preferences.length > MAX_PREFERENCES_LENGTH) {
     res.status(400).json({ error: 'Invalid preferences' });
     return;
   }
+  // Only store preferences as plain text
+  let preferencesToSave = preferences;
+  const updateObj: any = { preferences: preferencesToSave };
+  if (typeof preferredLanguage === 'string' && preferredLanguage.length <= 20) {
+    updateObj.preferred_language = preferredLanguage;
+  }
+  if (typeof simpPreference === 'string' && ['auto', 'low', 'neutral', 'high'].includes(simpPreference)) {
+    updateObj.simp_preference = simpPreference;
+  }
   const { error } = await supabaseAdmin
     .from('profiles')
-    .update({ preferences })
+    .update(updateObj)
     .eq('id', userId);
   if (error) {
     res.status(500).json({ error: 'Failed to update preferences' });

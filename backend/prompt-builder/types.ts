@@ -1,0 +1,16 @@
+// Common types for prompt building
+
+export type IntentMode = 'NewSuggestions' | 'RefineDraft' | 'OneOffReply';
+export type Stage = 'Opening' | 'Continue' | 'ReEngage';
+export type SimpPreference = 'auto' | 'low' | 'neutral' | 'high';
+
+export interface PromptInput {
+  intent: IntentMode;
+  stage: Stage;
+  userPreferences: string;
+  chatHistory?: string;
+  latestMessage: string;
+  imageDescriptions?: string[];
+  preferredLanguage?: string;
+  simpPreference?: SimpPreference;
+} 

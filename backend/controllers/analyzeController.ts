@@ -3,14 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { Request, Response } from 'express';
 import { OpenAIService } from '../services/openaiService';
 import { supabaseAdmin } from '../services/supabaseService';
-import systemPrompt from '../prompts/systemPrompt';
-import userPrompt from '../prompts/userPrompt';
 import { getUserIdFromAuthHeader } from '../utils/auth';
 import { compressImage } from '../utils/imageProcessor';
 // Import OpenAI types if available
 import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 import { getNicknamePrompt, getImageDescriptionAndNicknamePrompt } from '../prompts/nicknamePrompts';
 import { getFallbackImageAnalysisPrompt, getImageDescriptionPrompt } from '../prompts/userPrompt';
+import { buildFullPrompt } from '../prompt-builder';
+import type { IntentMode, Stage } from '../prompt-builder/types';
+import { runCritiqueAgent } from '../prompt-builder/runCritiqueAgent';
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey);
@@ -20,6 +21,8 @@ interface AnalyzeRequestBody {
     historyJson?: string;
     newMessageText?: string;
     conversationId?: string;
+    intent?: string;
+    stage?: string;
 }
 
 interface UploadedFile {
@@ -45,19 +48,19 @@ interface ImageRecord {
     filesize: number;
 }
 
-function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[] } {
-    const { historyJson, newMessageText, conversationId } = (req.body || {}) as AnalyzeRequestBody;
+function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[]; intent: string; stage: string } {
+    const { historyJson, newMessageText, conversationId, intent, stage } = (req.body || {}) as AnalyzeRequestBody;
     let history: any[] = [];
     try {
         history = historyJson ? JSON.parse(historyJson) : [];
-    } catch (e) {
+    } catch {
         throw new Error('Invalid history JSON');
     }
-    if (typeof newMessageText === 'undefined' || !conversationId) {
-        throw new Error('newMessageText and conversationId are required');
+    if (typeof newMessageText === 'undefined' || !conversationId || !intent || !stage) {
+        throw new Error('newMessageText, conversationId, intent, and stage are required');
     }
     const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
-    return { history, newMessageText, conversationId, files };
+    return { history, newMessageText, conversationId, files, intent, stage };
 }
 
 async function saveMessageStub(supabase: any, conversationId: string, newMessageText: string): Promise<MessageRecord> {
@@ -89,7 +92,6 @@ async function uploadFilesToStorage(supabase: any, files: UploadedFile[], savedM
         let processedMimeType = file.mimetype;
         let processedSize = file.size;
         let processedFileExt = originalFileExt; // Start with original extension
-        let wasCompressed = false;
 
         if (file.mimetype.startsWith('image/')) {
             try {
@@ -97,7 +99,6 @@ async function uploadFilesToStorage(supabase: any, files: UploadedFile[], savedM
                 processedMimeType = 'image/jpeg'; 
                 processedSize = processedBuffer.length;
                 processedFileExt = '.jpg'; // Set to .jpg if compression successful
-                wasCompressed = true;
             } catch (compressionError) {
                 console.warn(`Failed to compress image ${file.originalname}, uploading original. Error: ${compressionError}`);
                 // processedBuffer, processedMimeType, processedSize, processedFileExt remain original
@@ -225,7 +226,7 @@ async function generateImageDescription(finalUserMessageContent: any[], openaiIn
         let generatedImageDescription = await openaiInstance.callOpenAI(descriptionPromptSubsequent, 250);
         console.log('[VisionAPI] Raw response from generateImageDescription:', generatedImageDescription);
         return generatedImageDescription.trim() || 'Image(s) analyzed.';
-    } catch (descError) {
+    } catch {
         return 'Error analyzing image(s).';
     }
 }
@@ -241,9 +242,8 @@ async function generateSuggestions(conversation: any[], openaiInstance: OpenAISe
         .split('\n')
         .map(s => {
             const trimmed = s.trim();
-            const withoutNumbering = trimmed.replace(/^\s*\d+\.\s*/, '');
-            const withoutMarkers = withoutNumbering.replace(/^[\*\-]\s*/, '');
-            return withoutMarkers.trim();
+            const withoutNumbering = trimmed.replace(/^[*-]\s*/, '');
+            return withoutNumbering.trim();
         })
         .filter(s => s.length > 5 && s.length < 500);
 }
@@ -276,15 +276,34 @@ export async function analyze(req: Request, res: Response): Promise<void> {
 
         // --- Fetch User Preferences ---
         let userPreferences = '';
+        let preferredLanguage = 'auto';
+        let simpPreference: 'auto' | 'low' | 'neutral' | 'high' = 'auto';
         if (supabaseAdmin) {
           try {
             const { data: prefData, error: prefError } = await supabaseAdmin
               .from('profiles')
-              .select('preferences')
+              .select('preferences, preferred_language, simp_preference')
               .eq('id', userId)
               .single();
-            if (!prefError && prefData && typeof prefData.preferences === 'string') {
-              userPreferences = prefData.preferences;
+            if (!prefError && prefData) {
+              if (typeof prefData.preferences === 'string') {
+                try {
+                  const parsed = JSON.parse(prefData.preferences);
+                  if (parsed && typeof parsed === 'object' && parsed.text) {
+                    userPreferences = parsed.text;
+                  } else {
+                    userPreferences = prefData.preferences;
+                  }
+                } catch {
+                  userPreferences = prefData.preferences;
+                }
+              }
+              if (typeof prefData.preferred_language === 'string') {
+                preferredLanguage = prefData.preferred_language;
+              }
+              if (typeof prefData.simp_preference === 'string' && ['auto', 'low', 'neutral', 'high'].includes(prefData.simp_preference)) {
+                simpPreference = prefData.simp_preference as 'auto' | 'low' | 'neutral' | 'high';
+              }
             }
           } catch (prefFetchErr) {
             // Log but do not block the request
@@ -293,10 +312,10 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         }
 
         // --- Extract Text and Files ---
-        let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[];
+        let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[], intent: string, stage: string;
         try {
-            ({ history, newMessageText, conversationId, files } = parseAnalyzeRequest(req));
-            console.log('[Analyze] Parsed request:', { history, newMessageText, conversationId, files: files.map(f => ({ name: f.originalname, size: f.size, mimetype: f.mimetype })) });
+            ({ history, newMessageText, conversationId, files, intent, stage } = parseAnalyzeRequest(req));
+            console.log('[Analyze] Parsed request:', { history, newMessageText, conversationId, intent, stage, files: files.map(f => ({ name: f.originalname, size: f.size, mimetype: f.mimetype })) });
         } catch (err: any) {
             res.status(400).json({ error: err.message });
             console.error('[Analyze] Error parsing request:', err);
@@ -432,16 +451,24 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                 : msg.content;
         }).join('\n---\n');
         
-        // Create structured messages for OpenAI
-        const userPromptMessage = userPrompt({
-            history: historyString,
-            message: newMessageText,
-            imageDescription: generatedImageDescription ?? undefined,
-            preferences: userPreferences
+        // Prepare imageDescriptions as string[] if present
+        const imageDescriptionsArr = generatedImageDescription ? [generatedImageDescription] : undefined;
+
+        // Build the full prompt string
+        const fullPrompt = buildFullPrompt({
+            intent: intent as IntentMode,
+            stage: stage as Stage,
+            userPreferences,
+            chatHistory: historyString,
+            latestMessage: newMessageText,
+            imageDescriptions: imageDescriptionsArr,
+            preferredLanguage,
+            simpPreference,
         });
+
+        // OpenAI expects an array of message objects, not a single string
         const messages: ChatCompletionMessageParam[] = [
-            systemPrompt(),
-            userPromptMessage
+            { role: 'user', content: fullPrompt }
         ];
         console.log('[Analyze] Final OpenAI prompt for main AI response:', messages);
 
@@ -466,20 +493,36 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             });
             res.write(`data: ${JSON.stringify({ text: '', done: true, conversationTitle: generatedNickname || undefined })}\n\n`);
             console.log('[OpenAI] streamChatCompletion full response:', aiResponseBuffer);
-            // Save the full AI message to the database
-            if (savedMessage && aiResponseBuffer.trim()) {
+
+            // --- Critique Agent: revisar y corregir la respuesta antes de guardar/enviar ---
+            const promptInput = {
+                intent: intent as IntentMode,
+                stage: stage as Stage,
+                userPreferences,
+                chatHistory: historyString,
+                latestMessage: newMessageText,
+                imageDescriptions: imageDescriptionsArr,
+                preferredLanguage,
+                simpPreference,
+            };
+            const { critique, finalReply } = await runCritiqueAgent(promptInput, aiResponseBuffer.trim(), openaiClient.getOpenAIClient());
+            console.log('[CritiqueAgent] Critique:', critique);
+
+            // Save the final (critiqued) AI message to the database
+            if (savedMessage && finalReply) {
                 try {
                     await supabaseAdmin.from('messages').insert({
                         conversation_id: savedMessage.conversation_id,
                         sender: 'ai',
-                        content: aiResponseBuffer.trim(),
+                        content: finalReply,
                     });
-                    console.log('[Supabase] Saved AI message to DB:', aiResponseBuffer.trim());
+                    console.log('[Supabase] Saved AI message to DB (critiqued):', finalReply);
                 } catch (saveErr) {
                     // Log but do not interrupt the client
                     console.error('Failed to save AI message:', saveErr);
                 }
             }
+            // Enviar la respuesta final al frontend
             res.end();
         } catch (err) {
             res.write(`data: ${JSON.stringify({ text: 'Error streaming response', done: true })}\n\n`);

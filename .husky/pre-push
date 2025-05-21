@@ -1,4 +1,4 @@
 #!/bin/sh
-# npm test --prefix frontend || exit 1
-# npm test --prefix backend || exit 1
-# ./scripts/e2e.sh || exit 1
+npm test --prefix frontend || exit 1
+npm test --prefix backend || exit 1
+./scripts/e2e.sh || exit 1

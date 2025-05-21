@@ -6,7 +6,9 @@ describe('parseAnalyzeRequest', () => {
       body: {
         historyJson: '[{"role":"user","content":"hi"}]',
         newMessageText: 'hello',
-        conversationId: 'abc'
+        conversationId: 'abc',
+        intent: 'TestIntent',
+        stage: 'TestStage'
       },
       files: [{ name: 'file1.png' }]
     } as any;
@@ -14,7 +16,9 @@ describe('parseAnalyzeRequest', () => {
       history: [{ role: 'user', content: 'hi' }],
       newMessageText: 'hello',
       conversationId: 'abc',
-      files: [{ name: 'file1.png' }]
+      files: [{ name: 'file1.png' }],
+      intent: 'TestIntent',
+      stage: 'TestStage'
     });
   });
 
@@ -22,7 +26,9 @@ describe('parseAnalyzeRequest', () => {
     const req = {
       body: {
         newMessageText: 'hello',
-        conversationId: 'abc'
+        conversationId: 'abc',
+        intent: 'TestIntent',
+        stage: 'TestStage'
       },
       files: []
     } as any;
@@ -30,7 +36,9 @@ describe('parseAnalyzeRequest', () => {
       history: [],
       newMessageText: 'hello',
       conversationId: 'abc',
-      files: []
+      files: [],
+      intent: 'TestIntent',
+      stage: 'TestStage'
     });
   });
 
@@ -51,7 +59,9 @@ describe('parseAnalyzeRequest', () => {
       body: {
         historyJson: '[{"role":"user","content":"hi"}]',
         newMessageText: 'hello',
-        conversationId: 'abc'
+        conversationId: 'abc',
+        intent: 'TestIntent',
+        stage: 'TestStage'
       }
       // files is undefined
     } as any;
@@ -59,7 +69,9 @@ describe('parseAnalyzeRequest', () => {
       history: [{ role: 'user', content: 'hi' }],
       newMessageText: 'hello',
       conversationId: 'abc',
-      files: []
+      files: [],
+      intent: 'TestIntent',
+      stage: 'TestStage'
     });
   });
 
@@ -70,7 +82,7 @@ describe('parseAnalyzeRequest', () => {
       },
       files: []
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText and conversationId are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, intent, and stage are required');
   });
 
   it('throws if conversationId is missing', () => {
@@ -80,7 +92,7 @@ describe('parseAnalyzeRequest', () => {
       },
       files: []
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText and conversationId are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, intent, and stage are required');
   });
 
   it('throws if both newMessageText and conversationId are missing', () => {
@@ -88,7 +100,7 @@ describe('parseAnalyzeRequest', () => {
       body: {},
       files: []
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText and conversationId are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, intent, and stage are required');
   });
 
   it('throws if req is completely empty', () => {

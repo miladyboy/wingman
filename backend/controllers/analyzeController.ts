@@ -185,20 +185,30 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
     }];
     const descriptionAndNickname = await openaiInstance.callOpenAI(descriptionPrompt, 250);
     console.log('[VisionAPI] Raw response from generateImageDescriptionAndNickname:', descriptionAndNickname);
-    const lines = descriptionAndNickname.split('\n');
-    let parsedNickname = lines.find((line: string) => line.toLowerCase().startsWith('nickname:'));
-    let generatedNickname: string;
-    let generatedImageDescription: string;
-    if (parsedNickname) {
-      generatedNickname = parsedNickname.replace(/nickname:/i, '').trim();
-      generatedImageDescription = lines.filter((line: string) => !line.toLowerCase().startsWith('nickname:')).join('\n').trim();
-    } else {
-      // No explicit nickname, treat the whole response as the image description
-      generatedNickname = 'Mystery Woman';
-      generatedImageDescription = descriptionAndNickname.trim();
+    const lines = descriptionAndNickname.split('\n').map(l => l.trim()).filter(Boolean);
+    let nickname = '';
+    let imageDescription = '';
+
+    // 1. Buscar línea con prefijo Nickname:
+    const nicknameLineIdx = lines.findIndex(line => /^nickname\s*:/i.test(line));
+    if (nicknameLineIdx !== -1) {
+        nickname = lines[nicknameLineIdx].replace(/^nickname\s*:/i, '').trim();
+        imageDescription = lines.filter((_, idx) => idx !== nicknameLineIdx).join('\n').trim();
+    } else if (lines.length > 1) {
+        // 2. Si no hay prefijo, usar última línea como nickname
+        nickname = lines[lines.length - 1].trim();
+        imageDescription = lines.slice(0, -1).join('\n').trim();
+    } else if (lines.length === 1) {
+        // 3. Solo una línea: puede ser nickname o descripción
+        nickname = lines[0];
+        imageDescription = '';
     }
-    const imageDescription = generatedImageDescription || 'Image(s) received.';
-    return { nickname: generatedNickname, imageDescription };
+
+    // 4. Fallbacks
+    if (!nickname) nickname = 'Mystery Woman';
+    if (!imageDescription) imageDescription = 'Image(s) received.';
+
+    return { nickname, imageDescription };
 }
 
 async function generateImageDescription(finalUserMessageContent: any[], openaiInstance: OpenAIService = openaiClient): Promise<string> {
@@ -238,14 +248,18 @@ async function updateMessageWithImageDescription(supabase: any, messageId: strin
 
 async function generateSuggestions(conversation: any[], openaiInstance: OpenAIService = openaiClient): Promise<string[]> {
     const suggestionText = await openaiInstance.callOpenAI(conversation, 300);
-    return suggestionText
-        .split('\n')
+    // Split by double newline or single newline
+    let suggestions = suggestionText
+        .split(/\n\n|\n/)
         .map(s => {
-            const trimmed = s.trim();
-            const withoutNumbering = trimmed.replace(/^[*-]\s*/, '');
-            return withoutNumbering.trim();
+            let trimmed = s.trim();
+            // Remove list markers: 1. 2. * - etc. (with optional spaces)
+            trimmed = trimmed.replace(/^(\d+\.|[-*])\s*/, '');
+            return trimmed;
         })
+        .map(s => s.trim())
         .filter(s => s.length > 5 && s.length < 500);
+    return suggestions;
 }
 
 /**

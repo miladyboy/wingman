@@ -5,11 +5,6 @@ import { buildUserPrompt } from './buildUserPrompt';
 import fs from 'fs';
 import path from 'path';
 
-const critiqueTemplate = fs.readFileSync(
-  path.join(__dirname, '../prompts/critiqueAgentPrompt.txt'),
-  'utf-8'
-);
-
 /**
  * Ejecuta el Critique Agent para revisar y corregir la respuesta del LLM.
  * @param input PromptInput original
@@ -24,6 +19,12 @@ export async function runCritiqueAgent(
 ): Promise<{ critique: string; finalReply: string }> {
   const system = buildSystemPrompt();
   const user = buildUserPrompt(input);
+
+  // Cargar el template solo cuando se llama la función
+  const critiqueTemplate = fs.readFileSync(
+    path.join(__dirname, '../prompts/critiqueAgentPrompt.txt'),
+    'utf-8'
+  );
 
   const critiquePrompt = `
 ${critiqueTemplate}

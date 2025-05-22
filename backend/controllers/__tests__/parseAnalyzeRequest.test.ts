@@ -7,7 +7,7 @@ describe('parseAnalyzeRequest', () => {
         historyJson: '[{"role":"user","content":"hi"}]',
         newMessageText: 'hello',
         conversationId: 'abc',
-        intent: 'TestIntent',
+        isDraft: false,
         stage: 'TestStage'
       },
       files: [{ name: 'file1.png' }]
@@ -17,7 +17,7 @@ describe('parseAnalyzeRequest', () => {
       newMessageText: 'hello',
       conversationId: 'abc',
       files: [{ name: 'file1.png' }],
-      intent: 'TestIntent',
+      isDraft: false,
       stage: 'TestStage'
     });
   });
@@ -27,7 +27,7 @@ describe('parseAnalyzeRequest', () => {
       body: {
         newMessageText: 'hello',
         conversationId: 'abc',
-        intent: 'TestIntent',
+        isDraft: true,
         stage: 'TestStage'
       },
       files: []
@@ -37,7 +37,7 @@ describe('parseAnalyzeRequest', () => {
       newMessageText: 'hello',
       conversationId: 'abc',
       files: [],
-      intent: 'TestIntent',
+      isDraft: true,
       stage: 'TestStage'
     });
   });
@@ -47,7 +47,9 @@ describe('parseAnalyzeRequest', () => {
       body: {
         historyJson: 'not json',
         newMessageText: 'hello',
-        conversationId: 'abc'
+        conversationId: 'abc',
+        isDraft: false,
+        stage: 'TestStage'
       },
       files: []
     } as any;
@@ -60,7 +62,7 @@ describe('parseAnalyzeRequest', () => {
         historyJson: '[{"role":"user","content":"hi"}]',
         newMessageText: 'hello',
         conversationId: 'abc',
-        intent: 'TestIntent',
+        isDraft: false,
         stage: 'TestStage'
       }
       // files is undefined
@@ -70,7 +72,7 @@ describe('parseAnalyzeRequest', () => {
       newMessageText: 'hello',
       conversationId: 'abc',
       files: [],
-      intent: 'TestIntent',
+      isDraft: false,
       stage: 'TestStage'
     });
   });
@@ -78,7 +80,9 @@ describe('parseAnalyzeRequest', () => {
   it('throws if newMessageText is missing', () => {
     const req = {
       body: {
-        conversationId: 'abc'
+        conversationId: 'abc',
+        isDraft: false,
+        stage: 'TestStage'
       },
       files: []
     } as any;
@@ -88,7 +92,9 @@ describe('parseAnalyzeRequest', () => {
   it('throws if conversationId is missing', () => {
     const req = {
       body: {
-        newMessageText: 'hello'
+        newMessageText: 'hello',
+        isDraft: false,
+        stage: 'TestStage'
       },
       files: []
     } as any;
@@ -97,7 +103,10 @@ describe('parseAnalyzeRequest', () => {
 
   it('throws if both newMessageText and conversationId are missing', () => {
     const req = {
-      body: {},
+      body: {
+        isDraft: false,
+        stage: 'TestStage'
+      },
       files: []
     } as any;
     expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, isDraft, and stage are required');

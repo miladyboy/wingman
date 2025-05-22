@@ -48,19 +48,34 @@ interface ImageRecord {
     filesize: number;
 }
 
-function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[]; isDraft: boolean; stage: string } {
-    const { historyJson, newMessageText, conversationId, isDraft, stage } = (req.body || {}) as AnalyzeRequestBody;
+function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[]; isDraft: boolean } {
+    const { historyJson, newMessageText, conversationId, isDraft } = (req.body || {}) as AnalyzeRequestBody;
     let history: any[] = [];
     try {
         history = historyJson ? JSON.parse(historyJson) : [];
     } catch {
         throw new Error('Invalid history JSON');
     }
-    if (typeof newMessageText === 'undefined' || !conversationId || typeof isDraft === 'undefined' || !stage) {
-        throw new Error('newMessageText, conversationId, isDraft, and stage are required');
+    if (typeof newMessageText === 'undefined' || !conversationId || typeof isDraft === 'undefined') {
+        throw new Error('newMessageText, conversationId, and isDraft are required');
     }
     const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
-    return { history, newMessageText, conversationId, files, isDraft: isDraft === true || isDraft === 'true', stage };
+    return { history, newMessageText, conversationId, files, isDraft: isDraft === true || isDraft === 'true' };
+}
+
+/**
+ * Infers the conversation stage based on history and draft status.
+ * - If no history, it's an Opening.
+ * - If isDraft, assume Continue.
+ * - If last message is from user, assume ReEngage.
+ * - Otherwise, Continue.
+ */
+function inferStage(history: any[], isDraft: boolean): Stage {
+    if (isDraft) return 'Continue';
+    if (!history || history.length === 0) return 'Opening';
+    const lastMsg = history[history.length - 1];
+    if (lastMsg && (lastMsg.sender === 'user' || lastMsg.role === 'user')) return 'ReEngage';
+    return 'Continue';
 }
 
 async function saveMessageStub(supabase: any, conversationId: string, newMessageText: string): Promise<MessageRecord> {
@@ -187,20 +202,45 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
     console.log('[VisionAPI] Raw response from generateImageDescriptionAndNickname:', descriptionAndNickname);
     let nickname = '';
     let imageDescription = '';
-    const lines = descriptionAndNickname.split('\n').map(l => l.trim()).filter(Boolean);
-    // Buscar línea con prefijo Nickname:
-    const nicknameLineIdx = lines.findIndex(line => /^nickname\s*:/i.test(line));
+    const lines = (descriptionAndNickname || '').split('\n').map(l => l.trim()).filter(Boolean);
+    console.log('[VisionAPI][Parser] Split lines:', lines);
+    // 1. Buscar línea con prefijo Nickname (cualquier casing, espacios):
+    let nicknameLineIdx = lines.findIndex(line => /^nickname\s*:/i.test(line));
     if (nicknameLineIdx !== -1) {
         nickname = lines[nicknameLineIdx].replace(/^nickname\s*:/i, '').trim();
-        imageDescription = lines.filter((_, idx) => idx !== nicknameLineIdx).join(' ');
-    } else if (lines.length > 0) {
-        // Si no hay nickname, toda la respuesta es la descripción
-        imageDescription = lines.join(' ');
-        nickname = '';
+        imageDescription = lines.filter((_, idx) => idx !== nicknameLineIdx).join('\n');
+        console.log('[VisionAPI][Parser] Nickname by prefix:', nickname, '| Description:', imageDescription);
+    } else if (lines.length > 1) {
+        // 2. Si la última línea es corta (menos de 8 palabras), es nickname
+        const lastLine = lines[lines.length - 1];
+        if (lastLine.split(' ').length <= 8) {
+            nickname = lastLine;
+            imageDescription = lines.slice(0, -1).join('\n');
+            console.log('[VisionAPI][Parser] Nickname by last line:', nickname, '| Description:', imageDescription);
+        } else {
+            // Si la última línea es larga, probablemente toda la respuesta es descripción
+            nickname = '';
+            imageDescription = lines.join('\n');
+            console.log('[VisionAPI][Parser] All lines as description:', imageDescription);
+        }
+    } else if (lines.length === 1) {
+        // 3. Solo una línea: si es larga (más de 8 palabras), es descripción
+        const onlyLine = lines[0];
+        if (onlyLine.split(' ').length > 8) {
+            imageDescription = onlyLine;
+            nickname = '';
+            console.log('[VisionAPI][Parser] Single long line as description:', imageDescription);
+        } else {
+            nickname = onlyLine;
+            imageDescription = '';
+            console.log('[VisionAPI][Parser] Single short line as nickname:', nickname);
+        }
     }
-    // Fallbacks solo si están vacíos
-    if (!nickname) nickname = 'Chat Pal';
+    // 4. Fallbacks y validaciones
+    if (!imageDescription || imageDescription.toLowerCase().includes('nickname')) imageDescription = '';
     if (!imageDescription) imageDescription = 'Image(s) received.';
+    if (!nickname || nickname.toLowerCase().includes('description')) nickname = 'Chat Pal';
+    console.log('[VisionAPI][Parser] Final nickname:', nickname, '| Final description:', imageDescription);
     return { nickname, imageDescription };
 }
 
@@ -325,10 +365,10 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         }
 
         // --- Extract Text and Files ---
-        let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[], isDraft: boolean, stage: string;
+        let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[], isDraft: boolean;
         try {
-            ({ history, newMessageText, conversationId, files, isDraft, stage } = parseAnalyzeRequest(req));
-            console.log('[Analyze] Parsed request:', { history, newMessageText, conversationId, isDraft, stage, files: files.map(f => ({ name: f.originalname, size: f.size, mimetype: f.mimetype })) });
+            ({ history, newMessageText, conversationId, files, isDraft } = parseAnalyzeRequest(req));
+            console.log('[Analyze] Parsed request:', { history, newMessageText, conversationId, isDraft, files: files.map(f => ({ name: f.originalname, size: f.size, mimetype: f.mimetype })) });
         } catch (err: any) {
             res.status(400).json({ error: err.message });
             console.error('[Analyze] Error parsing request:', err);
@@ -456,6 +496,9 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             console.log('[Supabase] Updated message with image description:', generatedImageDescription);
         }
         
+        // --- Infer stage automatically ---
+        const stage = inferStage(history, isDraft);
+
         // --- Refactored prompt construction to use structured messages ---
         // Stringify history for userPrompt
         const historyString = (history || []).map((msg: any) => {
@@ -473,7 +516,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         // Build the full prompt string
         const fullPrompt = buildFullPrompt({
             intent,
-            stage: stage as Stage,
+            stage,
             userPreferences,
             chatHistory: historyString,
             latestMessage: newMessageText,
@@ -513,7 +556,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             // --- Critique Agent: revisar y corregir la respuesta antes de guardar/enviar ---
             const promptInput = {
                 intent,
-                stage: stage as Stage,
+                stage,
                 userPreferences,
                 chatHistory: historyString,
                 latestMessage: newMessageText,

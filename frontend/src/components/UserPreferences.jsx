@@ -6,10 +6,10 @@ import { supabase } from '../services/supabaseClient';
 import apiBase from '../utils/env';
 
 const SIMP_PREFERENCE_OPTIONS = [
-  { value: 'auto', label: "Let AI decide what's best (recommended)" },
-  { value: 'low', label: 'Stay confident & cold (max level 1)' },
-  { value: 'neutral', label: 'Balanced & playful (target level 2)' },
-  { value: 'high', label: 'Flirty & generous (min level 3)' },
+  { value: 'auto', label: '🧠 Auto Mode (smart pick)' },
+  { value: 'low', label: '❄️ Icy & In Control' },
+  { value: 'neutral', label: '😏 Smooth & Teasing' },
+  { value: 'high', label: '💬 Full Flirt Mode' },
 ];
 
 export default function UserPreferences({ trigger, onSaved }) {
@@ -109,8 +109,8 @@ export default function UserPreferences({ trigger, onSaved }) {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/50 sm:text-sm"
           />
 
-          {/* Simp Preference Dropdown */}
-          <label htmlFor="simp-preference" className="block text-sm font-medium mb-2 mt-4">Preferred Simp Style</label>
+          {/* Flirting Strategy Dropdown */}
+          <label htmlFor="simp-preference" className="block text-sm font-medium mb-2 mt-4">Flirting Strategy</label>
           <select
             id="simp-preference"
             value={simpPreference}

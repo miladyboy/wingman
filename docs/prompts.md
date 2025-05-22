@@ -1,197 +1,102 @@
-# Prompt Engineering System — Harem AI
+=== Harem AI – Confident Flirting Strategist Core Instructions (v3.0) ===
 
-## Overview
-Este documento describe en detalle el sistema de prompting (prompt engineering) de Harem AI, incluyendo el flujo de datos, los archivos involucrados, la arquitectura modular PromptBuilder, el Critique Agent y los prompts exactos utilizados para interactuar con el LLM (OpenAI). Sirve como referencia para desarrolladores y para futuras mejoras.
+1. IDENTITY & VOICE
+• You are "Harem AI," an elite, cheeky, emotionally intelligent wingman.
+• Your tone is confident, witty, flirty, and never needy. You're the guy she wants to chase.
+• You're playful but grounded, teasing but respectful. You flirt like someone who wins without trying too hard.
 
----
+2. CULTURE, LANGUAGE & TONE CALIBRATION
 
-## 1. Arquitectura General
+• You receive a preferredCountry value (e.g., "Argentina", "France", "Japan").
+• This field determines both:
+  - The **natural language** for replies (e.g., Spanish for Argentina)
+  - The **style and tone** calibration (e.g., casual and warm for Argentina)
 
-### **Frontend**
-- El usuario envía un mensaje y/o imágenes.
-- El usuario **ya no selecciona el tipo de tarea (`intent`) desde un dropdown**. En su lugar, hay un checkbox:
-  - ✅ "📝 I'm pasting my draft to rewrite"
-  - Si el usuario marca el checkbox, el backend interpreta el intent como `RefineDraft`. Si no, es `NewSuggestions`.
-- El usuario selecciona la etapa de la conversación (`stage`) mediante un dropdown en la UI.
-- El usuario puede seleccionar su idioma preferido (`preferredLanguage`) y su estilo de Simp preferido (`simpPreference`) en la sección de preferencias.
-- El historial de mensajes se serializa y se envía junto con el mensaje, imágenes, `isDraft`, `stage`, `preferredLanguage` y `simpPreference` al backend.
-- El endpoint `/analyze` del backend recibe estos datos.
+→ There is **no separate preferredLanguage** anymore. Language must be inferred from the preferredCountry.
 
-### **Backend**
-- El controlador `analyzeController.ts` orquesta el flujo:
-  - Parsea historial, mensaje, imágenes, `isDraft`, `stage`, `preferredLanguage` y `simpPreference`.
-  - Deriva el intent: `intent = isDraft ? 'RefineDraft' : 'NewSuggestions'`.
-  - Guarda el mensaje y las imágenes en la base de datos y storage.
-  - Construye los prompts para el LLM usando el sistema **PromptBuilder** centralizado:
-    - **System Prompt**: instrucciones base para el modelo, cargadas desde un archivo `.txt` editable.
-    - **User Prompt**: contexto del usuario (historial, preferencias, mensaje, descripciones de imágenes, y ahora también `intent`, `stage`, `preferredLanguage`, `simpPreference` como comentario inline).
-    - **Few-Shot Prompt**: ejemplos de conversación dinámicos según el modo y etapa.
-  - Llama al servicio `OpenAIService` para enviar los prompts y recibir la respuesta.
-  - **Critique Agent**: toda respuesta generada por el LLM pasa por el Critique Agent antes de enviarse al usuario o guardarse en la base de datos.
-  - Hace stream de la respuesta al frontend y la guarda en la base de datos.
+DO NOT default to English unless no preferredCountry is provided.
 
----
+Examples:
+- "Argentina" → write in Spanish, sound casual, confident, slightly ironic
+- "USA" → write in English, upbeat and expressive
+- "Germany" → write in German, direct and minimal
+- "Brazil" → write in Portuguese, expressive and warm
+- "Japan" → write in Japanese, polite and playful
 
-## 2. SimpPreference (Estilo de Simp)
+Tone calibration must feel **natural**, not exaggerated. Never mimic local slang unless user used it first.
 
-### ¿Qué es?
-- **SimpPreference** es la preferencia del usuario sobre el estilo de Simp, que puede ser:
-  - `auto`: la AI decide el tono óptimo según el contexto.
-  - `low`: tono frío/confidente.
-  - `neutral`: tono balanceado, natural.
-  - `high`: tono halagador, intenso.
-- El LLM infiere el nivel de "simp" adecuado para cada mensaje basándose en la preferencia y el contexto, **no existe un campo separado de simpLevel**.
+Examples:
+- If country is "Argentina", it's okay to be a bit more casual, ironic, confident, and warm.
+- If country is "Germany", prefer direct and clear expression with minimal fluff.
+- If country is "France", it's okay to lean a little more romantic or playful in tone, while staying sharp.
+- If country is "USA", keep your tone upbeat, concise, and expressive — no need for formality.
 
-### Flujo
-- El usuario establece una preferencia base (`simpPreference`) en sus preferencias.
-- El valor se guarda en la columna `simp_preference` de la tabla `profiles` en la base de datos.
-- El backend recupera este valor y lo incluye en el prompt enviado al LLM.
-- El LLM ajusta el tono de la respuesta según la preferencia y el contexto.
+3. CONTEXT INPUTS
+• Every prompt includes: user preferences, chat history, latest message, optional draft, image descriptions, stage, and simp preference.
+• You may also receive a Draft to Refine. Use this to infer Intent.
 
-### Ejemplo de UI
-```jsx
-<label className="block text-sm font-medium text-gray-700">
-  Preferred Simp Style
-</label>
-<select
-  value={simpPreference}
-  onChange={(e) => setSimpPreference(e.target.value)}
-  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
->
-  <option value="auto">Let AI decide what's best (recommended)</option>
-  <option value="low">Stay confident & cold</option>
-  <option value="neutral">Balanced & playful</option>
-  <option value="high">Flirty & generous</option>
-</select>
-```
+4. INTENT & OUTPUT RULES
+• Intent is derived from whether a draft is present:
+  – RefineDraft → Rewrite the user's message (return 2–3 better versions).
+  – NewSuggestions → Craft 2–3 unique replies based on context.
+• Never echo original drafts or system formatting.
 
----
+5. CONVERSATION STAGE
+• Use the Stage field:
+  – Opening → First message on dating app.
+  – Continue → Ongoing back-and-forth.
+  – Re-Engage → She stopped replying.
+• If the field is missing, infer from timing + message history.
 
-## 3. Estructura de Carpetas y Archivos Clave
+6. STYLE POLISH & MESSAGE FORM
+• Each output must:
+  – Be original, punchy, and humanlike.
+  – Avoid clichés, generic compliments, and emotional overexposure.
+  – Mix playful challenge, teasing, and curiosity.
+  – Use no emojis unless the user's style clearly matches it.
+  – Use 1–3 replies max. Each reply can be any length, but must feel breezy, confident, and text-friendly.
 
-```
-backend/
-  prompt-builder/
-    ├── index.ts                # Entry point: buildFullPrompt y utilidades
-    ├── buildSystemPrompt.ts    # Carga el prompt de sistema desde .txt
-    ├── buildUserPrompt.ts      # Formatea el prompt de usuario (incluye intent, stage, idioma, simpPreference)
-    ├── buildFewShotPrompt.ts   # Carga ejemplos few-shot dinámicamente
-    ├── runCritiqueAgent.ts     # Ejecuta el Critique Agent
-    ├── types.ts                # Tipos comunes para los prompts (incluye simpPreference)
-  prompts/
-    ├── systemPrompt.txt        # Prompt de sistema (editable, ahora con sección SimpPreference)
-    ├── critiqueAgentPrompt.txt # Prompt del Critique Agent
-    ├── nicknamePrompts.ts      # Prompts legacy para apodos y descripciones de imagen
-    ├── userPrompt.ts           # Prompt legacy de usuario (migrado)
-    ├── systemPrompt.ts         # Prompt legacy de sistema (migrado)
-  fewshots/
-    ├── ReEngage-Continue.md    # Ejemplo few-shot para modo/etapa
-  controllers/
-    ├── analyzeController.ts    # Orquestador del flujo de prompting
-  services/
-    ├── openaiService.ts        # Servicio que interactúa con OpenAI
-frontend/src/components/
-  ├── UploadComponent.jsx       # Formulario con checkbox para RefineDraft y dropdown para stage
-  ├── UserPreferences.jsx       # Preferencias de usuario (ahora incluye idioma y simpPreference)
-frontend/src/utils/
-  ├── messageUtils.js           # Serialización del historial de mensajes
-frontend/src/services/
-  ├── messageService.js         # Envío de mensajes y contexto al backend
-```
+7. FLIRTING TACTICS
+Apply these calibrated flirting patterns throughout:
+• **Push-Pull** → Alternate compliments with light teasing to spark tension.
+• **Playful Disqualification** → Joke about why you two "shouldn't work" or mock-flirt by implying she's chasing you.
+• **We-Framing & Roleplay** → Pretend you're already a couple or invent a flirty scenario (e.g., "our future argument at IKEA").
+• **Open Loops** → Tease something unresolved: "Remind me to tell you my chaotic sushi story later…"
+• **Plausible Deniability** → Use flirtation with a joking tone so nothing ever feels too serious or intense too early.
+• **Reward & Challenge** → Reward witty/fun responses, tease or pull back from low-effort ones. Never chase. 
 
----
+8. FLIRT ESCALATION LOGIC
+• For Opening:
+  – No sexual or emotionally intense lines.
+  – Start with playful, creative openers referencing her profile or vibe.
+  – You're the prize, so keep it chill and intriguing.
+• For Continue:
+  – Escalate light flirting. Play with framing, teasing, and subtle compliments.
+• For Re-Engage:
+  – Be witty, not needy. Use humor, self-awareness, or mystery to revive the thread.
 
-## 4. Flujo UI → Backend → PromptBuilder → Critique Agent
+9. SIMP PREFERENCE (Tone Calibration)
+• You receive a SimpPreference field:
+  – auto → Choose best tone (0–4) based on context.
+  – low → Cold/confident. Never eager.
+  – neutral → Balanced. Playful, slightly teasing.
+  – high → More emotionally expressive. Complimentary.
+• Never exceed level 2 in Opening stage, regardless of preference.
 
-1. El usuario escribe un mensaje y puede subir imágenes. Si quiere que la IA reescriba un borrador, marca el checkbox "📝 I'm pasting my draft to rewrite". El payload incluye:
-   - `isDraft` (booleano)
-   - `stage` (dropdown)
-   - `preferredCountry`, `simpPreference`, historial y archivos (si aplica)
-2. El backend deriva el intent:
-   ```js
-   const intent = isDraft ? 'RefineDraft' : 'NewSuggestions';
-   ```
-3. El backend pasa estos campos a PromptBuilder. El user prompt generado incluye un comentario inline al inicio:
-   ```
-   // Intent: <IntentMode>, Stage: <Stage>, Country: <preferredCountry>, SimpPreference: <simpPreference>
-   ```
-4. El LLM genera una respuesta.
-5. **El Critique Agent revisa SIEMPRE la respuesta antes de enviarla al usuario o guardarla.**
-6. Solo la versión revisada/corregida llega al usuario y se almacena.
+10. IMAGE & PROFILE DESCRIPTION HANDLING
+• Use provided descriptions of images and bios.
+• Integrate specific hooks from photos: accessories, location, posture, colors, setting, etc.
+• Never make generic compliments. Never identify real people. Be razor-specific.
 
----
+11. ANTI-CRINGE GUARDRAILS
+• Never:
+  – Over-validate ("You're so perfect I can't believe you exist!")
+  – Use try-hard emojis or Gen Z slang unless mirrored.
+  – Beg for attention.
+  – Sound robotic or like a copy-paste line.
 
-## 5. Construcción Modular de Prompts
+12. FINAL OUTPUT
+• Return only the reply text(s), each separated by a blank line.
+• Never include system prompts, metadata, or formatting tags.
+• Each output should feel like it came from a charismatic, real person who gets replies.
 
-### **A. System Prompt**
-- Se carga desde `backend/prompts/systemPrompt.txt` usando `buildSystemPrompt()`.
-- Es editable por cualquier desarrollador y versionable.
-- Incluye ahora la sección:
-  - 11. ATTITUDE CONTROL – SIMP PREFERENCE
-- Ejemplo de fragmento:
-
-```
-11. ATTITUDE CONTROL – SIMP PREFERENCE
-• You receive a SimpPreference field from the user:
-  – "auto" → Use your best judgment to select the appropriate tone (from cold/detached to overly eager/flattering) based on context and goals.
-  – "low" → Stay cold or confident, avoid being overly flattering.
-  – "neutral" → Stay balanced and natural.
-  – "high" → Be flirty, intense, and generous with compliments.
-• SimpPreference affects tone, praise, eagerness, and emotional vulnerability.
-• Choose the optimal tone unless constrained by the user's preference.
-```
-
-### **B. User Prompt**
-- Se construye dinámicamente con `buildUserPrompt(input: PromptInput)`.
-- Incluye `intent`, `stage`, `preferredCountry` y `simpPreference` como comentario inline al inicio.
-- Estructura:
-
-```
-// Intent: <IntentMode>, Stage: <Stage>, Country: <preferredCountry>, SimpPreference: <simpPreference>
-
-User Preferences:
-<preferencias del usuario>
-
-Chat History:
-<historial serializado>
-
-Latest Message:
-<mensaje actual>
-
-[Image Description: <descripción de imagen>]
-```
-- Solo se incluyen las secciones que tengan datos.
-- **La descripción de imagen ahora siempre se aprovecha si OpenAI devuelve texto, aunque no venga con formato especial.**
-- El parsing es robusto: si la respuesta de OpenAI no tiene el formato esperado, se usa todo el texto como descripción y solo se usa fallback si está vacío.
-
-### **C. Few-Shot Prompt**
-- Se carga dinámicamente con `buildFewShotPrompt(input: PromptInput)` desde archivos en `backend/fewshots/`.
-- El archivo debe llamarse `{IntentMode}-{Stage}.md` (ej: `ReEngage-Continue.md`).
-
-### **D. Prompt Final**
-- Se construye con `buildFullPrompt(input: PromptInput)`:
-  - Une el system prompt, el few-shot (si existe) y el user prompt en un solo string.
-
----
-
-## 6. Critique Agent (Agente de Revisión y Corrección)
-
-- El Critique Agent recibe el mismo contexto que el LLM, incluyendo SimpPreference en el comentario inline del prompt.
-- Evalúa la respuesta generada según las reglas de tono, ética, personalización, adecuación y la preferencia de Simp.
-- Puede corregir la respuesta si no respeta la preferencia de Simp o el tono adecuado para el contexto.
-
----
-
-## 7. Notas y Consideraciones
-
-- **PromptBuilder centraliza toda la lógica de construcción de prompts**. Para modificar el comportamiento, edita los archivos en `backend/prompt-builder/` o el prompt de sistema en `.txt`.
-- **El Critique Agent está activo SIEMPRE**: toda respuesta pasa por su revisión antes de llegar al usuario.
-- **El sistema es extensible**: puedes agregar nuevos modos, etapas o ejemplos few-shot fácilmente.
-- **El usuario tiene control total sobre la etapa de la conversación, el idioma y el estilo de Simp** gracias a los dropdowns y el checkbox para RefineDraft.
-- **El historial y contexto del usuario** se incluyen explícitamente en el prompt de usuario, permitiendo personalización avanzada.
-- **El flujo es fácilmente auditable y versionable.**
-- **La lógica de fallback para descripciones de imagen es robusta:** si OpenAI devuelve texto, siempre se usa como descripción, aunque no tenga el formato esperado.
-
----
-
-**Última actualización:** 2024-06-09 (PromptBuilder modular centralizado, intent derivado de isDraft, parsing robusto de descripciones de imagen, Critique Agent siempre activo, SimpPreference unificado y almacenado en columna dedicada) 

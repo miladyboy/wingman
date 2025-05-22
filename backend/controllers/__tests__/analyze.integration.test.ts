@@ -79,7 +79,7 @@ describe('analyze endpoint integration', () => {
         historyJson: '[]',
         newMessageText: 'Test message',
         conversationId: 'conv-1',
-        intent: 'NewSuggestions',
+        isDraft: false,
         stage: 'Opening',
       });
     expect(res.status).toBe(401);
@@ -93,7 +93,7 @@ describe('analyze endpoint integration', () => {
         historyJson: '[]',
         newMessageText: 'Hello!',
         conversationId: 'conv-1',
-        intent: 'NewSuggestions',
+        isDraft: false,
         stage: 'Opening',
         preferredCountry: 'en',
         simpPreference: 'high',

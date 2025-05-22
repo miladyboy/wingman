@@ -160,7 +160,7 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
       </nav>
 
       {/* --- User Info & Logout --- */}
-      <div className="p-4 border-t border-border mt-auto">
+      <div className="p-4 border-t border-border sticky bottom-0 bg-background z-10 md:static md:z-auto md:bg-transparent">
         <UserPreferences
           trigger={<Button className="w-full mb-2" variant="outline" data-testid="edit-preferences">Edit Preferences</Button>}
         />

@@ -1,8 +1,33 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { XCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { XCircleIcon } from '@heroicons/react/24/solid';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Paperclip } from 'lucide-react';
+import { Send } from 'lucide-react';
+
+// PillToggle inline component
+function PillToggle({ active, onClick, disabled, children }) {
+  return (
+    <button
+      type="button"
+      role="button"
+      aria-pressed={active}
+      disabled={disabled}
+      tabIndex={0}
+      onClick={() => !disabled && onClick(!active)}
+      className={`
+        px-4 py-1 rounded-full font-medium transition
+        ${active ? 'bg-primary text-white shadow' : 'bg-muted text-foreground border border-border'}
+        ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'}
+        focus:outline-none focus:ring-2 focus:ring-primary/60
+      `}
+      style={{ minWidth: 120 }}
+    >
+      {children}
+    </button>
+  );
+}
 
 const UploadComponent = ({ onSendMessage, disabled }) => {
   const [text, setText] = useState('');
@@ -11,8 +36,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
   const [isDraft, setIsDraft] = useState(false);
-  const [stage, setStage] = useState('Opening');
-  const [preferredCountry, setPreferredCountry] = useState('');
+  const [preferredCountry] = useState('');
 
   useEffect(() => {
     const currentPreviewUrls = imagePreviews.map(p => p.url);
@@ -46,7 +70,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     addFiles(acceptedFiles);
   }, [addFiles]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  useDropzone({
     onDrop,
     accept: { 'image/*': [] },
     multiple: true,
@@ -105,7 +129,6 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     const formData = new FormData();
     formData.append('newMessageText', text);
     formData.append('isDraft', isDraft ? 'true' : 'false');
-    formData.append('stage', stage);
     formData.append('preferredCountry', preferredCountry);
     selectedFiles.forEach((file) => {
       formData.append('images', file, file.name);
@@ -113,7 +136,6 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     onSendMessage(formData);
     setText('');
     setIsDraft(false);
-    setStage('Opening');
     imagePreviews.forEach(preview => URL.revokeObjectURL(preview.url));
     setSelectedFiles([]);
     setImagePreviews([]);
@@ -125,32 +147,32 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   return (
     <div className="p-2 md:p-4 bg-card rounded-lg border border-border">
       <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-2">
-        {/* Dropdowns para Stage */}
-        <div className="flex flex-col md:flex-row gap-2 mb-2">
-          <div className="flex flex-col">
-            <label className="font-medium mb-1">Where are you in the convo?</label>
-            <select
-              value={stage}
-              onChange={e => setStage(e.target.value)}
-              className="border rounded px-2 py-1"
-              disabled={disabled}
-            >
-              <option value="Opening">First message</option>
-              <option value="Continue">Mid-chat</option>
-              <option value="ReEngage">She ghosted</option>
-            </select>
-          </div>
-        </div>
-        <label className="flex items-center space-x-2 mt-2">
-          <input
-            type="checkbox"
-            checked={isDraft}
-            onChange={(e) => setIsDraft(e.target.checked)}
-            className="form-checkbox h-4 w-4"
+        <div className="flex items-center gap-2 mt-2">
+          <Button
+            type="button"
+            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            size="icon"
+            variant="ghost"
+            className="mr-1"
+            aria-label="Attach image(s)"
             disabled={disabled}
+            data-testid="attach-image-button"
+          >
+            <Paperclip className="w-5 h-5" />
+          </Button>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            style={{ display: 'none' }}
+            ref={fileInputRef}
+            onChange={e => addFiles(Array.from(e.target.files))}
+            data-testid="chat-file-input"
           />
-          <span>📝 I'm pasting my draft to rewrite</span>
-        </label>
+          <PillToggle active={isDraft} onClick={setIsDraft} disabled={disabled}>
+            📝 Rewrite Draft
+          </PillToggle>
+        </div>
         {imagePreviews.length > 0 && (
           <div className="mb-2 md:mb-3 flex flex-wrap gap-1 md:gap-2">
             {imagePreviews.map((preview) => (
@@ -170,17 +192,13 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
                   aria-label={`Remove image ${preview.name}`}
                   disabled={disabled}
                 >
-                  <XCircleIcon className="h-5 w-5" />
+                  <XCircleIcon className="h-5 w-5 text-foreground group-hover:text-red-600 transition-colors" />
                 </Button>
               </div>
             ))}
           </div>
         )}
-        <div
-          {...getRootProps()}
-          className={`mb-2 md:mb-3 relative rounded-lg transition-colors border border-border ${isDragActive ? 'border-primary bg-primary/10' : ''}`}
-        >
-          <input {...getInputProps()} />
+        <div className="flex items-center gap-2 w-full">
           <Textarea
             value={text}
             onChange={handleTextChange}
@@ -189,34 +207,20 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
             placeholder={selectedFiles.length > 0 ? "Add context or ask a question..." : "Enter text or upload an image..."}
             rows={3}
             disabled={disabled}
-            className={`w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 ${isDragActive ? 'bg-primary/10' : ''} px-2 py-1 md:px-3 md:py-2 text-sm md:text-base min-h-[50px] md:min-h-[60px]`}
+            className="w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 px-2 py-1 md:px-3 md:py-2 text-sm md:text-base min-h-[50px] md:min-h-[60px]"
             data-testid="chat-input"
           />
-          {isDragActive && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-primary font-medium text-lg">Drop images here…</span>
-            </div>
-          )}
+          <Button
+            type="submit"
+            size="icon"
+            variant="ghost"
+            aria-label="Send"
+            disabled={disabled || (selectedFiles.length === 0 && !text.trim())}
+            data-testid="send-message-button"
+          >
+            <Send className="w-6 h-6" />
+          </Button>
         </div>
-        <Button
-          type="submit"
-          className="font-semibold flex items-center gap-1 md:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base h-auto md:h-9"
-          disabled={disabled || (selectedFiles.length === 0 && !text.trim())}
-          data-testid="send-message-button"
-        >
-          Send
-          <PaperAirplaneIcon className="h-5 w-5 md:h-6 md:h-6" />
-        </Button>
-        {/* Preferred Country Input */}
-        <label htmlFor="preferred-country" className="block text-sm font-medium text-gray-700 mt-2">Preferred Country</label>
-        <input
-          id="preferred-country"
-          type="text"
-          value={preferredCountry}
-          onChange={e => setPreferredCountry(e.target.value)}
-          placeholder="e.g. Argentina, Spain, auto"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/50 sm:text-sm"
-        />
       </form>
     </div>
   );

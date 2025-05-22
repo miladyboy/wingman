@@ -95,7 +95,7 @@ describe('analyze endpoint integration', () => {
         conversationId: 'conv-1',
         intent: 'NewSuggestions',
         stage: 'Opening',
-        preferredLanguage: 'en',
+        preferredCountry: 'en',
         simpPreference: 'high',
       });
     // El endpoint hace stream, así que buscamos la última respuesta con done: true

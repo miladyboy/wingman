@@ -71,7 +71,7 @@ describe('generateImageDescriptionAndNickname', () => {
     it('should handle edge case: LLM returns only whitespace', async () => {
         mockCallOpenAI.mockResolvedValue('   ');
         const result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
-        expect(result.nickname).toBe('Mystery Woman');
+        expect(result.nickname).toBe('Chat Pal');
         expect(result.imageDescription).toBe('Image(s) received.');
     });
 
@@ -87,13 +87,13 @@ describe('generateImageDescriptionAndNickname', () => {
     it('should use default nickname if OpenAI response is empty or malformed for nickname', async () => {
         mockCallOpenAI.mockResolvedValue('Just an image description here.');
         let result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
-        expect(result.nickname).toBe('Just an image description here.');
+        expect(result.nickname).toBe('Chat Pal');
         expect(result.imageDescription).toBe('Image(s) received.');
 
         mockCallOpenAI.mockClear();
         mockCallOpenAI.mockResolvedValue('');
         result = await generateImageDescriptionAndNickname(sampleFinalUserMessageContent, mockOpenAIServiceInstance);
-        expect(result.nickname).toBe('Mystery Woman');
+        expect(result.nickname).toBe('Chat Pal');
         expect(result.imageDescription).toBe('Image(s) received.');
     });
 

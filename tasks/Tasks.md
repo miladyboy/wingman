@@ -20,6 +20,9 @@
 - [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
 - [ ] Only show cookies banner to users from the EU and relevant jurisdictions *legal*
 - [ ] Hacer un modulo de post-processing del mensaje del user antes de mandarlo como prompt (para que openai no joda)
+- [ ] Refactor analyzecontroller.ts pq tiene 500 lineas
+
+
 
 # Next features
 - [ ] Tener una feature "modo aprendizaje" que te explica porque hace sentido cada mensaje para ir aprendiendo *pro feature*
@@ -63,7 +66,7 @@
 - [ ] Make the buckets private to avoid data issues. *legal*
 - [ ] Mejorar critique agent prompt *prompt*
 - [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios *prompt*
-
+- [ ] Agregar columnas de prefered language y simp level a database de prod.
  
 
 # Doing

@@ -21,7 +21,7 @@ interface AnalyzeRequestBody {
     historyJson?: string;
     newMessageText?: string;
     conversationId?: string;
-    intent?: string;
+    isDraft?: string | boolean;
     stage?: string;
 }
 
@@ -48,19 +48,19 @@ interface ImageRecord {
     filesize: number;
 }
 
-function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[]; intent: string; stage: string } {
-    const { historyJson, newMessageText, conversationId, intent, stage } = (req.body || {}) as AnalyzeRequestBody;
+function parseAnalyzeRequest(req: Request): { history: any[]; newMessageText: string; conversationId: string; files: UploadedFile[]; isDraft: boolean; stage: string } {
+    const { historyJson, newMessageText, conversationId, isDraft, stage } = (req.body || {}) as AnalyzeRequestBody;
     let history: any[] = [];
     try {
         history = historyJson ? JSON.parse(historyJson) : [];
     } catch {
         throw new Error('Invalid history JSON');
     }
-    if (typeof newMessageText === 'undefined' || !conversationId || !intent || !stage) {
-        throw new Error('newMessageText, conversationId, intent, and stage are required');
+    if (typeof newMessageText === 'undefined' || !conversationId || typeof isDraft === 'undefined' || !stage) {
+        throw new Error('newMessageText, conversationId, isDraft, and stage are required');
     }
     const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
-    return { history, newMessageText, conversationId, files, intent, stage };
+    return { history, newMessageText, conversationId, files, isDraft: isDraft === true || isDraft === 'true', stage };
 }
 
 async function saveMessageStub(supabase: any, conversationId: string, newMessageText: string): Promise<MessageRecord> {
@@ -185,29 +185,22 @@ async function generateImageDescriptionAndNickname(finalUserMessageContent: any[
     }];
     const descriptionAndNickname = await openaiInstance.callOpenAI(descriptionPrompt, 250);
     console.log('[VisionAPI] Raw response from generateImageDescriptionAndNickname:', descriptionAndNickname);
-    const lines = descriptionAndNickname.split('\n').map(l => l.trim()).filter(Boolean);
     let nickname = '';
     let imageDescription = '';
-
-    // 1. Buscar línea con prefijo Nickname:
+    const lines = descriptionAndNickname.split('\n').map(l => l.trim()).filter(Boolean);
+    // Buscar línea con prefijo Nickname:
     const nicknameLineIdx = lines.findIndex(line => /^nickname\s*:/i.test(line));
     if (nicknameLineIdx !== -1) {
         nickname = lines[nicknameLineIdx].replace(/^nickname\s*:/i, '').trim();
-        imageDescription = lines.filter((_, idx) => idx !== nicknameLineIdx).join('\n').trim();
-    } else if (lines.length > 1) {
-        // 2. Si no hay prefijo, usar última línea como nickname
-        nickname = lines[lines.length - 1].trim();
-        imageDescription = lines.slice(0, -1).join('\n').trim();
-    } else if (lines.length === 1) {
-        // 3. Solo una línea: puede ser nickname o descripción
-        nickname = lines[0];
-        imageDescription = '';
+        imageDescription = lines.filter((_, idx) => idx !== nicknameLineIdx).join(' ');
+    } else if (lines.length > 0) {
+        // Si no hay nickname, toda la respuesta es la descripción
+        imageDescription = lines.join(' ');
+        nickname = '';
     }
-
-    // 4. Fallbacks
-    if (!nickname) nickname = 'Mystery Woman';
+    // Fallbacks solo si están vacíos
+    if (!nickname) nickname = 'Chat Pal';
     if (!imageDescription) imageDescription = 'Image(s) received.';
-
     return { nickname, imageDescription };
 }
 
@@ -233,10 +226,16 @@ async function generateImageDescription(finalUserMessageContent: any[], openaiIn
         content: descPromptContentSubsequent as any
     }];
     try {
+        console.log('[DEBUG][OpenAI] Payload enviado para descripción de imagen:', JSON.stringify(descriptionPromptSubsequent, null, 2));
         let generatedImageDescription = await openaiInstance.callOpenAI(descriptionPromptSubsequent, 250);
-        console.log('[VisionAPI] Raw response from generateImageDescription:', generatedImageDescription);
-        return generatedImageDescription.trim() || 'Image(s) analyzed.';
-    } catch {
+        console.log('[DEBUG][OpenAI] Respuesta cruda de OpenAI para descripción de imagen:', generatedImageDescription);
+        if (!generatedImageDescription || !generatedImageDescription.trim()) {
+            console.warn('[DEBUG][OpenAI] Fallback activado: OpenAI devolvió respuesta vacía para descripción de imagen.');
+            return 'Image(s) analyzed.';
+        }
+        return generatedImageDescription.trim();
+    } catch (err) {
+        console.error('[DEBUG][OpenAI] Error al obtener descripción de imagen de OpenAI:', err);
         return 'Error analyzing image(s).';
     }
 }
@@ -290,13 +289,13 @@ export async function analyze(req: Request, res: Response): Promise<void> {
 
         // --- Fetch User Preferences ---
         let userPreferences = '';
-        let preferredLanguage = 'auto';
+        let preferredCountry = 'auto';
         let simpPreference: 'auto' | 'low' | 'neutral' | 'high' = 'auto';
         if (supabaseAdmin) {
           try {
             const { data: prefData, error: prefError } = await supabaseAdmin
               .from('profiles')
-              .select('preferences, preferred_language, simp_preference')
+              .select('preferences, preferred_country, simp_preference')
               .eq('id', userId)
               .single();
             if (!prefError && prefData) {
@@ -312,8 +311,8 @@ export async function analyze(req: Request, res: Response): Promise<void> {
                   userPreferences = prefData.preferences;
                 }
               }
-              if (typeof prefData.preferred_language === 'string') {
-                preferredLanguage = prefData.preferred_language;
+              if (typeof prefData.preferred_country === 'string') {
+                preferredCountry = prefData.preferred_country;
               }
               if (typeof prefData.simp_preference === 'string' && ['auto', 'low', 'neutral', 'high'].includes(prefData.simp_preference)) {
                 simpPreference = prefData.simp_preference as 'auto' | 'low' | 'neutral' | 'high';
@@ -326,10 +325,10 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         }
 
         // --- Extract Text and Files ---
-        let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[], intent: string, stage: string;
+        let history: any[], newMessageText: string, conversationId: string, files: UploadedFile[], isDraft: boolean, stage: string;
         try {
-            ({ history, newMessageText, conversationId, files, intent, stage } = parseAnalyzeRequest(req));
-            console.log('[Analyze] Parsed request:', { history, newMessageText, conversationId, intent, stage, files: files.map(f => ({ name: f.originalname, size: f.size, mimetype: f.mimetype })) });
+            ({ history, newMessageText, conversationId, files, isDraft, stage } = parseAnalyzeRequest(req));
+            console.log('[Analyze] Parsed request:', { history, newMessageText, conversationId, isDraft, stage, files: files.map(f => ({ name: f.originalname, size: f.size, mimetype: f.mimetype })) });
         } catch (err: any) {
             res.status(400).json({ error: err.message });
             console.error('[Analyze] Error parsing request:', err);
@@ -468,15 +467,18 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         // Prepare imageDescriptions as string[] if present
         const imageDescriptionsArr = generatedImageDescription ? [generatedImageDescription] : undefined;
 
+        // Derivar intent
+        const intent: IntentMode = isDraft ? 'RefineDraft' : 'NewSuggestions';
+
         // Build the full prompt string
         const fullPrompt = buildFullPrompt({
-            intent: intent as IntentMode,
+            intent,
             stage: stage as Stage,
             userPreferences,
             chatHistory: historyString,
             latestMessage: newMessageText,
             imageDescriptions: imageDescriptionsArr,
-            preferredLanguage,
+            preferredCountry,
             simpPreference,
         });
 
@@ -510,13 +512,13 @@ export async function analyze(req: Request, res: Response): Promise<void> {
 
             // --- Critique Agent: revisar y corregir la respuesta antes de guardar/enviar ---
             const promptInput = {
-                intent: intent as IntentMode,
+                intent,
                 stage: stage as Stage,
                 userPreferences,
                 chatHistory: historyString,
                 latestMessage: newMessageText,
                 imageDescriptions: imageDescriptionsArr,
-                preferredLanguage,
+                preferredCountry,
                 simpPreference,
             };
             const { critique, finalReply } = await runCritiqueAgent(promptInput, aiResponseBuffer.trim(), openaiClient.getOpenAIClient());

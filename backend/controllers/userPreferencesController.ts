@@ -16,7 +16,7 @@ export async function getUserPreferences(req: Request, res: Response): Promise<v
   }
   const { data, error } = await supabaseAdmin
     .from('profiles')
-    .select('preferences, preferred_language, simp_preference')
+    .select('preferences, preferred_country, simp_preference')
     .eq('id', userId)
     .single();
   if (error) {
@@ -33,7 +33,7 @@ export async function getUserPreferences(req: Request, res: Response): Promise<v
   } catch { /* ignore JSON parse errors, fallback to plain string */ }
   res.json({
     preferences,
-    preferredLanguage: data?.preferred_language || 'auto',
+    preferredCountry: data?.preferred_country || 'auto',
     simpPreference: data?.simp_preference || 'auto',
   });
 }
@@ -48,7 +48,7 @@ export async function updateUserPreferences(req: Request, res: Response): Promis
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  let { preferences, preferredLanguage, simpPreference } = req.body;
+  let { preferences, preferredCountry, simpPreference } = req.body;
   console.log('[updateUserPreferences] Received body:', req.body); // Debug log
   if (typeof preferences !== 'string' || preferences.length > MAX_PREFERENCES_LENGTH) {
     res.status(400).json({ error: 'Invalid preferences' });
@@ -57,8 +57,8 @@ export async function updateUserPreferences(req: Request, res: Response): Promis
   // Only store preferences as plain text
   let preferencesToSave = preferences;
   const updateObj: any = { preferences: preferencesToSave };
-  if (typeof preferredLanguage === 'string' && preferredLanguage.length <= 20) {
-    updateObj.preferred_language = preferredLanguage;
+  if (typeof preferredCountry === 'string' && preferredCountry.length <= 20) {
+    updateObj.preferred_country = preferredCountry;
   }
   if (typeof simpPreference === 'string' && ['auto', 'low', 'neutral', 'high'].includes(simpPreference)) {
     updateObj.simp_preference = simpPreference;

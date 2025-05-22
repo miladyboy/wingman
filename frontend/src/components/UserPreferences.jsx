@@ -5,25 +5,6 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '../services/supabaseClient';
 import apiBase from '../utils/env';
 
-const LANGUAGE_OPTIONS = [
-  { value: 'auto', label: 'Auto (match message)' },
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Español' },
-  { value: 'fr', label: 'Français' },
-  { value: 'pt', label: 'Português' },
-  { value: 'de', label: 'Deutsch' },
-  { value: 'it', label: 'Italiano' },
-  { value: 'nl', label: 'Nederlands' },
-  { value: 'tr', label: 'Türkçe' },
-  { value: 'ja', label: '日本語' },
-  { value: 'ko', label: '한국어' },
-  { value: 'zh', label: '中文' },
-  { value: 'ru', label: 'Русский' },
-  { value: 'ar', label: 'العربية' },
-  { value: 'hi', label: 'हिंदी' },
-  { value: 'sv', label: 'Svenska' },
-];
-
 const SIMP_PREFERENCE_OPTIONS = [
   { value: 'auto', label: "Let AI decide what's best (recommended)" },
   { value: 'low', label: 'Stay confident & cold (max level 1)' },
@@ -34,7 +15,7 @@ const SIMP_PREFERENCE_OPTIONS = [
 export default function UserPreferences({ trigger, onSaved }) {
   const [open, setOpen] = useState(false);
   const [preferences, setPreferences] = useState('');
-  const [preferredLanguage, setPreferredLanguage] = useState('auto');
+  const [preferredCountry, setPreferredCountry] = useState('auto');
   const [simpPreference, setSimpPreference] = useState('auto');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -54,7 +35,7 @@ export default function UserPreferences({ trigger, onSaved }) {
           });
           const data = await res.json();
           setPreferences(data.preferences || '');
-          setPreferredLanguage(data.preferredLanguage || 'auto');
+          setPreferredCountry(data.preferredCountry || 'auto');
           setSimpPreference(data.simpPreference || 'auto');
           setLoading(false);
         } catch {
@@ -79,11 +60,11 @@ export default function UserPreferences({ trigger, onSaved }) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify({ preferences, preferredLanguage, simpPreference })
+        body: JSON.stringify({ preferences, preferredCountry, simpPreference })
       });
       if (res.ok) {
         setSuccess(true);
-        onSaved && onSaved({ preferences, preferredLanguage, simpPreference });
+        onSaved && onSaved({ preferences, preferredCountry, simpPreference });
         setTimeout(() => setOpen(false), 800);
       } else {
         const data = await res.json();
@@ -117,20 +98,16 @@ export default function UserPreferences({ trigger, onSaved }) {
           />
           <div className="text-xs text-muted-foreground mb-2">Max 1000 characters</div>
 
-          {/* Preferred Language Dropdown */}
-          <label htmlFor="preferred-language" className="block text-sm font-medium mb-2 mt-4">Preferred Language</label>
-          <select
-            id="preferred-language"
-            value={preferredLanguage}
-            onChange={e => setPreferredLanguage(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            disabled={loading || saving}
-            data-testid="preferred-language-dropdown"
-          >
-            {LANGUAGE_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          {/* Preferred Country Dropdown */}
+          <label htmlFor="preferred-country" className="block text-sm font-medium text-gray-700 mt-4">Preferred Country</label>
+          <input
+            id="preferred-country"
+            type="text"
+            value={preferredCountry}
+            onChange={e => setPreferredCountry(e.target.value)}
+            placeholder="e.g. Argentina, Spain, auto"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/50 sm:text-sm"
+          />
 
           {/* Simp Preference Dropdown */}
           <label htmlFor="simp-preference" className="block text-sm font-medium mb-2 mt-4">Preferred Simp Style</label>

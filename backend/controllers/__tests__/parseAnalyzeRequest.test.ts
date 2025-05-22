@@ -82,7 +82,7 @@ describe('parseAnalyzeRequest', () => {
       },
       files: []
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, intent, and stage are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, isDraft, and stage are required');
   });
 
   it('throws if conversationId is missing', () => {
@@ -92,7 +92,7 @@ describe('parseAnalyzeRequest', () => {
       },
       files: []
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, intent, and stage are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, isDraft, and stage are required');
   });
 
   it('throws if both newMessageText and conversationId are missing', () => {
@@ -100,7 +100,7 @@ describe('parseAnalyzeRequest', () => {
       body: {},
       files: []
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, intent, and stage are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, isDraft, and stage are required');
   });
 
   it('throws if req is completely empty', () => {

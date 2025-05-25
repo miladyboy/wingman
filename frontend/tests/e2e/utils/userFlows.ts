@@ -11,7 +11,6 @@ const routes = {
 const selectors = {
   // Registration
   toggleToRegister: 'text=Need an account? Register',
-  registerUsername: '[data-testid="register-username"]',
   registerEmail: '[data-testid="register-email"]',
   registerPassword: '[data-testid="register-password"]',
   registerSubmit: '[data-testid="register-submit"]',
@@ -33,7 +32,6 @@ export const TEST_PASSWORD = 'TestPassword123!';
 export interface UserCredentials {
   email: string;
   password: string;
-  username: string;
 }
 
 /**
@@ -46,18 +44,15 @@ export interface UserCredentials {
  * @returns {Promise<UserCredentials>} The credentials of the registered user.
  */
 export async function registerAndConfirmUser(
-  page: Page,
-  { usernamePrefix = 'user' }: { usernamePrefix?: string } = {}
+  page: Page
 ): Promise<UserCredentials> {
   const email = generateUniqueEmail();
-  const username = `${usernamePrefix}${Date.now()}`;
 
   // Navigate to auth page and switch to registration form
   await page.goto(routes.auth);
   await page.click(selectors.toggleToRegister);
 
   // Fill out registration form
-  await page.fill(selectors.registerUsername, username);
   await page.fill(selectors.registerEmail, email);
   await page.fill(selectors.registerPassword, TEST_PASSWORD);
   await page.click(selectors.registerSubmit);
@@ -81,7 +76,7 @@ export async function registerAndConfirmUser(
   // We expect to be redirected to the /subscribe page for a new, unsubscribed user.
   await page.waitForURL(`**${routes.subscribe}`, { timeout: 15000 }); // Increased timeout
 
-  return { email, password: TEST_PASSWORD, username };
+  return { email, password: TEST_PASSWORD };
 }
 
 /**

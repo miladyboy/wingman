@@ -16,7 +16,7 @@ setup('authenticate multiple users', async ({ page }) => {
     await expect(page).toHaveURL(/\/subscribe/);
     await expect(page.locator('[data-testid="proceed-to-checkout-button"]')).toBeVisible({ timeout: 10000 });
   } else {
-    await registerAndConfirmUser(page, { usernamePrefix: 'verifiedUser' });
+    await registerAndConfirmUser(page);
     await expect(page.locator('[data-testid="proceed-to-checkout-button"]')).toBeVisible({ timeout: 10000 });
   }
   await page.context().storageState({ path: authFiles.emailVerified });
@@ -31,7 +31,7 @@ setup('authenticate multiple users', async ({ page }) => {
     await expect(page).toHaveURL(/\/app/);
     await expect(page.locator('[data-testid="new-chat-button"], nav button:has-text("+ New Chat")').first()).toBeVisible({ timeout: 10000 });
   } else {
-    await registerAndConfirmUser(page, { usernamePrefix: 'subscribedUser' });
+    await registerAndConfirmUser(page);
     await completeSubscription(page);
     await expect(page).toHaveURL(/\/app/);
     await expect(page.locator('[data-testid="new-chat-button"], nav button:has-text("+ New Chat")').first()).toBeVisible({ timeout: 10000 });

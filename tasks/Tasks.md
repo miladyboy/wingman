@@ -35,7 +35,7 @@
 
 # To-Do
 
-- [ ] Remove "nickname" from the profile table.
+- [x] Remove "nickname" from the profile table.
 - [ ] Add more user flows to the E2E suite up to 25-30 tests. _tests_
 - [ ] Make the E2E suite run in the three browsers. _test_
 - [ ] Create an audit / architect-mode rule that I can insert manually. _code-quality_

@@ -4,8 +4,8 @@
       "command": "npx",
       "args": ["-y", "--package=task-master-ai", "task-master-ai"],
       "env": {
-        "ANTHROPIC_API_KEY": "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",
-        "PERPLEXITY_API_KEY": "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"
+        "ANTHROPIC_API_KEY": "",
+        "PERPLEXITY_API_KEY": ""
       }
     }
   }

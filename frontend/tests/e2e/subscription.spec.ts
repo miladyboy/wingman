@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './utils/fixtures';
 import { logoutUser, registerAndConfirmUser } from './utils/userFlows';
 
 test.use({ storageState: { cookies: [], origins: [] } });

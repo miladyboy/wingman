@@ -46,7 +46,6 @@
 - [ ] Get to a good number of test coverage in the backend. _code-quality_
 - [ ] Understand, refactor and improve the frontend. _code-quality_
 - [ ] Migrate frontend to typescript. _code-quality_
-- [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. _bug_
 - [ ] Enter should send the message even if there's only an image and no text. _ux_
 - [ ] Delete el chat optimisticamente de la UI.
 - [ ] Add an easy user feedback loop. _growth_

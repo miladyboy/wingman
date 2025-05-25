@@ -1,13 +1,14 @@
 # Wishlist
+
 - [ ] Let the user store things to long-term memory during a chat, perhaps by explicitly asking for it.
-- [ ] Add Dark/Light theme.  
+- [ ] Add Dark/Light theme.
 - [ ] Make session management optional through a "Remember Me" toggle.
-- [ ] Save memories based on what the bot sees in photos or what I say. (RAG) **(Hard)**  
+- [ ] Save memories based on what the bot sees in photos or what I say. (RAG) **(Hard)**
 - [ ] Make the bot respond in Markdown.
 - [ ] Implement a free trial for the Stripe membership.
 - [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.
-- [ ] Build a React Native app for mobile. **(Hard)**  
-- [ ] Upload user chats to mimic their style. **(Mid)**  
+- [ ] Build a React Native app for mobile. **(Hard)**
+- [ ] Upload user chats to mimic their style. **(Mid)**
 - [ ] Hacer un tear down de la DB que elimine todos los users de prueba?
 - [ ] The UI should be reactive and update when you do things in other devices.
 - [ ] Manage true test isolation for the E2E tests.
@@ -17,66 +18,68 @@
 - [ ] Fix the manifest.json and everything so that it works as a PWA
 - [ ] Implement google vision to extract the girls names. OpenAI screams.
 - [ ] Add success screen or toast component after they successfully pay their subscription.
-- [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. *ux*
-- [ ] Only show cookies banner to users from the EU and relevant jurisdictions *legal*
+- [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. _ux_
+- [ ] Only show cookies banner to users from the EU and relevant jurisdictions _legal_
 - [ ] Hacer un modulo de post-processing del mensaje del user antes de mandarlo como prompt (para que openai no joda)
 - [ ] Refactor analyzecontroller.ts pq tiene 500 lineas
-
-
+- [ ] Agregar https://www.promptfoo.dev/docs/intro/ para mejorar la seguridad de los prompts.
 
 # Next features
-- [ ] Tener una feature "modo aprendizaje" que te explica porque hace sentido cada mensaje para ir aprendiendo *pro feature*
-- [ ] Feature para one click resumen de cada piba y su historial *pro feature*
-- [ ] Feature para usar @ para citar otros chats y relacionar chats sabiendo que son la misma piba *pro feature*
-- [ ] CRM + Recordatorios para reengagear o marcar como concretada la date. *pro feature*
-- [ ] Input de texto por voz ??(no necesario maybe) *pro feature*
-- [ ] Context Chips: Small badges above the typing area: 🔥 High Interest, 🚩 Red Flag, etc. Clicking a chip auto-inserts context hints into the next prompt.	Chips map to hidden text snippets that prepend to latestMessage.
 
+- [ ] Tener una feature "modo aprendizaje" que te explica porque hace sentido cada mensaje para ir aprendiendo _pro feature_
+- [ ] Feature para one click resumen de cada piba y su historial _pro feature_
+- [ ] Feature para usar @ para citar otros chats y relacionar chats sabiendo que son la misma piba _pro feature_
+- [ ] CRM + Recordatorios para reengagear o marcar como concretada la date. _pro feature_
+- [ ] Input de texto por voz ??(no necesario maybe) _pro feature_
+- [ ] Context Chips: Small badges above the typing area: 🔥 High Interest, 🚩 Red Flag, etc. Clicking a chip auto-inserts context hints into the next prompt. Chips map to hidden text snippets that prepend to latestMessage.
 
 # To-Do
+
 - [ ] Remove "nickname" from the profile table.
-- [ ] Add more user flows to the E2E suite up to 25-30 tests. *tests*
-- [ ] Make the E2E suite run in the three browsers. *test*
-- [ ] Create an audit / architect-mode rule that I can insert manually.  *code-quality*
-- [ ] Set up CI environment. *code-quality*
-- [ ] Make it so that E2E tests use a much smaller model to save on costs. *cost*
-- [ ] Add prettier so that we keep consistent styling. Add prettier to husky? *code-quality*
-- [ ] Get to a good number of test coverage in the backend. *code-quality*
-- [ ] Understand, refactor and improve the frontend. *code-quality*
-- [ ] Migrate frontend to typescript. *code-quality*
-- [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. *bug*
-- [ ] Enter should send the message even if there's only an image and no text. *ux*
+- [ ] Add more user flows to the E2E suite up to 25-30 tests. _tests_
+- [ ] Make the E2E suite run in the three browsers. _test_
+- [ ] Create an audit / architect-mode rule that I can insert manually. _code-quality_
+- [ ] Set up CI environment. _code-quality_
+- [ ] Make it so that E2E tests use a much smaller model to save on costs. _cost_
+- [ ] Add prettier so that we keep consistent styling. Add prettier to husky? _code-quality_
+- [ ] Get to a good number of test coverage in the backend. _code-quality_
+- [ ] Understand, refactor and improve the frontend. _code-quality_
+- [ ] Migrate frontend to typescript. _code-quality_
+- [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. _bug_
+- [ ] Enter should send the message even if there's only an image and no text. _ux_
 - [ ] Delete el chat optimisticamente de la UI.
-- [ ] Add an easy user feedback loop. *growth* 
-- [ ] Add pino for logging. 
-- [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. *code-quality*
-- [ ] Add "re-roll" button for llm answers (use MessageBranching.md to kickstart) *Mau*
-- [ ] Somehow create a way for the user to copy the message that the LLM is sending with one click. *UX*
-- [ ] Add like or dislike button to improve llm answers *Prompt quality*
-- [ ] Do a security review *security*
+- [ ] Add an easy user feedback loop. _growth_
+- [ ] Add pino for logging.
+- [ ] Implement the AI lib from Vercel so that I can update which language I use for different things. _code-quality_
+- [ ] Add "re-roll" button for llm answers (use MessageBranching.md to kickstart) _Mau_
+- [ ] Somehow create a way for the user to copy the message that the LLM is sending with one click. _UX_
+- [ ] Add like or dislike button to improve llm answers _Prompt quality_
+- [ ] Do a security review _security_
 - [ ] Let users delete their accounts and all their data.
-- [ ] Add E2E test that user can cancel their subscription *e2e*
-- [ ] Add 2FA to all Supabase and Cloud accounts *security*
-- [ ] Try to do a mobile frontend with Expo / React Native. *dev*
-- [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. *ux*
+- [ ] Add E2E test that user can cancel their subscription _e2e_
+- [ ] Add 2FA to all Supabase and Cloud accounts _security_
+- [ ] Try to do a mobile frontend with Expo / React Native. _dev_
+- [ ] Divide the user preferences into multiple fields: Things that I like, Thinks I'm looking for in a girl, Conversation style I prefer. _ux_
 - [ ] Practice using the app and improve prompt engineering.
 - [ ] Add E2E tests that the backend is properly processing images.
 - [ ] Add E2E tests for multi-step conversations.
 - [ ] Add E2E tests for the dots to load as soon as the conversation starts.
-- [ ] Make the buckets private to avoid data issues. *legal*
-- [ ] Mejorar critique agent prompt *prompt*
-- [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios *prompt*
+- [ ] Make the buckets private to avoid data issues. _legal_
+- [ ] Mejorar critique agent prompt _prompt_
+- [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios _prompt_
 - [ ] Agregar columnas de prefered language y simp level a database de prod.
- 
 
 # Doing
-- [ ] Fix correct handling of first image and nickname generation. Fix image handling in general.
+
+- [ ] Fix nickname generation. It adds "" to it.
+- [ ] Fix drag and drop of images into the upload component.
 
 # Done
-- [x] Give feedback about the new subscription page 
-- [x] Update stripe to charge weekly instead of monthly. *money*
+
+- [x] Give feedback about the new subscription page
+- [x] Update stripe to charge weekly instead of monthly. _money_
 - [x] Move the Supabase DBs to the EU
-- [x] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. *marketing*
+- [x] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. _marketing_
 - [x] Send my personal data to the stripe peple so they keep accepting money.
-- [x] Create cancel subscription flow *money*
-- [x] Fix so that users can send an image in the first message. *bug*
+- [x] Create cancel subscription flow _money_
+- [x] Fix so that users can send an image in the first message. _bug_

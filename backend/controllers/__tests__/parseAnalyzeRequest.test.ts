@@ -1,119 +1,140 @@
-import { parseAnalyzeRequest } from '../analyzeController';
+import { parseAnalyzeRequest } from "../analyzeController";
 
-describe('parseAnalyzeRequest', () => {
-  it('parses valid historyJson', () => {
+describe("parseAnalyzeRequest", () => {
+  it("parses valid historyJson", () => {
     const req = {
       body: {
         historyJson: '[{"role":"user","content":"hi"}]',
-        newMessageText: 'hello',
-        conversationId: 'abc',
+        newMessageText: "hello",
+        conversationId: "abc",
         isDraft: false,
-        stage: 'TestStage'
+        stage: "Opening",
       },
-      files: [{ name: 'file1.png' }]
+      files: [{ name: "file1.png" }],
     } as any;
     expect(parseAnalyzeRequest(req)).toEqual({
-      history: [{ role: 'user', content: 'hi' }],
-      newMessageText: 'hello',
-      conversationId: 'abc',
-      files: [{ name: 'file1.png' }],
+      history: [{ role: "user", content: "hi" }],
+      newMessageText: "hello",
+      conversationId: "abc",
+      files: [{ name: "file1.png" }],
       isDraft: false,
-      stage: 'TestStage'
+      stage: "Opening",
     });
   });
 
-  it('returns empty history if historyJson is missing', () => {
+  it("returns empty history if historyJson is missing", () => {
     const req = {
       body: {
-        newMessageText: 'hello',
-        conversationId: 'abc',
+        newMessageText: "hello",
+        conversationId: "abc",
         isDraft: true,
-        stage: 'TestStage'
+        stage: "Continue",
       },
-      files: []
+      files: [],
     } as any;
     expect(parseAnalyzeRequest(req)).toEqual({
       history: [],
-      newMessageText: 'hello',
-      conversationId: 'abc',
+      newMessageText: "hello",
+      conversationId: "abc",
       files: [],
       isDraft: true,
-      stage: 'TestStage'
+      stage: "Continue",
     });
   });
 
-  it('throws on invalid historyJson', () => {
+  it("throws on invalid historyJson", () => {
     const req = {
       body: {
-        historyJson: 'not json',
-        newMessageText: 'hello',
-        conversationId: 'abc',
+        historyJson: "not json",
+        newMessageText: "hello",
+        conversationId: "abc",
         isDraft: false,
-        stage: 'TestStage'
+        stage: "Opening",
       },
-      files: []
+      files: [],
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('Invalid history JSON');
+    expect(() => parseAnalyzeRequest(req)).toThrow("Invalid history JSON");
   });
 
-  it('returns empty files if files is missing', () => {
+  it("returns empty files if files is missing", () => {
     const req = {
       body: {
         historyJson: '[{"role":"user","content":"hi"}]',
-        newMessageText: 'hello',
-        conversationId: 'abc',
+        newMessageText: "hello",
+        conversationId: "abc",
         isDraft: false,
-        stage: 'TestStage'
-      }
+        stage: "ReEngage",
+      },
       // files is undefined
     } as any;
     expect(parseAnalyzeRequest(req)).toEqual({
-      history: [{ role: 'user', content: 'hi' }],
-      newMessageText: 'hello',
-      conversationId: 'abc',
+      history: [{ role: "user", content: "hi" }],
+      newMessageText: "hello",
+      conversationId: "abc",
       files: [],
       isDraft: false,
-      stage: 'TestStage'
+      stage: "ReEngage",
     });
   });
 
-  it('throws if newMessageText is missing', () => {
+  it("throws if newMessageText is missing", () => {
     const req = {
       body: {
-        conversationId: 'abc',
+        conversationId: "abc",
         isDraft: false,
-        stage: 'TestStage'
+        stage: "Opening",
       },
-      files: []
+      files: [],
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, isDraft, and stage are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow(
+      "newMessageText, conversationId, isDraft, and stage are required"
+    );
   });
 
-  it('throws if conversationId is missing', () => {
+  it("throws if conversationId is missing", () => {
     const req = {
       body: {
-        newMessageText: 'hello',
+        newMessageText: "hello",
         isDraft: false,
-        stage: 'TestStage'
+        stage: "Continue",
       },
-      files: []
+      files: [],
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, isDraft, and stage are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow(
+      "newMessageText, conversationId, isDraft, and stage are required"
+    );
   });
 
-  it('throws if both newMessageText and conversationId are missing', () => {
+  it("throws if both newMessageText and conversationId are missing", () => {
     const req = {
       body: {
         isDraft: false,
-        stage: 'TestStage'
+        stage: "ReEngage",
       },
-      files: []
+      files: [],
     } as any;
-    expect(() => parseAnalyzeRequest(req)).toThrow('newMessageText, conversationId, isDraft, and stage are required');
+    expect(() => parseAnalyzeRequest(req)).toThrow(
+      "newMessageText, conversationId, isDraft, and stage are required"
+    );
   });
 
-  it('throws if req is completely empty', () => {
+  it("throws if req is completely empty", () => {
     const req = {} as any;
     expect(() => parseAnalyzeRequest(req)).toThrow();
   });
-}); 
+
+  it("throws if stage is invalid", () => {
+    const req = {
+      body: {
+        newMessageText: "hello",
+        conversationId: "abc",
+        isDraft: false,
+        stage: "InvalidStage",
+      },
+      files: [],
+    } as any;
+    expect(() => parseAnalyzeRequest(req)).toThrow(
+      "stage must be one of: Opening, Continue, ReEngage"
+    );
+  });
+});

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
-// Updated props based on App.jsx
+// Updated props based on App.tsx
 function ChatHistory({ history }) {
   // REMOVED: Log the received history prop for debugging
   // console.log("[ChatHistory] Received history prop:", history);
@@ -84,7 +84,7 @@ function ChatHistory({ history }) {
                       ))}
                     </div>
                   )}
-                  {/* Optional: Timestamp - using timestamp passed from App.jsx */}
+                  {/* Optional: Timestamp - using timestamp passed from App.tsx */}
                   {/* <p className={`text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-400'} text-right`}>
                     {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p> */}

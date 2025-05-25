@@ -84,13 +84,13 @@ export async function startNewChat(page: Page): Promise<void> {
 
 /**
  * Helper: Creates a new chat via the UI and waits for it to appear in the sidebar.
- * Returns the chat title as it appears in the UI and the message sent.
+ * Returns the chat title as it appears in the UI, the thread ID, and the message sent.
  * Assumes user is logged in and on a page where "+ New Chat" is visible (e.g., /app)
  */
 export async function createNewChat(
   page: Page,
   chatNumber: number
-): Promise<{ chatTitle: string; message: string }> {
+): Promise<{ chatTitle: string; threadId: string; message: string }> {
   await startNewChat(page);
   const message = `Hello from chat ${chatNumber}`;
   await page.getByTestId("chat-input").fill(message);
@@ -103,9 +103,18 @@ export async function createNewChat(
     .first()
     .waitFor();
 
-  // Get the current chat title from the sidebar (first chat is always the new one)
-  const chatTitleLocator = page.getByTestId("chat-item-name").first();
-  await chatTitleLocator.waitFor();
-  const chatTitle = await chatTitleLocator.textContent();
-  return { chatTitle: chatTitle ?? "", message };
+  // Get the current chat title and thread ID from the sidebar (first chat is always the new one)
+  const chatItemLocator = page.getByTestId("chat-item").first();
+  await chatItemLocator.waitFor();
+
+  const chatTitle = await chatItemLocator
+    .getByTestId("chat-item-name")
+    .textContent();
+  const threadId = await chatItemLocator.getAttribute("data-thread-id");
+
+  if (!threadId) {
+    throw new Error("Could not get thread ID from chat item");
+  }
+
+  return { chatTitle: chatTitle ?? "", threadId, message };
 }

@@ -16,13 +16,14 @@ test.describe("Core Chat Functionality", () => {
   test("user can rename a conversation", async ({
     subscribedUserPage: page,
   }) => {
-    const { chatTitle: originalChatTitle } = await createNewChat(page, 1);
+    const { chatTitle: originalChatTitle, threadId } = await createNewChat(
+      page,
+      1
+    );
     const newChatName = "My Awesome Renamed Chat";
-    const chatItem = page.getByTestId("chat-item").filter({
-      has: page
-        .getByTestId("chat-item-name")
-        .filter({ hasText: originalChatTitle }),
-    });
+    const chatItem = page.locator(
+      `[data-testid="chat-item"][data-thread-id="${threadId}"]`
+    );
     await chatItem.hover();
     const renameButton = chatItem.getByTestId("rename-chat-button");
     await renameButton.click();
@@ -41,13 +42,13 @@ test.describe("Core Chat Functionality", () => {
   test("user can delete a single conversation", async ({
     subscribedUserPage: page,
   }) => {
-    const { chatTitle: chatToDeleteTitle } = await createNewChat(page, 1);
-    const { chatTitle: chatToKeepTitle } = await createNewChat(page, 2);
-    const chatItemToDelete = page.getByTestId("chat-item").filter({
-      has: page
-        .getByTestId("chat-item-name")
-        .filter({ hasText: chatToDeleteTitle }),
-    });
+    const { chatTitle: chatToDeleteTitle, threadId: chatToDeleteThreadId } =
+      await createNewChat(page, 1);
+    const { chatTitle: chatToKeepTitle, threadId: chatToKeepThreadId } =
+      await createNewChat(page, 2);
+    const chatItemToDelete = page.locator(
+      `[data-testid="chat-item"][data-thread-id="${chatToDeleteThreadId}"]`
+    );
     await chatItemToDelete.hover();
     const deleteButton = chatItemToDelete.getByTestId("delete-chat");
     await deleteButton.click();
@@ -56,10 +57,14 @@ test.describe("Core Chat Functionality", () => {
     await expect(confirmBtn).toBeVisible({ timeout: 2000 });
     await confirmBtn.click();
     await expect(
-      page.getByTestId("chat-item-name").filter({ hasText: chatToDeleteTitle })
+      page.locator(
+        `[data-testid="chat-item"][data-thread-id="${chatToDeleteThreadId}"]`
+      )
     ).not.toBeVisible({ timeout: 5000 });
     await expect(
-      page.getByTestId("chat-item-name").filter({ hasText: chatToKeepTitle })
+      page.locator(
+        `[data-testid="chat-item"][data-thread-id="${chatToKeepThreadId}"]`
+      )
     ).toBeVisible();
   });
 
@@ -104,46 +109,49 @@ test.describe("Active chat management", () => {
   test("keeps last chat active after refresh", async ({
     subscribedUserPage: page,
   }) => {
-    const { chatTitle: chat1Title } = await createNewChat(page, 1);
-    const { chatTitle: chat2Title } = await createNewChat(page, 2);
+    const { threadId: chat1ThreadId } = await createNewChat(page, 1);
+    const { threadId: chat2ThreadId } = await createNewChat(page, 2);
 
+    // Click on chat1 to make it active
     await page
-      .getByTestId("chat-item-name")
-      .filter({ hasText: chat1Title })
+      .locator(`[data-testid="chat-item"][data-thread-id="${chat1ThreadId}"]`)
       .click();
     await page.waitForTimeout(250);
+
+    // Verify chat1 is active before refresh
     await expect(
-      page
-        .locator(
-          '[data-testid="chat-item"][data-active="true"] [data-testid="chat-item-name"]'
-        )
-        .filter({ hasText: chat1Title })
+      page.locator(
+        `[data-testid="chat-item"][data-thread-id="${chat1ThreadId}"][data-active="true"]`
+      )
     ).toBeVisible();
 
     await page.reload();
 
+    // After refresh, verify that the same chat (by thread ID) is still active
     await expect(page.getByTestId("chat-item").first()).toBeVisible();
     const activeChat = page.locator(
       '[data-testid="chat-item"][data-active="true"]'
     );
     await expect(activeChat).toHaveCount(1);
-    const activeChatText = await activeChat
-      .locator('[data-testid="chat-item-name"]')
-      .textContent();
-    expect(activeChatText ?? "").toContain(chat1Title);
+
+    // Get the thread ID of the active chat and verify it matches chat1
+    const activeChatThreadId = await activeChat.getAttribute("data-thread-id");
+    expect(activeChatThreadId).toBe(chat1ThreadId);
   });
 
   test("shows first chat as active on initial load (after setup)", async ({
     subscribedUserPage: page,
   }) => {
-    const { chatTitle: chat1Title } = await createNewChat(page, 1);
+    const { threadId: chat1ThreadId } = await createNewChat(page, 1);
     await expect(page.getByTestId("chat-item").first()).toBeVisible();
     const activeChat = page.locator(
       '[data-testid="chat-item"][data-active="true"]'
     );
     await expect(activeChat).toHaveCount(1);
-    const activeChatText = await activeChat.textContent();
-    expect(activeChatText ?? "").toContain(chat1Title);
+
+    // Verify the active chat is the one we created by checking its thread ID
+    const activeChatThreadId = await activeChat.getAttribute("data-thread-id");
+    expect(activeChatThreadId).toBe(chat1ThreadId);
   });
 
   test("shows new chat component if no chats exist", async ({
@@ -162,17 +170,19 @@ test.describe("Chat ordering", () => {
   test("sending a message moves chat to top", async ({
     subscribedUserPage: page,
   }) => {
-    const { chatTitle: chat1Title } = await createNewChat(page, 1);
-    const { chatTitle: chat2Title } = await createNewChat(page, 2);
+    const { threadId: chat1ThreadId } = await createNewChat(page, 1);
+    const { threadId: chat2ThreadId } = await createNewChat(page, 2);
 
-    await expect(page.getByTestId("chat-item-name").first()).toHaveText(
-      chat2Title
-    );
+    // Verify chat2 is at the top initially (most recent)
+    const firstChatThreadId = await page
+      .getByTestId("chat-item")
+      .first()
+      .getAttribute("data-thread-id");
+    expect(firstChatThreadId).toBe(chat2ThreadId);
 
     // Switch to chat1, send a message, and wait for chat1 to move to the top
     await page
-      .getByTestId("chat-item-name")
-      .filter({ hasText: chat1Title })
+      .locator(`[data-testid="chat-item"][data-thread-id="${chat1ThreadId}"]`)
       .click();
     await page.getByTestId("chat-input").fill("Hello again from chat 1");
     await page.getByTestId("send-message-button").click();
@@ -188,10 +198,11 @@ test.describe("Chat ordering", () => {
     // Wait for the AI response to start (indicating backend processing is complete)
     await page.waitForTimeout(1000); // Give time for the optimistic update and backend processing
 
-    // Now check that chat1 has moved to the top
-    await expect(page.getByTestId("chat-item-name").first()).toHaveText(
-      chat1Title,
-      { timeout: 15000 }
-    );
+    // Now check that chat1 has moved to the top by verifying its thread ID
+    const topChatThreadId = await page
+      .getByTestId("chat-item")
+      .first()
+      .getAttribute("data-thread-id");
+    expect(topChatThreadId).toBe(chat1ThreadId);
   });
 });

@@ -71,7 +71,6 @@
 
 # Doing
 
-<<<<<<< HEAD
 - [ ] Set up CI environment. _code-quality_
 - [ ] Setup Cursor background agents. _code-quality_
 
@@ -86,6 +85,3 @@
 - [x] Fix so that users can send an image in the first message. _bug_
 - [x] Fix nickname generation. It adds "" to it.
 - [x] Fix drag and drop of images into the upload component.
-=======
-# Done
->>>>>>> main

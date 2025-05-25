@@ -87,7 +87,7 @@ describe("parseAnalyzeRequest", () => {
       files: [],
     } as any;
     expect(() => parseAnalyzeRequest(req)).toThrow(
-      "newMessageText, conversationId, isDraft, and stage are required"
+      "newMessageText, conversationId, and isDraft are required"
     );
   });
 
@@ -101,7 +101,7 @@ describe("parseAnalyzeRequest", () => {
       files: [],
     } as any;
     expect(() => parseAnalyzeRequest(req)).toThrow(
-      "newMessageText, conversationId, isDraft, and stage are required"
+      "newMessageText, conversationId, and isDraft are required"
     );
   });
 
@@ -114,7 +114,7 @@ describe("parseAnalyzeRequest", () => {
       files: [],
     } as any;
     expect(() => parseAnalyzeRequest(req)).toThrow(
-      "newMessageText, conversationId, isDraft, and stage are required"
+      "newMessageText, conversationId, and isDraft are required"
     );
   });
 
@@ -136,5 +136,97 @@ describe("parseAnalyzeRequest", () => {
     expect(() => parseAnalyzeRequest(req)).toThrow(
       "stage must be one of: Opening, Continue, ReEngage"
     );
+  });
+
+  it("infers stage as 'Opening' when stage is not provided and history is empty", () => {
+    const req = {
+      body: {
+        newMessageText: "hello",
+        conversationId: "abc",
+        isDraft: false,
+        // stage is not provided
+      },
+      files: [],
+    } as any;
+    expect(parseAnalyzeRequest(req)).toEqual({
+      history: [],
+      newMessageText: "hello",
+      conversationId: "abc",
+      files: [],
+      isDraft: false,
+      stage: "Opening",
+    });
+  });
+
+  it("infers stage as 'Continue' when stage is not provided and isDraft is true", () => {
+    const req = {
+      body: {
+        historyJson: '[{"role":"user","content":"hi"}]',
+        newMessageText: "hello",
+        conversationId: "abc",
+        isDraft: true,
+        // stage is not provided
+      },
+      files: [],
+    } as any;
+    expect(parseAnalyzeRequest(req)).toEqual({
+      history: [{ role: "user", content: "hi" }],
+      newMessageText: "hello",
+      conversationId: "abc",
+      files: [],
+      isDraft: true,
+      stage: "Continue",
+    });
+  });
+
+  it("infers stage as 'ReEngage' when stage is not provided and last message is from user", () => {
+    const req = {
+      body: {
+        historyJson:
+          '[{"role":"user","content":"hi"}, {"role":"assistant","content":"hello"}, {"role":"user","content":"how are you?"}]',
+        newMessageText: "hello again",
+        conversationId: "abc",
+        isDraft: false,
+        // stage is not provided
+      },
+      files: [],
+    } as any;
+    expect(parseAnalyzeRequest(req)).toEqual({
+      history: [
+        { role: "user", content: "hi" },
+        { role: "assistant", content: "hello" },
+        { role: "user", content: "how are you?" },
+      ],
+      newMessageText: "hello again",
+      conversationId: "abc",
+      files: [],
+      isDraft: false,
+      stage: "ReEngage",
+    });
+  });
+
+  it("infers stage as 'Continue' when stage is not provided and last message is from assistant", () => {
+    const req = {
+      body: {
+        historyJson:
+          '[{"role":"user","content":"hi"}, {"role":"assistant","content":"hello"}]',
+        newMessageText: "how are you?",
+        conversationId: "abc",
+        isDraft: false,
+        // stage is not provided
+      },
+      files: [],
+    } as any;
+    expect(parseAnalyzeRequest(req)).toEqual({
+      history: [
+        { role: "user", content: "hi" },
+        { role: "assistant", content: "hello" },
+      ],
+      newMessageText: "how are you?",
+      conversationId: "abc",
+      files: [],
+      isDraft: false,
+      stage: "Continue",
+    });
   });
 });

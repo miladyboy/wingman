@@ -96,17 +96,24 @@ function parseAnalyzeRequest(req: Request): {
   if (
     typeof newMessageText === "undefined" ||
     !conversationId ||
-    typeof isDraft === "undefined" ||
-    typeof stage === "undefined"
+    typeof isDraft === "undefined"
   ) {
-    throw new Error(
-      "newMessageText, conversationId, isDraft, and stage are required"
-    );
+    throw new Error("newMessageText, conversationId, and isDraft are required");
   }
 
-  // Validate that stage is a valid Stage value
-  if (!["Opening", "Continue", "ReEngage"].includes(stage)) {
-    throw new Error("stage must be one of: Opening, Continue, ReEngage");
+  const parsedIsDraft = isDraft === true || isDraft === "true";
+
+  // If stage is provided, validate it; otherwise infer it
+  let finalStage: Stage;
+  if (typeof stage !== "undefined") {
+    // Validate that stage is a valid Stage value
+    if (!["Opening", "Continue", "ReEngage"].includes(stage)) {
+      throw new Error("stage must be one of: Opening, Continue, ReEngage");
+    }
+    finalStage = stage as Stage;
+  } else {
+    // Infer stage from history and draft status
+    finalStage = inferStage(history, parsedIsDraft);
   }
 
   const files: UploadedFile[] = (req.files as UploadedFile[]) || [];
@@ -115,8 +122,8 @@ function parseAnalyzeRequest(req: Request): {
     newMessageText,
     conversationId,
     files,
-    isDraft: isDraft === true || isDraft === "true",
-    stage: stage as Stage,
+    isDraft: parsedIsDraft,
+    stage: finalStage,
   };
 }
 

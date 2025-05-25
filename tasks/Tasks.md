@@ -67,15 +67,16 @@
 - [ ] Make the buckets private to avoid data issues. _legal_
 - [ ] Mejorar critique agent prompt _prompt_
 - [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios _prompt_
-- [ ] Agregar columnas de prefered language y simp level a database de prod.
+- [ ] Ver si implementar task master asi: https://x.com/antonioc_cl/status/1919861669158650305
 
 # Doing
 
-- [ ] Fix nickname generation. It adds "" to it.
-- [ ] Fix drag and drop of images into the upload component.
+- [ ] Agregar columnas de prefered language y simp level a database de prod.
 
 # Done
 
+- [x] Fix nickname generation. It adds "" to it.
+- [x] Fix drag and drop of images into the upload component.
 - [x] Give feedback about the new subscription page
 - [x] Update stripe to charge weekly instead of monthly. _money_
 - [x] Move the Supabase DBs to the EU

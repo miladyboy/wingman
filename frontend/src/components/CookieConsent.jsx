@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { setCookieConsent, getCookieConsent } from '../utils/consent';
-import { Button } from './ui/button';
-import posthog from 'posthog-js';
-import { POSTHOG_KEY, POSTHOG_HOST } from '../utils/env';
+import { useState, useEffect } from "react";
+import { setCookieConsent, getCookieConsent } from "../utils/consent";
+import { Button } from "./ui/button";
+import posthog from "posthog-js";
+import { POSTHOG_KEY, POSTHOG_HOST } from "../utils/env";
 
 /**
  * CookieConsent banner component.
@@ -19,7 +19,7 @@ export default function CookieConsent({ onConsentChange }) {
     // Only show if consent is not set
     if (!existingConsent) {
       setVisible(true);
-    } else if (existingConsent === 'accepted') {
+    } else if (existingConsent === "accepted") {
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
       });
@@ -29,7 +29,7 @@ export default function CookieConsent({ onConsentChange }) {
   const handleConsent = (value) => {
     setCookieConsent(value);
     setVisible(false);
-    if (value === 'accepted') {
+    if (value === "accepted") {
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
       });
@@ -43,14 +43,32 @@ export default function CookieConsent({ onConsentChange }) {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 w-full bg-black/90 text-white p-4 z-[1000] flex flex-col items-center justify-center gap-4">
+      <div
+        className="fixed bottom-0 left-0 w-full bg-black/90 text-white p-4 z-[1000] flex flex-col items-center justify-center gap-4"
+        data-testid="cookie-consent-banner"
+      >
         <div className="w-full max-w-[1200px] flex flex-col md:flex-row items-center justify-center gap-4">
-          <span className="text-center md:text-left">
-            We use cookies to improve your experience. By clicking "Accept" you agree to the use of analytics cookies. 
+          <span
+            className="text-center md:text-left"
+            data-testid="cookie-consent-text"
+          >
+            We use cookies to improve your experience. By clicking "Accept" you
+            agree to the use of analytics cookies.
           </span>
           <div className="flex gap-2 flex-shrink-0">
-            <Button onClick={() => handleConsent('accepted')} data-testid="cookie-accept">Accept</Button>
-            <Button onClick={() => handleConsent('refused')} variant="secondary" data-testid="cookie-refuse">Refuse</Button>
+            <Button
+              onClick={() => handleConsent("accepted")}
+              data-testid="cookie-accept"
+            >
+              Accept
+            </Button>
+            <Button
+              onClick={() => handleConsent("refused")}
+              variant="secondary"
+              data-testid="cookie-refuse"
+            >
+              Refuse
+            </Button>
           </div>
         </div>
       </div>
@@ -58,4 +76,4 @@ export default function CookieConsent({ onConsentChange }) {
       <div style={{ height: `${bannerHeight}px` }} />
     </>
   );
-} 
+}

@@ -1,0 +1,55 @@
+# Task ID: 1
+# Title: Migrate Prompts from .txt to TypeScript Template Files
+# Status: in-progress
+# Dependencies: None
+# Priority: medium
+# Description: Convert all existing prompt .txt files to TypeScript (.ts) template files using the taskmaster MCP framework to improve maintainability and type safety.
+# Details:
+This task involves migrating all existing prompt text files to TypeScript template files:
+
+1. Identify all .txt prompt files in the project
+2. For each prompt file:
+   - Create a corresponding .ts file in the same directory structure
+   - Convert the plain text content to a TypeScript template string format
+   - Add appropriate type annotations and exports
+   - Implement any necessary template variable interpolation
+
+Example conversion:
+```
+// Before: prompt.txt
+This is a prompt with a {{variable}}
+
+// After: prompt.ts
+export const promptTemplate = (params: {variable: string}): string => {
+  return `This is a prompt with a ${params.variable}`;
+};
+```
+
+3. Update the taskmaster MCP configuration to use the new TypeScript template files instead of the .txt files
+4. Ensure all imports/requires in the codebase are updated to reference the new .ts files
+5. Implement error handling for template variable validation
+6. Add documentation comments to each template file explaining its purpose and required parameters
+
+This migration will improve code maintainability by providing type safety for prompt templates and enabling better IDE support for template editing.
+
+# Test Strategy:
+To verify the successful implementation of this task:
+
+1. Create a comprehensive inventory of all existing .txt prompt files before starting
+2. After migration, verify that:
+   - Every .txt file has a corresponding .ts file with equivalent functionality
+   - No references to the old .txt files remain in the codebase
+   - All TypeScript files compile without errors
+   - Type checking works correctly for template parameters
+
+3. Write and run unit tests that:
+   - Validate each template can be rendered with valid parameters
+   - Confirm appropriate error handling when invalid parameters are provided
+   - Verify template output matches the expected format
+
+4. Perform integration testing to ensure:
+   - The application correctly loads and uses the new TypeScript templates
+   - All functionality that previously used .txt files works identically with .ts files
+   - Performance is not negatively impacted
+
+5. Document any edge cases or special handling required for specific templates

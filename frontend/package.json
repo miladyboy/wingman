@@ -31,6 +31,8 @@
     "lucide-react": "^0.503.0",
     "mailtrap": "^4.1.0",
     "node-fetch": "^3.3.2",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0",
     "playwright": "^1.52.0",
     "posthog-js": "^1.242.2",
     "react": "^19.1.0",

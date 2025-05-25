@@ -1,0 +1,63 @@
+# Task ID: 4
+# Title: E2E Test: Multi-Turn Conversation Flow
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Create an end-to-end test that validates multi-step conversations by sending multiple messages sequentially, verifying AI responses after each message, and ensuring conversation history maintains correct order.
+# Details:
+This task builds upon the basic AI reply functionality to test complex conversation flows:
+
+1. **Test Setup:**
+   - Create a new Playwright test file `multi-turn-conversation.spec.ts` in the E2E test suite
+   - Set up test authentication and navigate to the chat interface
+   - Ensure clean state with no existing conversation history
+
+2. **Multi-Turn Conversation Implementation:**
+   - Define an array of 3-5 test messages that build upon each other contextually
+   - Implement a loop to send each message sequentially:
+     - Send message via chat input
+     - Wait for AI response to appear (using data-testid or text content selectors)
+     - Verify response is not empty and contains expected AI indicators
+     - Assert conversation history shows correct message count and order
+   - Use Playwright's `waitFor` with appropriate timeouts for AI response generation
+
+3. **Conversation History Validation:**
+   - After each message exchange, query the chat history container
+   - Verify all previous messages (both user and AI) are present and in chronological order
+   - Check message metadata (timestamps, sender indicators) for consistency
+   - Ensure no duplicate or missing messages in the conversation thread
+
+4. **Error Handling and Edge Cases:**
+   - Test behavior when AI response takes longer than expected
+   - Verify conversation state persists correctly between message exchanges
+   - Handle potential race conditions between message sending and response generation
+
+5. **Test Data Strategy:**
+   - Use contextually related messages that would naturally flow in conversation
+   - Include follow-up questions that reference previous AI responses
+   - Test both simple queries and more complex multi-part questions
+
+# Test Strategy:
+1. **Functional Verification:**
+   - Run the test and verify it sends exactly 3+ messages in sequence
+   - Confirm each message triggers an AI response within reasonable timeout (30-60 seconds)
+   - Validate conversation history shows correct chronological order of all messages
+
+2. **Conversation Integrity Testing:**
+   - After test completion, manually inspect the chat interface to verify visual conversation flow
+   - Check that message timestamps are sequential and realistic
+   - Ensure no orphaned or duplicate messages appear in the conversation
+
+3. **Failure Scenario Testing:**
+   - Temporarily disable AI response generation to verify test fails appropriately
+   - Introduce artificial delays to test timeout handling
+   - Verify test fails if conversation history becomes corrupted or out of order
+
+4. **Cross-Browser Validation:**
+   - Run test across different browsers (Chrome, Firefox, Safari) to ensure consistency
+   - Test on different viewport sizes to verify responsive conversation display
+
+5. **Performance Verification:**
+   - Monitor test execution time to ensure it completes within reasonable bounds
+   - Verify memory usage doesn't spike during extended conversation testing
+   - Check that conversation history rendering remains performant with multiple messages

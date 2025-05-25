@@ -1,0 +1,71 @@
+# Task ID: 7
+# Title: E2E Test: Typing Indicator Verification
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Create an end-to-end test that verifies a typing/loading indicator appears after sending a message and disappears when the AI reply is rendered, ensuring proper user experience feedback.
+# Details:
+This task involves implementing a comprehensive E2E test to verify typing indicator functionality:
+
+1. **Test Setup:**
+   - Create a new Playwright test file `typing-indicator.spec.ts` in the E2E test suite
+   - Set up test authentication and navigate to the chat interface
+   - Ensure clean state with no existing conversation history
+
+2. **Typing Indicator Test Implementation:**
+   - Send a test message through the chat input field
+   - Immediately after sending, wait for and assert the presence of the typing indicator element
+   - Use appropriate selectors to identify the indicator (e.g., animated dots, spinner, "AI is typing..." text)
+   - Verify the indicator is visible and properly animated/styled
+   - Wait for the AI response to appear in the chat
+   - Assert that the typing indicator disappears when the AI reply is rendered
+   - Verify the timing sequence: message sent → indicator appears → AI reply appears → indicator disappears
+
+3. **Technical Considerations:**
+   - Use Playwright's `waitForSelector()` with appropriate timeouts for indicator appearance
+   - Implement `waitForSelector({ state: 'hidden' })` to verify indicator disappearance
+   - Handle potential race conditions between indicator appearance and AI response
+   - Add assertions for indicator visual properties (opacity, animation state)
+   - Consider testing with different message types that may have varying response times
+
+4. **Error Handling:**
+   - Test should fail if indicator doesn't appear within expected timeframe
+   - Test should fail if indicator doesn't disappear after AI response
+   - Include timeout handling for slow AI responses
+   - Add retry logic for flaky indicator animations
+
+5. **Cross-browser Compatibility:**
+   - Ensure test works across different browsers supported by Playwright
+   - Verify indicator animations render correctly in all target browsers
+
+# Test Strategy:
+1. **Functional Verification:**
+   - Run the E2E test in isolation to verify it passes consistently
+   - Test with various message lengths and types to ensure indicator behavior is consistent
+   - Verify test fails appropriately when indicator elements are artificially removed from DOM
+
+2. **Timing Validation:**
+   - Measure and assert timing constraints: indicator should appear within 100-500ms of message send
+   - Verify indicator disappears within 100ms of AI response rendering
+   - Test with artificially delayed AI responses to ensure indicator persists appropriately
+
+3. **Visual Verification:**
+   - Use Playwright's screenshot comparison to verify indicator appearance
+   - Assert indicator has expected CSS classes, animations, or visual states
+   - Verify indicator positioning and styling matches design requirements
+
+4. **Integration Testing:**
+   - Run test as part of the full E2E suite to ensure no conflicts with other tests
+   - Verify test works with different user authentication states
+   - Test indicator behavior during rapid successive message sending
+
+5. **Edge Case Testing:**
+   - Test behavior when AI response is immediate (very fast response time)
+   - Test with network delays or AI service timeouts
+   - Verify indicator behavior when user sends multiple messages quickly
+   - Test indicator during error states (AI service unavailable)
+
+6. **Performance Validation:**
+   - Ensure test execution time is reasonable (under 30 seconds)
+   - Verify test doesn't cause memory leaks or performance degradation
+   - Monitor test stability across multiple runs (minimum 10 consecutive passes)

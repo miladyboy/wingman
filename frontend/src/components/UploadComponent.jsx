@@ -174,7 +174,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           : ""
       }`}
     >
-      <input {...getInputProps()} />
+      <input {...getInputProps()} data-testid="chat-file-input" />
       {isDragActive && (
         <div className="absolute inset-0 flex items-center justify-center bg-primary/5 rounded-lg pointer-events-none z-10">
           <p className="text-primary font-medium">Drop images here...</p>

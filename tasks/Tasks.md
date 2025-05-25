@@ -39,7 +39,6 @@
 - [ ] Add more user flows to the E2E suite up to 25-30 tests. _tests_
 - [ ] Make the E2E suite run in the three browsers. _test_
 - [ ] Create an audit / architect-mode rule that I can insert manually. _code-quality_
-- [ ] Set up CI environment. _code-quality_
 - [ ] Make it so that E2E tests use a much smaller model to save on costs. _cost_
 - [ ] Add prettier so that we keep consistent styling. Add prettier to husky? _code-quality_
 - [ ] Get to a good number of test coverage in the backend. _code-quality_
@@ -71,8 +70,8 @@
 
 # Doing
 
-- [ ] Fix nickname generation. It adds "" to it.
-- [ ] Fix drag and drop of images into the upload component.
+- [ ] Set up CI environment. _code-quality_
+- [ ] Setup Cursor background agents. _code-quality_
 
 # Done
 
@@ -83,3 +82,5 @@
 - [x] Send my personal data to the stripe peple so they keep accepting money.
 - [x] Create cancel subscription flow _money_
 - [x] Fix so that users can send an image in the first message. _bug_
+- [x] Fix nickname generation. It adds "" to it.
+- [x] Fix drag and drop of images into the upload component.

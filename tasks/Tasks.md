@@ -35,6 +35,7 @@
 
 # To-Do
 
+- [ ] The test suite seems flaky AF (The E2E tests)
 - [ ] Remove "nickname" from the profile table.
 - [ ] Add more user flows to the E2E suite up to 25-30 tests. _tests_
 - [ ] Make the E2E suite run in the three browsers. _test_
@@ -44,7 +45,6 @@
 - [ ] Get to a good number of test coverage in the backend. _code-quality_
 - [ ] Understand, refactor and improve the frontend. _code-quality_
 - [ ] Migrate frontend to typescript. _code-quality_
-- [ ] The Nickname is sometimes showing up as "**Nickname:** Abril Star Explorer". It should just be the nickname. _bug_
 - [ ] Enter should send the message even if there's only an image and no text. _ux_
 - [ ] Delete el chat optimisticamente de la UI.
 - [ ] Add an easy user feedback loop. _growth_
@@ -66,10 +66,12 @@
 - [ ] Make the buckets private to avoid data issues. _legal_
 - [ ] Mejorar critique agent prompt _prompt_
 - [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios _prompt_
-- [ ] Agregar columnas de prefered language y simp level a database de prod.
+- [ ] Ver si implementar task master asi: https://x.com/antonioc_cl/status/1919861669158650305
+- [ ] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente.
 
 # Doing
 
+<<<<<<< HEAD
 - [ ] Set up CI environment. _code-quality_
 - [ ] Setup Cursor background agents. _code-quality_
 
@@ -84,3 +86,6 @@
 - [x] Fix so that users can send an image in the first message. _bug_
 - [x] Fix nickname generation. It adds "" to it.
 - [x] Fix drag and drop of images into the upload component.
+=======
+# Done
+>>>>>>> main

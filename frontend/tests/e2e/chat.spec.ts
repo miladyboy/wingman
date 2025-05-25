@@ -1,87 +1,5 @@
 import { test, expect } from "./utils/fixtures";
-import type { Page } from "@playwright/test";
-
-/**
- * Helper: Creates a new chat via the UI and waits for it to appear in the sidebar.
- * Returns the chat title as it appears in the UI and the message sent.
- * Assumes user is logged in and on a page where "+ New Chat" is visible (e.g., /app)
- */
-async function createNewChat(page: any, chatNumber: number) {
-  await page.getByTestId("new-chat-button").click();
-  const message = `Hello from chat ${chatNumber}`;
-  await page.getByTestId("chat-input").fill(message);
-  await page.getByTestId("send-message-button").click();
-
-  // Wait for the message to appear - use first() to avoid strict mode violation
-  await page
-    .getByTestId("chat-message-content")
-    .filter({ hasText: message })
-    .first()
-    .waitFor();
-
-  // Get the current chat title from the sidebar (first chat is always the new one)
-  const chatTitleLocator = page.getByTestId("chat-item-name").first();
-  await chatTitleLocator.waitFor();
-  const chatTitle = await chatTitleLocator.textContent();
-  return { chatTitle: chatTitle ?? "", message };
-}
-
-/**
- * Helper: Deletes every chat visible in the sidebar and waits until none remain.
- * Assumes user is logged in and on a page where chat items are visible (e.g., /app)
- */
-async function deleteAllChats(page: Page) {
-  try {
-    await page
-      .getByTestId("chat-item")
-      .first()
-      .waitFor({ state: "visible", timeout: 5000 });
-  } catch (e) {
-    return; // No chats to delete
-  }
-
-  let safetyNet = 30;
-  while ((await page.getByTestId("chat-item").count()) > 0 && safetyNet > 0) {
-    safetyNet--;
-    const chatItems = page.getByTestId("chat-item");
-    const firstChat = chatItems.first();
-    await expect(firstChat).toBeVisible({ timeout: 3000 });
-    const deleteBtn = firstChat.getByTestId("delete-chat");
-    await firstChat.hover();
-    await expect(deleteBtn).toBeVisible({ timeout: 2000 });
-    const prevCount = await chatItems.count();
-    await deleteBtn.click();
-    // Espera a que el modal aparezca y confirma
-    const confirmBtn = page.getByTestId("confirm-delete-chat");
-    await expect(confirmBtn).toBeVisible({ timeout: 2000 });
-    await confirmBtn.click();
-    await page
-      .waitForFunction(
-        ({ selector, prev }: { selector: string; prev: number }) => {
-          const currentElements = document.querySelectorAll(selector);
-          return currentElements.length < prev;
-        },
-        { selector: '[data-testid="chat-item"]', prev: prevCount },
-        { timeout: 7000, polling: 500 }
-      )
-      .catch((err: Error) => {
-        // Minimal error logging in case of failure, or re-throw
-        console.error(
-          "Error waiting for chat item count to decrease:",
-          err.message
-        );
-        throw err;
-      });
-  }
-  if (safetyNet === 0) {
-    console.warn(
-      "[deleteAllChats] Safety net triggered. Final count:",
-      await page.getByTestId("chat-item").count()
-    );
-  }
-  await expect(page.getByTestId("chat-item")).toHaveCount(0);
-}
-
+import { deleteAllChats, createNewChat } from "./utils/chatHelpers";
 
 test.describe("Core Chat Functionality", () => {
   test.beforeEach(async ({ subscribedUserPage }) => {
@@ -95,7 +13,9 @@ test.describe("Core Chat Functionality", () => {
   //   await expect(page.getByTestId('chat-item-name').filter({ hasText: chatName })).toBeVisible();
   // });
 
-  test("user can rename a conversation", async ({ subscribedUserPage: page }) => {
+  test("user can rename a conversation", async ({
+    subscribedUserPage: page,
+  }) => {
     const { chatTitle: originalChatTitle } = await createNewChat(page, 1);
     const newChatName = "My Awesome Renamed Chat";
     const chatItem = page.getByTestId("chat-item").filter({
@@ -118,7 +38,9 @@ test.describe("Core Chat Functionality", () => {
     ).toBeVisible();
   });
 
-  test("user can delete a single conversation", async ({ subscribedUserPage: page }) => {
+  test("user can delete a single conversation", async ({
+    subscribedUserPage: page,
+  }) => {
     const { chatTitle: chatToDeleteTitle } = await createNewChat(page, 1);
     const { chatTitle: chatToKeepTitle } = await createNewChat(page, 2);
     const chatItemToDelete = page.getByTestId("chat-item").filter({
@@ -141,7 +63,9 @@ test.describe("Core Chat Functionality", () => {
     ).toBeVisible();
   });
 
-  test("user can upload an image in chat and see the preview", async ({ subscribedUserPage: page }) => {
+  test("user can upload an image in chat and see the preview", async ({
+    subscribedUserPage: page,
+  }) => {
     const dummyImage = {
       name: "test-image.png",
       mimeType: "image/png",
@@ -177,7 +101,9 @@ test.describe("Active chat management", () => {
     await deleteAllChats(page); // Clear chats before each test
   });
 
-  test("keeps last chat active after refresh", async ({ subscribedUserPage: page }) => {
+  test("keeps last chat active after refresh", async ({
+    subscribedUserPage: page,
+  }) => {
     const { chatTitle: chat1Title } = await createNewChat(page, 1);
     const { chatTitle: chat2Title } = await createNewChat(page, 2);
 
@@ -207,7 +133,9 @@ test.describe("Active chat management", () => {
     expect(activeChatText ?? "").toContain(chat1Title);
   });
 
-  test("shows first chat as active on initial load (after setup)", async ({ subscribedUserPage: page }) => {
+  test("shows first chat as active on initial load (after setup)", async ({
+    subscribedUserPage: page,
+  }) => {
     const { chatTitle: chat1Title } = await createNewChat(page, 1);
     await expect(page.getByTestId("chat-item").first()).toBeVisible();
     const activeChat = page.locator(
@@ -218,7 +146,9 @@ test.describe("Active chat management", () => {
     expect(activeChatText ?? "").toContain(chat1Title);
   });
 
-  test("shows new chat component if no chats exist", async ({ subscribedUserPage: page }) => {
+  test("shows new chat component if no chats exist", async ({
+    subscribedUserPage: page,
+  }) => {
     await expect(page.getByTestId("chat-empty-state")).toBeVisible();
   });
 });
@@ -229,7 +159,9 @@ test.describe("Chat ordering", () => {
     await deleteAllChats(page);
   });
 
-  test("sending a message moves chat to top", async ({ subscribedUserPage: page }) => {
+  test("sending a message moves chat to top", async ({
+    subscribedUserPage: page,
+  }) => {
     const { chatTitle: chat1Title } = await createNewChat(page, 1);
     const { chatTitle: chat2Title } = await createNewChat(page, 2);
 

@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-/**
- * Read more at https://playwright.dev/docs/test-configuration
- */
 export default defineConfig({
   testDir: "./tests/e2e",
+<<<<<<< HEAD
   /* Maximum time one test can run for. */
+=======
+>>>>>>> main
   timeout: 60 * 1000,
   expect: {
     /** Maximum time expect() should wait for the condition to be met. */
@@ -25,7 +25,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "list",
+<<<<<<< HEAD
   globalSetup: "./tests/global-setup.ts",
+=======
+>>>>>>> main
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -36,11 +39,23 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
+<<<<<<< HEAD
+=======
+      name: "setup",
+      testMatch: /.*\.setup\.ts/,
+      timeout: 5 * 60 * 1000, // Increased timeout for multiple user creations
+    },
+    {
+>>>>>>> main
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
         // No global storageState here; tests will use test.use() or a default empty state.
       },
+<<<<<<< HEAD
+=======
+      dependencies: ["setup"],
+>>>>>>> main
     },
     // {
     //   name: 'firefox',

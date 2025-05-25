@@ -1,19 +1,16 @@
-import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
+import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
 // import path from 'path'; // No longer strictly needed here if not using path.resolve for storageState
 
 dotenv.config();
 
-/**
- * Read more at https://playwright.dev/docs/test-configuration
- */
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: "./tests/e2e",
   /* Maximum time one test can run for. */
   timeout: 60 * 1000,
   expect: {
     /** Maximum time expect() should wait for the condition to be met. */
-    timeout: 10000
+    timeout: 10000,
   },
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -22,30 +19,25 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'list',
+  reporter: "list",
+  globalSetup: "./tests/global-setup.ts",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:5173',
+    baseURL: "http://localhost:5173",
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
   },
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/,
-      timeout: 5 * 60 * 1000, // Increased timeout for multiple user creations
-    },
-    {
-      name: 'chromium',
+      name: "chromium",
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices["Desktop Chrome"],
         // No global storageState here; tests will use test.use() or a default empty state.
       },
-      dependencies: ['setup'],
     },
     // {
     //   name: 'firefox',
@@ -64,4 +56,4 @@ export default defineConfig({
     //   dependencies: ['setup'],
     // },
   ],
-}); 
+});

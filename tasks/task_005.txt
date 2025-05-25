@@ -1,0 +1,62 @@
+# Task ID: 5
+# Title: E2E Test: Cancel Subscription Flow
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Create an end-to-end test that validates the complete subscription cancellation flow, verifying that users lose access to pro features and their subscription state is properly updated after cancellation.
+# Details:
+This task involves implementing a comprehensive E2E test for the subscription cancellation flow:
+
+1. **Test Setup:**
+   - Create a new Playwright test file `cancel-subscription.spec.ts` in the E2E test suite
+   - Set up test data with a pre-existing subscribed user account
+   - Implement authentication flow to log in as the subscribed user
+   - Navigate to the subscription management interface
+
+2. **Subscription Cancellation Flow:**
+   - Locate and interact with the subscription cancellation UI elements
+   - Handle any confirmation dialogs or multi-step cancellation process
+   - Verify cancellation confirmation messages or success indicators
+   - Capture any redirect behavior after cancellation completion
+
+3. **Access Control Verification:**
+   - Attempt to access pro features that should now be restricted
+   - Verify appropriate error messages or access denied responses
+   - Test navigation to premium sections and confirm lockout behavior
+   - Validate UI changes that indicate downgraded access level
+
+4. **Subscription State Validation:**
+   - Check user profile or account settings to confirm subscription status change
+   - Verify database state changes if accessible through API endpoints
+   - Confirm billing status updates and cancellation timestamps
+   - Test that subscription benefits are immediately revoked
+
+5. **Error Handling:**
+   - Implement robust waiting strategies for async operations
+   - Handle potential network delays during cancellation processing
+   - Add retry logic for flaky subscription service interactions
+   - Ensure test fails appropriately if access is not properly revoked
+
+6. **Test Data Management:**
+   - Create reusable test utilities for subscription setup and teardown
+   - Implement cleanup procedures to reset test user state
+   - Consider using test-specific subscription tiers for isolation
+
+# Test Strategy:
+1. **Pre-test Verification:** Confirm the test user has an active subscription and can access pro features before starting the cancellation flow.
+
+2. **Cancellation Process Testing:** Execute the complete cancellation flow through the UI, verifying each step completes successfully and any confirmation messages appear.
+
+3. **Immediate Access Verification:** Immediately after cancellation, attempt to access multiple pro features and verify they are properly restricted with appropriate error messages.
+
+4. **Subscription Status Validation:** Check the user's account settings, profile, or subscription management page to confirm the subscription status shows as cancelled or downgraded.
+
+5. **Persistent Access Control:** Log out and log back in to ensure access restrictions persist across sessions and are not just temporary UI changes.
+
+6. **API State Verification:** If available, make API calls to verify the user's subscription state in the backend matches the expected cancelled status.
+
+7. **Negative Testing:** Verify the test fails appropriately by temporarily commenting out access control logic and confirming the test catches the failure.
+
+8. **Cross-browser Testing:** Run the test across different browsers to ensure cancellation flow works consistently across platforms.
+
+9. **Performance Validation:** Ensure cancellation processing completes within reasonable time limits and doesn't cause timeouts or hanging states.

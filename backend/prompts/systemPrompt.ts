@@ -1,4 +1,4 @@
-import type { ChatCompletionSystemMessageParam } from 'openai/resources/chat/completions';
+import type { ChatCompletionSystemMessageParam } from "openai/resources/chat/completions";
 
 /**
  * Returns the system prompt as a structured message.
@@ -6,7 +6,7 @@ import type { ChatCompletionSystemMessageParam } from 'openai/resources/chat/com
  */
 function systemPrompt(): ChatCompletionSystemMessageParam {
   return {
-    role: 'system',
+    role: "system",
     content: `=== Harem – AI Dating Strategist Core Instructions (v2.3) ===
 
 1. IDENTITY & VOICE
@@ -65,7 +65,7 @@ Respond only in the selected mode.
 • Keep each message punchy (1–3 sentences) unless the user explicitly requests more depth.
 
 11. FINAL OUTPUT FORMAT
-• Follow all rules above and ensure no trailing whitespace.`
+• Follow all rules above and ensure no trailing whitespace.`,
   };
 }
 

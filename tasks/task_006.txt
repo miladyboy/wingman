@@ -1,0 +1,62 @@
+# Task ID: 6
+# Title: E2E Test: Image Upload and AI Analysis Verification
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Create an end-to-end test that uploads an image to the chat interface and verifies that the AI's response contains relevant content analysis of the uploaded image.
+# Details:
+This task involves implementing a comprehensive E2E test to verify image upload and AI analysis functionality:
+
+1. **Test Setup:**
+   - Create a new Playwright test file `image-analysis.spec.ts` in the E2E test suite
+   - Prepare test image files (various formats: JPG, PNG, WebP) with known content for verification
+   - Set up test authentication and navigate to the chat interface
+   - Ensure clean state with no existing conversation history
+
+2. **Image Upload Implementation:**
+   - Locate and interact with the image upload component/button in the chat interface
+   - Use Playwright's file upload capabilities to select and upload test images
+   - Wait for upload completion indicators (progress bars, success states)
+   - Verify the image appears in the chat interface as an uploaded message
+
+3. **AI Response Verification:**
+   - Wait for AI response generation after image upload (with appropriate timeout)
+   - Capture the AI's response text content
+   - Implement content analysis assertions that verify the response references the image:
+     - Check for image-related keywords (e.g., "image", "picture", "photo", "shows", "contains")
+     - Verify response mentions specific content visible in the test image
+     - Ensure response length indicates substantive analysis (not generic error messages)
+
+4. **Error Handling and Edge Cases:**
+   - Test with different image formats and sizes
+   - Verify proper error handling for unsupported file types
+   - Test timeout scenarios if AI doesn't respond within expected timeframe
+   - Validate that the test fails appropriately when AI response is irrelevant or missing
+
+5. **Test Data Management:**
+   - Create a set of test images with known, verifiable content
+   - Document expected AI response patterns for each test image
+   - Implement flexible assertion logic that can adapt to various valid AI responses
+
+# Test Strategy:
+1. **Functional Verification:**
+   - Run the test with multiple test images and verify AI responses contain image-specific content
+   - Manually upload the same test images and compare AI responses to ensure test accuracy
+   - Verify test fails when AI response is generic or doesn't reference the image
+
+2. **Cross-Browser Testing:**
+   - Execute the test across different browsers (Chrome, Firefox, Safari) to ensure file upload compatibility
+   - Test on different viewport sizes to verify responsive image upload functionality
+
+3. **Performance Testing:**
+   - Measure and validate image upload and AI response times are within acceptable limits
+   - Test with various image file sizes to ensure consistent behavior
+
+4. **Regression Testing:**
+   - Include this test in the CI/CD pipeline to catch regressions in image analysis functionality
+   - Run test against different AI model versions to ensure consistent image analysis capabilities
+
+5. **Error Scenario Validation:**
+   - Intentionally test with corrupted or invalid image files to verify proper error handling
+   - Test network interruption scenarios during image upload
+   - Verify test correctly identifies when AI responses are inadequate or missing image references

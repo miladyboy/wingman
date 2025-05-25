@@ -27,6 +27,40 @@ All database schema changes **must** be made via migration files committed to gi
 5. **Push and deploy:**
    - When deploying, ensure all migrations are applied in order to the target environment.
 
+## Migration File Naming Convention
+**All migration files must follow this exact naming pattern:**
+
+`YYYYMMDD-descriptive-name-with-hyphens.sql`
+
+### Format Requirements:
+- **Timestamp prefix:** Use current date in `YYYYMMDD` format (e.g., `20240613`)
+- **Separator:** Single hyphen (`-`) after timestamp
+- **Description:** Descriptive name using lowercase letters, numbers, and hyphens only
+- **Word separation:** Use hyphens (`-`) between words, never underscores or spaces
+- **File extension:** Always `.sql`
+
+### Examples:
+```
+✅ CORRECT:
+20240613-add-auth-user-trigger.sql
+20240614-add-preferences-to-profiles.sql
+20240615-create-posts-table.sql
+20240616-update-user-roles-enum.sql
+
+❌ INCORRECT:
+add_user_table.sql                    (missing timestamp)
+20240613_add_user_table.sql          (underscores instead of hyphens)
+20240613-Add-User-Table.sql          (uppercase letters)
+20240613-add user table.sql          (spaces)
+migration-001.sql                     (non-descriptive name)
+```
+
+### Why This Convention?
+- **Chronological ordering:** Timestamp ensures migrations are applied in correct order
+- **Readability:** Descriptive names make it easy to understand what each migration does
+- **Consistency:** Uniform naming prevents confusion and merge conflicts
+- **Tooling compatibility:** Works seamlessly with Supabase CLI and git workflows
+
 ## Never Do This
 - Do **not** add, drop, or alter tables/columns directly in the Supabase dashboard for production or shared environments.
 - Do **not** use MCP for schema changes unless you immediately export the SQL and add it as a migration file.

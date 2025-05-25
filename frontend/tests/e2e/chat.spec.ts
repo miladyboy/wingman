@@ -1,4 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "./utils/fixtures";
+import type { Page } from "@playwright/test";
 
 /**
  * Helper: Creates a new chat via the UI and waits for it to appear in the sidebar.
@@ -81,12 +82,11 @@ async function deleteAllChats(page: Page) {
   await expect(page.getByTestId("chat-item")).toHaveCount(0);
 }
 
-test.use({ storageState: "playwright/.auth/subscribedUser.json" });
 
 test.describe("Core Chat Functionality", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/app");
-    await deleteAllChats(page);
+  test.beforeEach(async ({ subscribedUserPage }) => {
+    await subscribedUserPage.goto("/app");
+    await deleteAllChats(subscribedUserPage);
   });
 
   // test('user can start a new chat, send a message, and see it appear', async ({ page }) => {
@@ -95,7 +95,7 @@ test.describe("Core Chat Functionality", () => {
   //   await expect(page.getByTestId('chat-item-name').filter({ hasText: chatName })).toBeVisible();
   // });
 
-  test("user can rename a conversation", async ({ page }: { page: any }) => {
+  test("user can rename a conversation", async ({ subscribedUserPage: page }) => {
     const { chatTitle: originalChatTitle } = await createNewChat(page, 1);
     const newChatName = "My Awesome Renamed Chat";
     const chatItem = page.getByTestId("chat-item").filter({
@@ -118,11 +118,7 @@ test.describe("Core Chat Functionality", () => {
     ).toBeVisible();
   });
 
-  test("user can delete a single conversation", async ({
-    page,
-  }: {
-    page: any;
-  }) => {
+  test("user can delete a single conversation", async ({ subscribedUserPage: page }) => {
     const { chatTitle: chatToDeleteTitle } = await createNewChat(page, 1);
     const { chatTitle: chatToKeepTitle } = await createNewChat(page, 2);
     const chatItemToDelete = page.getByTestId("chat-item").filter({
@@ -145,9 +141,7 @@ test.describe("Core Chat Functionality", () => {
     ).toBeVisible();
   });
 
-  test("user can upload an image in chat and see the preview", async ({
-    page,
-  }) => {
+  test("user can upload an image in chat and see the preview", async ({ subscribedUserPage: page }) => {
     const dummyImage = {
       name: "test-image.png",
       mimeType: "image/png",
@@ -178,16 +172,12 @@ test.describe("Core Chat Functionality", () => {
 //  * Active chat management tests
 //  */
 test.describe("Active chat management", () => {
-  test.beforeEach(async ({ page }: { page: any }) => {
+  test.beforeEach(async ({ subscribedUserPage: page }) => {
     await page.goto("/app"); // Ensure starting on the app page
     await deleteAllChats(page); // Clear chats before each test
   });
 
-  test("keeps last chat active after refresh", async ({
-    page,
-  }: {
-    page: any;
-  }) => {
+  test("keeps last chat active after refresh", async ({ subscribedUserPage: page }) => {
     const { chatTitle: chat1Title } = await createNewChat(page, 1);
     const { chatTitle: chat2Title } = await createNewChat(page, 2);
 
@@ -217,11 +207,7 @@ test.describe("Active chat management", () => {
     expect(activeChatText ?? "").toContain(chat1Title);
   });
 
-  test("shows first chat as active on initial load (after setup)", async ({
-    page,
-  }: {
-    page: any;
-  }) => {
+  test("shows first chat as active on initial load (after setup)", async ({ subscribedUserPage: page }) => {
     const { chatTitle: chat1Title } = await createNewChat(page, 1);
     await expect(page.getByTestId("chat-item").first()).toBeVisible();
     const activeChat = page.locator(
@@ -232,18 +218,18 @@ test.describe("Active chat management", () => {
     expect(activeChatText ?? "").toContain(chat1Title);
   });
 
-  test("shows new chat component if no chats exist", async ({ page }) => {
+  test("shows new chat component if no chats exist", async ({ subscribedUserPage: page }) => {
     await expect(page.getByTestId("chat-empty-state")).toBeVisible();
   });
 });
 
 test.describe("Chat ordering", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ subscribedUserPage: page }) => {
     await page.goto("/app");
     await deleteAllChats(page);
   });
 
-  test("sending a message moves chat to top", async ({ page }) => {
+  test("sending a message moves chat to top", async ({ subscribedUserPage: page }) => {
     const { chatTitle: chat1Title } = await createNewChat(page, 1);
     const { chatTitle: chat2Title } = await createNewChat(page, 2);
 

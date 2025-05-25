@@ -67,7 +67,7 @@ export async function registerAndConfirmUser(
   await page.waitForTimeout(5000); // Increased timeout for email arrival
 
   // Fetch the confirmation link from Mailtrap
-  const confirmationLink = await getConfirmationLink();
+  const confirmationLink = await getConfirmationLink(email);
   if (!confirmationLink) {
     throw new Error('Could not retrieve confirmation link from Mailtrap.');
   }

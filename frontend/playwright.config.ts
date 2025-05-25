@@ -25,6 +25,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'list',
+  globalSetup: './tests/global-setup.ts',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -35,17 +36,11 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/,
-      timeout: 5 * 60 * 1000, // Increased timeout for multiple user creations
-    },
-    {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         // No global storageState here; tests will use test.use() or a default empty state.
       },
-      dependencies: ['setup'],
     },
     // {
     //   name: 'firefox',

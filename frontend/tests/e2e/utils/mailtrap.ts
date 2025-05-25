@@ -1,5 +1,4 @@
 import { MailtrapClient } from "mailtrap";
-import * as cheerio from "cheerio";
 
 const MAILTRAP_API_TOKEN = process.env.MAILTRAP_API_TOKEN;
 const MAILTRAP_INBOX_ID = Number(process.env.MAILTRAP_INBOX_ID);
@@ -25,25 +24,46 @@ export async function getLatestMail() {
   return messages[0];
 }
 
-/* eslint-disable no-undef */
-function decodeHtmlEntities(str) {
+function decodeHtmlEntities(str: string): string {
   return str.replace(/&amp;/g, '&');
 }
 
 /**
- * Extracts the confirmation link (with data-confirmation-link) from the latest email's HTML body.
- * Throws if no such link is found.
+ * Extracts the first confirmation link from an email sent to `targetEmail` (most recent first).
+ * If `targetEmail` is not provided, falls back to the absolute latest email in the inbox.
+ * Throws if no link is found.
  */
-export async function getConfirmationLink() {
-  const email = await getLatestMail();
+export async function getConfirmationLink(targetEmail?: string): Promise<string> {
+  const messagesClient = client.testing.messages;
+  const allMessages = await messagesClient.get(MAILTRAP_INBOX_ID);
+
+  if (!allMessages || allMessages.length === 0) {
+    throw new Error('No emails found in Mailtrap inbox.');
+  }
+
+  let email: any;
+  if (targetEmail) {
+    const userMessages = allMessages.filter((msg: any) => {
+      if (msg.to_email === targetEmail) return true;
+      if (Array.isArray(msg.to) && msg.to.some((recipient: any) => recipient.email === targetEmail)) return true;
+      return false;
+    });
+
+    if (userMessages.length === 0) {
+      throw new Error(`No confirmation email found for ${targetEmail} in Mailtrap inbox.`);
+    }
+    email = userMessages.sort((a: any, b: any) => b.id - a.id)[0];
+  } else {
+    email = allMessages.sort((a: any, b: any) => b.id - a.id)[0];
+  }
+
   const html = await client.testing.messages.getHtmlMessage(MAILTRAP_INBOX_ID, email.id);
 
-  const $ = cheerio.load(html);
-  const link = $('a[data-confirmation-link]').attr('href');
-  if (!link) {
-    throw new Error('No <a data-confirmation-link> found in email');
+  const match = html.match(/https?:\/\/[^"\s]+/);
+  if (!match) {
+    throw new Error('No confirmation link found in email for ' + (targetEmail || 'any user'));
   }
-  return decodeHtmlEntities(link);
+  return decodeHtmlEntities(match[0]);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './utils/fixtures';
 import { logoutUser } from './utils/userFlows';
 
 const routes = {
@@ -20,9 +20,8 @@ test.describe('Route Guards', () => {
   });
 
   test.describe('Unsubscribed User (email verified, not subscribed)', () => {
-    test.use({ storageState: 'playwright/.auth/emailVerifiedUser.json' });
 
-    test('access to /app is redirected to /subscribe', async ({ page }) => {
+    test('access to /app is redirected to /subscribe', async ({ emailVerifiedUserPage: page }) => {
       await page.goto(routes.app);
       await expect(page).toHaveURL(routes.subscribe);
       await expect(page.getByTestId('proceed-to-checkout-button')).toBeVisible();
@@ -30,28 +29,28 @@ test.describe('Route Guards', () => {
       await expect(page).toHaveURL(routes.landing);
     });
 
-    test('from /landing is redirected to /subscribe', async ({ page }) => {
+    test('from /landing is redirected to /subscribe', async ({ emailVerifiedUserPage: page }) => {
       await page.goto(routes.landing);
       await expect(page).toHaveURL(routes.subscribe, { timeout: 10000 });
       await expect(page.getByTestId('proceed-to-checkout-button')).toBeVisible();
       await logoutUser(page);
     });
 
-    test('from /auth is redirected to /subscribe', async ({ page }) => {
+    test('from /auth is redirected to /subscribe', async ({ emailVerifiedUserPage: page }) => {
       await page.goto(routes.auth);
       await expect(page).toHaveURL(routes.subscribe, { timeout: 10000 });
       await expect(page.getByTestId('proceed-to-checkout-button')).toBeVisible();
       await logoutUser(page);
     });
 
-    test('[RequireSubscription] to /app is redirected to /subscribe', async ({ page }) => {
+    test('[RequireSubscription] to /app is redirected to /subscribe', async ({ emailVerifiedUserPage: page }) => {
       await page.goto(routes.app);
       await expect(page).toHaveURL(routes.subscribe);
       await expect(page.getByTestId('proceed-to-checkout-button')).toBeVisible();
       await logoutUser(page);
     });
 
-    test('[RedirectIfSubscribed] can access /subscribe', async ({ page }) => {
+    test('[RedirectIfSubscribed] can access /subscribe', async ({ emailVerifiedUserPage: page }) => {
       await page.goto(routes.subscribe);
       await expect(page).toHaveURL(routes.subscribe);
       await expect(page.getByTestId('proceed-to-checkout-button')).toBeVisible();
@@ -60,9 +59,8 @@ test.describe('Route Guards', () => {
   });
 
   test.describe('Subscribed User', () => {
-    test.use({ storageState: 'playwright/.auth/subscribedUser.json' });
 
-    test('[RequireSubscription] can access /app', async ({ page }) => {
+    test('[RequireSubscription] can access /app', async ({ subscribedUserPage: page }) => {
       await page.goto(routes.app);
       await page.waitForURL(routes.app, { timeout: 10000 });
       await expect(page).toHaveURL(routes.app);
@@ -70,7 +68,7 @@ test.describe('Route Guards', () => {
       await logoutUser(page);
     });
 
-    test('[RedirectIfSubscribed] to /subscribe is redirected to /app', async ({ page }) => {
+    test('[RedirectIfSubscribed] to /subscribe is redirected to /app', async ({ subscribedUserPage: page }) => {
       await page.goto(routes.subscribe);
       await page.waitForURL(routes.app, { timeout: 10000 });
       await expect(page).toHaveURL(routes.app);

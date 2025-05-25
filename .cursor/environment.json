@@ -1,7 +1,6 @@
 {
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": "."
-  },
+  "snapshot": "snapshot-20250525-295f0fa5-2f25-4ebb-b228-fbc03124311f",
+  "install": "npm install && npm install --prefix frontend && npm install --prefix backend",
+  "start": "npm run start:all",
   "terminals": []
 }

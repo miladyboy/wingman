@@ -35,6 +35,7 @@
 
 # To-Do
 
+- [ ] The test suite seems flaky AF (The E2E tests)
 - [ ] Remove "nickname" from the profile table.
 - [ ] Add more user flows to the E2E suite up to 25-30 tests. _tests_
 - [ ] Make the E2E suite run in the three browsers. _test_
@@ -68,19 +69,8 @@
 - [ ] Mejorar critique agent prompt _prompt_
 - [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios _prompt_
 - [ ] Ver si implementar task master asi: https://x.com/antonioc_cl/status/1919861669158650305
+- [ ] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente.
 
 # Doing
 
-- [ ] Agregar columnas de prefered language y simp level a database de prod.
-
 # Done
-
-- [x] Fix nickname generation. It adds "" to it.
-- [x] Fix drag and drop of images into the upload component.
-- [x] Give feedback about the new subscription page
-- [x] Update stripe to charge weekly instead of monthly. _money_
-- [x] Move the Supabase DBs to the EU
-- [x] Setup reverse proxy para las stats de usuarios. Make sure we're getting the stats. _marketing_
-- [x] Send my personal data to the stripe peple so they keep accepting money.
-- [x] Create cancel subscription flow _money_
-- [x] Fix so that users can send an image in the first message. _bug_

@@ -1,0 +1,286 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Consistent Comment Standards
+
+This rule establishes comprehensive commenting standards to ensure code readability, maintainability, and consistency across the entire codebase.
+
+## JSDoc Documentation Standards
+
+### **Required JSDoc for All Exports**
+- **Every exported function, class, interface, type, and constant MUST have JSDoc documentation**
+- **Every public method in classes MUST have JSDoc documentation**
+- **Complex internal functions SHOULD have JSDoc documentation**
+
+### **JSDoc Format Requirements**
+
+```typescript
+/**
+ * Brief description of what the function does (required).
+ * Additional details if needed (optional).
+ * 
+ * @param paramName - Description of the parameter and its purpose
+ * @param optionalParam - Description (optional parameters should be noted)
+ * @returns Description of what is returned
+ * @throws Description of when/what exceptions are thrown (if applicable)
+ * @example
+ * // Usage example (for complex functions)
+ * const result = myFunction('input', true);
+ */
+```
+
+### **JSDoc Examples by Function Type**
+
+#### ✅ **Utility Functions**
+```typescript
+/**
+ * Strips surrounding quotes from a string if present.
+ * Handles both single and double quotes.
+ * 
+ * @param text - The text to strip quotes from
+ * @returns The text without surrounding quotes
+ */
+function stripQuotes(text: string): string {
+  // Implementation...
+}
+```
+
+#### ✅ **Service Functions**
+```typescript
+/**
+ * Sends a message to the backend API with proper authentication.
+ * 
+ * @param backendUrl - The backend endpoint base URL
+ * @param accessToken - The user's access token for authentication
+ * @param formData - The form data containing the message and attachments
+ * @param fetchImpl - Optional fetch implementation for testability (defaults to global fetch)
+ * @returns Promise resolving to the fetch response
+ * @throws Will throw an error if the request fails or authentication is invalid
+ */
+export async function sendMessageToBackend(
+  backendUrl: string, 
+  accessToken: string, 
+  formData: FormData, 
+  fetchImpl: typeof fetch = fetch
+): Promise<Response> {
+  // Implementation...
+}
+```
+
+#### ✅ **Test Helper Functions**
+```typescript
+/**
+ * Helper: Deletes every chat visible in the sidebar and waits until none remain.
+ * Assumes user is logged in and on a page where chat items are visible (e.g., /app)
+ * 
+ * @param page - Playwright Page object for browser automation
+ * @returns Promise that resolves when all chats are deleted
+ */
+export async function deleteAllChats(page: Page): Promise<void> {
+  // Implementation...
+}
+```
+
+#### ✅ **React Components**
+```typescript
+/**
+ * Modal component for confirming destructive actions.
+ * 
+ * @param isOpen - Whether the modal is currently visible
+ * @param onConfirm - Callback function executed when user confirms the action
+ * @param onCancel - Callback function executed when user cancels or closes modal
+ * @param title - The modal title text
+ * @param message - The confirmation message to display
+ * @returns JSX element representing the confirmation modal
+ */
+export function ConfirmationModal({
+  isOpen,
+  onConfirm,
+  onCancel,
+  title,
+  message
+}: ConfirmationModalProps): JSX.Element {
+  // Implementation...
+}
+```
+
+## Inline Comment Standards
+
+### **When to Use Inline Comments**
+
+#### ✅ **DO Use Inline Comments For:**
+- **Complex business logic explanations**
+- **Non-obvious algorithmic decisions**
+- **Workarounds and their reasons**
+- **Important assumptions or constraints**
+- **Step-by-step breakdowns of complex operations**
+
+#### ❌ **DON'T Use Inline Comments For:**
+- **Obvious code (what the code does)**
+- **Restating variable names**
+- **Commented-out code (delete instead)**
+
+### **Inline Comment Format**
+
+#### ✅ **Single-line comments**
+```typescript
+// Wait for modal and confirm deletion
+const confirmBtn = page.getByTestId("confirm-delete-chat");
+
+// Remove list markers: 1. 2. * - etc. (with optional spaces)
+trimmed = trimmed.replace(/^(\d+\.|[-*])\s*/, "");
+
+// Fallback to default if compression fails
+if (!processedBuffer) {
+  processedBuffer = originalBuffer;
+}
+```
+
+#### ✅ **Multi-step process comments**
+```typescript
+// 1. Fetch all messages for the conversation
+const messages = await getMessages(conversationId);
+
+// 2. Delete images from Supabase Storage
+await deleteStorageFiles(imagePaths);
+
+// 3. Delete the conversation record
+await deleteConversation(conversationId);
+```
+
+#### ✅ **Section dividers for long functions**
+```typescript
+export async function complexAnalysis(data: any[]): Promise<Result> {
+  // --- Input Validation ---
+  if (!data || data.length === 0) {
+    throw new Error("Data is required");
+  }
+
+  // --- Data Processing ---
+  const processedData = data.map(item => transform(item));
+
+  // --- Analysis Logic ---
+  const results = await performAnalysis(processedData);
+
+  // --- Return Formatting ---
+  return formatResults(results);
+}
+```
+
+## Comment Content Guidelines
+
+### **Language and Tone**
+- **Use clear, concise English**
+- **Write in present tense** ("Validates input" not "Will validate input")
+- **Be specific and actionable**
+- **Avoid humor or personal opinions**
+
+### **Technical Accuracy**
+- **Keep comments synchronized with code changes**
+- **Remove outdated comments immediately**
+- **Update comments when refactoring**
+
+### **Context and Assumptions**
+- **Document why, not just what**
+- **Explain business rules and constraints**
+- **Note external dependencies and their requirements**
+- **Document performance considerations**
+
+## Special Comment Types
+
+### **TODO Comments**
+```typescript
+// TODO: Implement retry logic for failed uploads
+// TODO: Add input validation for email format
+// TODO: Optimize this query for better performance
+```
+
+### **FIXME Comments**
+```typescript
+// FIXME: This workaround should be removed when API v2 is available
+// FIXME: Memory leak in this function under high load
+```
+
+### **NOTE Comments**
+```typescript
+// NOTE: This function assumes the user is already authenticated
+// NOTE: Order of operations is critical here due to race conditions
+```
+
+## File-Level Documentation
+
+### **File Headers (when needed)**
+```typescript
+/**
+ * @fileoverview Utility functions for chat message processing and validation.
+ * Contains helpers for message formatting, image handling, and user input sanitization.
+ */
+```
+
+### **Complex Algorithm Documentation**
+```typescript
+/**
+ * Implements the conversation stage inference algorithm.
+ * 
+ * Algorithm logic:
+ * 1. If isDraft is true, assume "Continue" stage
+ * 2. If no history exists, it's an "Opening" stage  
+ * 3. If last message is from user, assume "ReEngage" stage
+ * 4. Otherwise, default to "Continue" stage
+ * 
+ * @param history - Array of previous conversation messages
+ * @param isDraft - Whether the current message is a draft
+ * @returns The inferred conversation stage
+ */
+function inferStage(history: any[], isDraft: boolean): Stage {
+  // Implementation follows algorithm above
+}
+```
+
+## Enforcement Rules
+
+### **Code Review Requirements**
+- **All new functions must have appropriate JSDoc**
+- **Complex logic must have explanatory comments**
+- **Comments must be grammatically correct and spell-checked**
+- **Outdated comments must be updated or removed**
+
+### **Automated Checks**
+- **ESLint rules should enforce JSDoc on exports**
+- **TypeScript should require parameter and return type documentation**
+- **CI should fail if JSDoc is missing on public APIs**
+
+### **Comment Quality Standards**
+- **Comments should add value, not restate obvious code**
+- **Use proper grammar, punctuation, and spelling**
+- **Keep comments concise but complete**
+- **Update comments when code changes**
+
+## Examples from Codebase
+
+### ✅ **Good Examples**
+Reference these existing patterns:
+- [chatHelpers.ts](mdc:frontend/tests/e2e/utils/chatHelpers.ts) - Well-documented test helpers
+- [consent.js](mdc:frontend/src/utils/consent.js) - Clear utility function documentation
+- [messageService.js](mdc:frontend/src/services/messageService.js) - Proper service documentation
+
+### ❌ **Avoid These Patterns**
+```typescript
+// Bad: Obvious comment
+const name = user.name; // Get the user's name
+
+// Bad: Outdated comment
+// This function uses Redux (but code now uses React Query)
+function fetchData() { /* React Query implementation */ }
+
+// Bad: Unclear comment  
+// Do the thing
+function processData() { /* complex logic */ }
+```
+
+## Summary
+
+**Every piece of code should be self-documenting through good naming, but comments should explain the "why" behind complex decisions, business rules, and non-obvious implementations. Consistency in commenting style makes the codebase more maintainable and helps both human developers and AI tools understand the code's intent.**

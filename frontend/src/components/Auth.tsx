@@ -19,7 +19,6 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
-  const [username, setUsername] = useState("");
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
   const navigate = useNavigate();
@@ -58,11 +57,6 @@ export default function Auth() {
       ? await supabase.auth.signUp({
           email: email,
           password: password,
-          options: {
-            data: {
-              username: username,
-            },
-          },
         })
       : await supabase.auth.signInWithPassword({
           email: email,
@@ -132,27 +126,6 @@ export default function Auth() {
             </Alert>
           )}
           <form onSubmit={handleAuth} className="flex flex-col gap-5">
-            {isRegistering && (
-              <div className="flex flex-col gap-1.5">
-                <Label
-                  htmlFor="username"
-                  className="text-foreground font-medium"
-                >
-                  Username
-                </Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Your username (min 3 chars)"
-                  value={username}
-                  required
-                  minLength={3}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="bg-input text-foreground border border-border focus:ring-2 focus:ring-primary/60 focus:border-primary/80"
-                  data-testid="register-username"
-                />
-              </div>
-            )}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email" className="text-foreground font-medium">
                 Email

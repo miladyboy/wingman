@@ -5,7 +5,6 @@ import { supabase } from "../services/supabaseClient";
  * User profile interface.
  */
 interface UserProfile {
-  username: string;
   email: string;
 }
 
@@ -34,7 +33,7 @@ export function useUserProfile(userId: string | null | undefined) {
       try {
         const { data, error, status } = await supabase
           .from("profiles")
-          .select("username, email")
+          .select("email")
           .eq("id", userId)
           .single();
 

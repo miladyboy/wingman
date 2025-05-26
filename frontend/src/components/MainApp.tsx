@@ -227,7 +227,6 @@ export default function MainApp({
             onAccount={handleAccountOpen}
             showAccountOption={true}
             icon={null}
-            userName={profile?.username}
             avatarUrl={profile?.avatarUrl || null}
             buttonTestId="profile-menu-button-drawer"
             menuTestId="profile-menu-dropdown-mobile"
@@ -246,7 +245,6 @@ export default function MainApp({
             onAccount={handleAccountOpen}
             showAccountOption={true}
             icon={null}
-            userName={profile?.username}
             avatarUrl={profile?.avatarUrl || null}
             buttonTestId="profile-menu-button"
             menuTestId="profile-menu-dropdown"

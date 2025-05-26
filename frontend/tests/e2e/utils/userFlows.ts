@@ -12,7 +12,6 @@ const routes = {
 const selectors = {
   // Registration
   toggleToRegister: "text=Need an account? Register",
-  registerUsername: '[data-testid="register-username"]',
   registerEmail: '[data-testid="register-email"]',
   registerPassword: '[data-testid="register-password"]',
   registerSubmit: '[data-testid="register-submit"]',
@@ -39,7 +38,6 @@ export const TEST_PASSWORD = "TestPassword123!";
 export interface UserCredentials {
   email: string;
   password: string;
-  username: string;
 }
 
 /**
@@ -47,20 +45,14 @@ export interface UserCredentials {
  * Assumes Mailtrap is set up correctly and accessible.
  *
  * @param page Playwright Page object
- * @param options Optional parameters.
- * @param options.usernamePrefix Prefix for the generated username. Defaults to 'user'.
  * @returns {Promise<UserCredentials>} The credentials of the registered user.
  */
 export async function registerAndConfirmUser(
-  page: Page,
-  { usernamePrefix = "user" }: { usernamePrefix?: string } = {}
+  page: Page
 ): Promise<UserCredentials> {
   const email = generateUniqueEmail();
-  const username = `${usernamePrefix}${Date.now()}${Math.random()
-    .toString(36)
-    .substring(2, 4)}`;
 
-  logStep("Starting user registration", { email, username, usernamePrefix });
+  logStep("Starting user registration", { email });
 
   try {
     // Navigate to auth page and switch to registration form
@@ -68,9 +60,8 @@ export async function registerAndConfirmUser(
     await page.goto(routes.auth);
     await page.click(selectors.toggleToRegister);
 
-    // Fill out registration form
-    logDebug("Filling registration form", { email, username });
-    await page.fill(selectors.registerUsername, username);
+    // Fill out registration form (username removed)
+    logDebug("Filling registration form", { email });
     await page.fill(selectors.registerEmail, email);
     await page.fill(selectors.registerPassword, TEST_PASSWORD);
 
@@ -107,13 +98,11 @@ export async function registerAndConfirmUser(
 
     logStep("User registration and confirmation completed successfully", {
       email,
-      username,
     });
-    return { email, password: TEST_PASSWORD, username };
+    return { email, password: TEST_PASSWORD };
   } catch (error) {
     logError("Registration and confirmation failed", {
       email,
-      username,
       error: error instanceof Error ? error.message : String(error),
       currentUrl: page.url(),
     });

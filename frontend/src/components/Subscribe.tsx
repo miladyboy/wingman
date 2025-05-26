@@ -154,7 +154,6 @@ export default function Subscribe() {
           onAccount={() => {}}
           showAccountOption={false}
           icon={null}
-          userName=""
           avatarUrl={null}
           buttonTestId="profile-menu-button"
           menuTestId="profile-menu-dropdown"

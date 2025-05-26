@@ -69,6 +69,7 @@
 - [ ] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente.
 - [ ] Add JSDocs to the entire codebase.
 - [ ] Keep consistent naming conventions for files in the codebase.
+- [ ] Add accessibility rules to cursor and apply to the app.
 
 # Doing
 

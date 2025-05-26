@@ -59,9 +59,7 @@ async function setupEmailVerifiedUser() {
         logDebug("Login failed, registering new global verified user", {
           email: emailVerified,
         });
-        const creds = await registerAndConfirmUser(page, {
-          usernamePrefix: "verifiedUser",
-        });
+        const creds = await registerAndConfirmUser(page);
         // Overwrite email/password if new user
         process.env.PLAYWRIGHT_TEST_EMAIL_VERIFIED = creds.email;
         process.env.PLAYWRIGHT_TEST_PASSWORD_VERIFIED = creds.password;
@@ -165,9 +163,7 @@ async function registerAndSubscribeNewUser(
     email: newEmail,
   });
 
-  const creds = await registerAndConfirmUser(page, {
-    usernamePrefix: `subscribedUser${parallelIndex}`,
-  });
+  const creds = await registerAndConfirmUser(page);
 
   logWorker(parallelIndex, "Registration completed, starting subscription");
   await completeSubscription(page);

@@ -10,7 +10,7 @@ interface UserProfileMenuProps {
   onAccount: () => void;
   showAccountOption?: boolean;
   icon: React.ReactNode;
-  userName: string;
+  userName?: string;
   avatarUrl: string | null;
   buttonTestId?: string;
   menuTestId?: string;
@@ -60,11 +60,11 @@ export default function UserProfileMenu({
     }
   }, [isOpen]);
 
-  // Deriva iniciales del nombre de usuario
+  // Deriva iniciales del nombre de usuario o usa fallback
   const getInitials = (name: string) => {
-    if (!name) return "";
+    if (!name) return "U"; // Fallback to "U" for User
     const parts = name.trim().split(" ");
-    if (parts.length === 1) return parts[0][0]?.toUpperCase() || "";
+    if (parts.length === 1) return parts[0][0]?.toUpperCase() || "U";
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 

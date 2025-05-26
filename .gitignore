@@ -52,4 +52,4 @@ tasks.json
 tasks/ 
 
 # Hide MCP dile due to credentials
-.cursor/mcp.json
+.cursor

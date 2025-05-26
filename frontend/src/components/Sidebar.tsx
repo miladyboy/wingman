@@ -1,33 +1,54 @@
-import { useState } from 'react';
-import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import UserPreferences from './UserPreferences';
-import { filterThreadsByName } from '../utils/threadUtils';
+import { useState } from "react";
+import { PencilIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import UserPreferences from "./UserPreferences";
+import { filterThreadsByName, type Thread } from "../utils/threadUtils";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogFooter,
   DialogTitle,
-  DialogDescription
-} from './ui/dialog';
+  DialogDescription,
+} from "./ui/dialog";
 
-function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenameThread, onDeleteThread, isMobileSheetView = false }) {
-  const [editingThreadId, setEditingThreadId] = useState(null);
-  const [editText, setEditText] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+/**
+ * Props interface for Sidebar component.
+ */
+interface SidebarProps {
+  threads: Thread[];
+  activeThreadId: string | null;
+  onSelectThread: (threadId: string) => void;
+  onNewThread: () => void;
+  onRenameThread: (threadId: string, newName: string) => void;
+  onDeleteThread: (threadId: string) => void;
+  isMobileSheetView?: boolean;
+}
+
+function Sidebar({
+  threads,
+  activeThreadId,
+  onSelectThread,
+  onNewThread,
+  onRenameThread,
+  onDeleteThread,
+  isMobileSheetView = false,
+}: SidebarProps) {
+  const [editingThreadId, setEditingThreadId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [threadToDelete, setThreadToDelete] = useState(null);
+  const [threadToDelete, setThreadToDelete] = useState<string | null>(null);
 
-  const handleStartEdit = (thread) => {
+  const handleStartEdit = (thread: Thread) => {
     setEditingThreadId(thread.id);
-    setEditText(thread.name);
+    setEditText(thread.name || "");
   };
 
   const handleCancelEdit = () => {
     setEditingThreadId(null);
-    setEditText('');
+    setEditText("");
   };
 
   const handleSaveEdit = () => {
@@ -37,10 +58,10 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
     handleCancelEdit(); // Exit editing mode regardless
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
       handleSaveEdit();
-    } else if (event.key === 'Escape') {
+    } else if (event.key === "Escape") {
       handleCancelEdit();
     }
   };
@@ -61,9 +82,9 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
         <Input
           type="text"
           value={searchQuery}
-          onChange={e => {
+          onChange={(e) => {
             setSearchQuery(e.target.value);
-            console.log('[Sidebar] searchQuery:', e.target.value);
+            console.log("[Sidebar] searchQuery:", e.target.value);
           }}
           placeholder="Search chats…"
           data-testid="chat-search-input"
@@ -75,21 +96,29 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
       <nav className="flex-1 overflow-y-auto p-2 space-y-1">
         {(() => {
           const filteredThreads = filterThreadsByName(threads, searchQuery);
-          if (filteredThreads.length === 0) {
-            return <p className="text-center text-muted-foreground text-sm mt-4 px-2">No chats found.</p>;
+          if (!filteredThreads || filteredThreads.length === 0) {
+            return (
+              <p className="text-center text-muted-foreground text-sm mt-4 px-2">
+                No chats found.
+              </p>
+            );
           }
           return filteredThreads.map((thread) => (
             <div
               key={thread.id}
               className={`group flex items-center justify-between p-2 rounded cursor-pointer transition duration-150 ease-in-out
-                ${activeThreadId && activeThreadId === thread.id
-                  ? 'bg-primary/20'
-                  : 'hover:bg-accent/30'}
+                ${
+                  activeThreadId && activeThreadId === thread.id
+                    ? "bg-primary/20"
+                    : "hover:bg-accent/30"
+                }
               `}
-              data-active={activeThreadId === thread.id ? 'true' : undefined}
+              data-active={activeThreadId === thread.id ? "true" : undefined}
               data-testid="chat-item"
               data-thread-id={thread.id}
-              onClick={() => editingThreadId !== thread.id && onSelectThread(thread.id)} // Don't select if editing
+              onClick={() =>
+                editingThreadId !== thread.id && onSelectThread(thread.id)
+              } // Don't select if editing
             >
               {editingThreadId === thread.id ? (
                 // --- Editing State ---
@@ -106,7 +135,10 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={(e) => { e.stopPropagation(); handleSaveEdit(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSaveEdit();
+                    }}
                     className="text-green-500 hover:text-green-400"
                     aria-label="Save name"
                   >
@@ -115,7 +147,10 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={(e) => { e.stopPropagation(); handleCancelEdit(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancelEdit();
+                    }}
                     className="text-red-500 hover:text-red-400"
                     aria-label="Cancel rename"
                   >
@@ -125,13 +160,20 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
               ) : (
                 // --- Display State ---
                 <>
-                  <span className="flex-1 truncate text-sm" title={thread.name} data-testid="chat-item-name">
+                  <span
+                    className="flex-1 truncate text-sm"
+                    title={thread.name}
+                    data-testid="chat-item-name"
+                  >
                     {thread.name}
                   </span>
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={(e) => { e.stopPropagation(); handleStartEdit(thread); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartEdit(thread);
+                    }}
                     className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                     aria-label="Rename chat"
                     data-testid="rename-chat-button"
@@ -150,7 +192,9 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
                     aria-label="Delete chat"
                     data-testid="delete-chat"
                   >
-                    <span role="img" aria-label="Delete">🗑️</span>
+                    <span role="img" aria-label="Delete">
+                      🗑️
+                    </span>
                   </Button>
                 </>
               )}
@@ -162,7 +206,16 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
       {/* --- User Info & Logout --- */}
       <div className="p-4 border-t border-border sticky bottom-0 bg-background z-10 md:static md:z-auto md:bg-transparent">
         <UserPreferences
-          trigger={<Button className="w-full mb-2" variant="outline" data-testid="edit-preferences">Edit Preferences</Button>}
+          trigger={
+            <Button
+              className="w-full mb-2"
+              variant="outline"
+              data-testid="edit-preferences"
+            >
+              Edit Preferences
+            </Button>
+          }
+          onSaved={() => {}}
         />
       </div>
       {/* --- End User Info & Logout --- */}
@@ -172,18 +225,23 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
           <DialogHeader>
             <DialogTitle>Delete Conversation?</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this conversation and all its messages and images? This cannot be undone.
+              Are you sure you want to delete this conversation and all its
+              messages and images? This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
               data-testid="confirm-delete-chat"
               onClick={() => {
-                if (onDeleteThread && threadToDelete) onDeleteThread(threadToDelete);
+                if (onDeleteThread && threadToDelete)
+                  onDeleteThread(threadToDelete);
                 setShowDeleteDialog(false);
                 setThreadToDelete(null);
               }}
@@ -197,4 +255,4 @@ function Sidebar({ threads, activeThreadId, onSelectThread, onNewThread, onRenam
   );
 }
 
-export default Sidebar; 
+export default Sidebar;

@@ -1,17 +1,37 @@
 /**
- * Filtra una lista de threads por nombre, usando coincidencia parcial e insensible a mayúsculas/minúsculas.
- * @param {Array} threads - Lista de threads a filtrar. Cada thread debe tener una propiedad 'name'.
- * @param {string} query - Texto de búsqueda.
- * @returns {Array} Lista filtrada de threads.
+ * Thread interface for filtering operations.
  */
-export function filterThreadsByName(threads, query) {
-  if (!Array.isArray(threads) || typeof query !== 'string') {
+export interface Thread {
+  id: string;
+  name?: string;
+  [key: string]: any;
+}
+
+/**
+ * Filters a list of threads by name, using partial and case-insensitive matching.
+ *
+ * @param threads - List of threads to filter. Each thread must have a 'name' property
+ * @param query - Search text
+ * @returns Filtered list of threads
+ */
+export function filterThreadsByName(
+  threads: Thread[] | null | undefined,
+  query: string | null | undefined
+): Thread[] | null | undefined {
+  if (!threads) {
     return threads;
   }
-  const normalizedQuery = query.trim().toLowerCase();
+
+  if (!Array.isArray(threads) || typeof query !== "string") {
+    return threads;
+  }
+
+  const normalizedQuery = query?.trim().toLowerCase();
   if (!normalizedQuery) return threads;
-  const filtered = threads.filter(thread =>
-    thread.name && thread.name.toLowerCase().includes(normalizedQuery)
+
+  const filtered = threads.filter(
+    (thread) =>
+      thread.name && thread.name.toLowerCase().includes(normalizedQuery)
   );
   return filtered;
-} 
+}

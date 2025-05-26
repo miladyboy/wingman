@@ -6,8 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Paperclip } from "lucide-react";
 import { Send } from "lucide-react";
 
-// PillToggle inline component
-function PillToggle({ active, onClick, disabled, children }) {
+/**
+ * PillToggle component props interface.
+ */
+interface PillToggleProps {
+  active: boolean;
+  onClick: (value: boolean) => void;
+  disabled: boolean;
+  children: React.ReactNode;
+}
+
+/**
+ * PillToggle inline component for toggle buttons.
+ */
+function PillToggle({ active, onClick, disabled, children }: PillToggleProps) {
   return (
     <button
       type="button"
@@ -37,13 +49,33 @@ function PillToggle({ active, onClick, disabled, children }) {
   );
 }
 
-const UploadComponent = ({ onSendMessage, disabled }) => {
-  const [text, setText] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const formRef = useRef(null);
-  const [isDraft, setIsDraft] = useState(false);
-  const [preferredCountry] = useState("");
+/**
+ * Image preview interface.
+ */
+interface ImagePreview {
+  url: string;
+  id: string;
+  name: string;
+}
+
+/**
+ * UploadComponent props interface.
+ */
+interface UploadComponentProps {
+  onSendMessage: (formData: FormData) => void;
+  disabled: boolean;
+}
+
+/**
+ * UploadComponent for handling text input and image uploads.
+ */
+const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
+  const [text, setText] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isDraft, setIsDraft] = useState<boolean>(false);
+  const [preferredCountry] = useState<string>("");
 
   useEffect(() => {
     const currentPreviewUrls = imagePreviews.map((p) => p.url);
@@ -59,10 +91,10 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     };
   }, [imagePreviews]);
 
-  const addFiles = useCallback((files) => {
+  const addFiles = useCallback((files: File[]) => {
     if (!files.length) return;
-    const newFiles = [];
-    const newPreviews = [];
+    const newFiles: File[] = [];
+    const newPreviews: ImagePreview[] = [];
     files.forEach((file, index) => {
       const previewId = `${Date.now()}-${Math.random()}-${index}`;
       const previewUrl = URL.createObjectURL(file);
@@ -74,7 +106,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
   }, []);
 
   const onDrop = useCallback(
-    (acceptedFiles) => {
+    (acceptedFiles: File[]) => {
       addFiles(acceptedFiles);
     },
     [addFiles]
@@ -88,7 +120,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     noClick: true, // We use our own button for file input
   });
 
-  const handleRemoveImage = (previewIdToRemove) => {
+  const handleRemoveImage = (previewIdToRemove: string) => {
     setImagePreviews((prevPreviews) => {
       const previewToRemove = prevPreviews.find(
         (p) => p.id === previewIdToRemove
@@ -109,11 +141,13 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     });
   };
 
-  const handleTextChange = (event) => {
+  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(event.target.value);
   };
 
-  const handleTextareaKeyDown = (event) => {
+  const handleTextareaKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       if (formRef.current) {
@@ -122,9 +156,9 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     }
   };
 
-  // Handler para pegar imágenes desde el portapapeles
+  // Handler for pasting images from clipboard
   const handlePaste = useCallback(
-    (event) => {
+    (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
       if (!event.clipboardData || !event.clipboardData.items) return;
       const items = Array.from(event.clipboardData.items);
       const imageFiles = items
@@ -132,12 +166,12 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
           (item) => item.kind === "file" && item.type.startsWith("image/")
         )
         .map((item) => item.getAsFile())
-        .filter(Boolean);
+        .filter((file): file is File => file !== null);
       if (imageFiles.length > 0) {
-        event.preventDefault(); // Evita que la imagen se pegue como base64 en el textarea
+        event.preventDefault(); // Prevent image from being pasted as base64 in textarea
         addFiles(imageFiles);
         console.log(
-          "[UploadComponent] Imágenes pegadas desde el portapapeles:",
+          "[UploadComponent] Images pasted from clipboard:",
           imageFiles.map((f) => f.name)
         );
       }
@@ -145,7 +179,7 @@ const UploadComponent = ({ onSendMessage, disabled }) => {
     [addFiles]
   );
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (disabled || (selectedFiles.length === 0 && !text.trim())) {
       return;

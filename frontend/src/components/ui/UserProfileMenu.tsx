@@ -1,6 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { UserCircle } from 'lucide-react';
-import { Button } from './button';
+import React, { useState, useRef, useEffect } from "react";
+import { UserCircle } from "lucide-react";
+import { Button } from "./button";
+
+/**
+ * Props interface for UserProfileMenu component.
+ */
+interface UserProfileMenuProps {
+  onLogout: () => void;
+  onAccount: () => void;
+  showAccountOption?: boolean;
+  icon: React.ReactNode;
+  userName: string;
+  avatarUrl: string | null;
+  buttonTestId?: string;
+  menuTestId?: string;
+  className?: string;
+  menuClassName?: string;
+}
 
 /**
  * UserProfileMenu — Botón de usuario rediseñado, más visible y atractivo.
@@ -17,38 +33,38 @@ export default function UserProfileMenu({
   icon,
   userName,
   avatarUrl,
-  buttonTestId = 'profile-menu-button',
-  menuTestId = 'profile-menu-dropdown',
-  className = '',
-  menuClassName = '',
-}) {
+  buttonTestId = "profile-menu-button",
+  menuTestId = "profile-menu-dropdown",
+  className = "",
+  menuClassName = "",
+}: UserProfileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Cierra el menú si se hace click fuera
   useEffect(() => {
     if (!isOpen) return;
-    function handleClickOutside(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   // Log para debugging de apertura/cierre
   useEffect(() => {
     if (isOpen) {
-      console.log('[UserProfileMenu] Menú abierto');
+      console.log("[UserProfileMenu] Menú abierto");
     }
   }, [isOpen]);
 
   // Deriva iniciales del nombre de usuario
-  const getInitials = (name) => {
-    if (!name) return '';
-    const parts = name.trim().split(' ');
-    if (parts.length === 1) return parts[0][0]?.toUpperCase() || '';
+  const getInitials = (name: string) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0][0]?.toUpperCase() || "";
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
@@ -60,13 +76,33 @@ export default function UserProfileMenu({
           src={avatarUrl}
           alt="Avatar"
           className="profile-avatar"
-          style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', background: '#fff' }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            objectFit: "cover",
+            background: "#fff",
+          }}
         />
       );
     }
     if (userName) {
       return (
-        <span className="profile-initials" style={{ width: 36, height: 36, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: '#6C47D6' }}>
+        <span
+          className="profile-initials"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            background: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            color: "#6C47D6",
+          }}
+        >
           {getInitials(userName)}
         </span>
       );
@@ -87,23 +123,27 @@ export default function UserProfileMenu({
         style={{
           width: 48,
           height: 48,
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #6C47D6 60%, #FFA726 100%)',
-          boxShadow: '0 2px 8px rgba(108,71,214,0.10), 0 1.5px 4px rgba(0,0,0,0.08)',
-          border: '2.5px solid #fff',
-          position: 'relative',
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #6C47D6 60%, #FFA726 100%)",
+          boxShadow:
+            "0 2px 8px rgba(108,71,214,0.10), 0 1.5px 4px rgba(0,0,0,0.08)",
+          border: "2.5px solid #fff",
+          position: "relative",
           padding: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'transform 0.15s, box-shadow 0.15s',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "transform 0.15s, box-shadow 0.15s",
         }}
         tabIndex={0}
         title="Mi perfil"
       >
         {renderProfileVisual()}
         {/* Tooltip solo en desktop */}
-        <span className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 rounded bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50" style={{ whiteSpace: 'nowrap' }}>
+        <span
+          className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 rounded bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+          style={{ whiteSpace: "nowrap" }}
+        >
           Mi perfil
         </span>
       </Button>
@@ -116,14 +156,23 @@ export default function UserProfileMenu({
           {/* Opcional: Mostrar nombre/avatar */}
           {userName && (
             <div className="px-4 py-2 text-sm text-muted-foreground border-b border-border flex items-center gap-2">
-              {avatarUrl && <img src={avatarUrl} alt="Avatar" className="h-6 w-6 rounded-full object-cover" />}
+              {avatarUrl && (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar"
+                  className="h-6 w-6 rounded-full object-cover"
+                />
+              )}
               <span className="truncate">{userName}</span>
             </div>
           )}
           {showAccountOption && onAccount && (
             <button
               className="w-full text-left px-4 py-2 hover:bg-accent profile-menu-item"
-              onClick={() => { setIsOpen(false); onAccount(); }}
+              onClick={() => {
+                setIsOpen(false);
+                onAccount();
+              }}
               data-testid="profile-menu-account"
             >
               My Account
@@ -131,7 +180,10 @@ export default function UserProfileMenu({
           )}
           <button
             className="w-full text-left px-4 py-2 hover:bg-accent text-destructive border-t border-border profile-menu-item"
-            onClick={() => { setIsOpen(false); onLogout(); }}
+            onClick={() => {
+              setIsOpen(false);
+              onLogout();
+            }}
             data-testid="profile-menu-logout"
           >
             Log out
@@ -139,10 +191,12 @@ export default function UserProfileMenu({
         </div>
       )}
       {/* Inline styles y clases para facilitar iteración visual */}
-      <style jsx>{`
-        .profile-menu-enhanced-btn:hover, .profile-menu-enhanced-btn:focus-visible {
+      <style>{`
+        .profile-menu-enhanced-btn:hover,
+        .profile-menu-enhanced-btn:focus-visible {
           transform: scale(1.08);
-          box-shadow: 0 4px 16px rgba(108,71,214,0.18), 0 2px 8px rgba(0,0,0,0.12);
+          box-shadow: 0 4px 16px rgba(108, 71, 214, 0.18),
+            0 2px 8px rgba(0, 0, 0, 0.12);
         }
       `}</style>
     </div>
@@ -150,4 +204,4 @@ export default function UserProfileMenu({
 }
 // Logs clave: apertura/cierre, click fuera, props relevantes
 // El menú es responsivo por CSS y puede usarse en mobile/desktop
-// El botón ahora es mucho más visible y atractivo visualmente 
+// El botón ahora es mucho más visible y atractivo visualmente

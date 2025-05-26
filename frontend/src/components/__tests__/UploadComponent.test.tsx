@@ -26,7 +26,7 @@ global.URL.createObjectURL = jest.fn(() => "blob:http://localhost/mock-url");
 global.URL.revokeObjectURL = jest.fn();
 
 describe("UploadComponent", () => {
-  let mockSend;
+  let mockSend: jest.Mock<void, [FormData]>;
   beforeEach(() => {
     mockSend = jest.fn();
   });
@@ -37,7 +37,9 @@ describe("UploadComponent", () => {
 
   it("sends message on Enter", async () => {
     render(<UploadComponent onSendMessage={mockSend} disabled={false} />);
-    const textarea = screen.getByPlaceholderText(/enter text|add context/i);
+    const textarea = screen.getByPlaceholderText(
+      /enter text|add context/i
+    ) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: "Hello world" } });
     fireEvent.keyDown(textarea, { key: "Enter", code: "Enter", charCode: 13 });
     // Wait for the async update
@@ -49,7 +51,9 @@ describe("UploadComponent", () => {
 
   it("does not send message on Shift+Enter", () => {
     render(<UploadComponent onSendMessage={mockSend} disabled={false} />);
-    const textarea = screen.getByPlaceholderText(/enter text|add context/i);
+    const textarea = screen.getByPlaceholderText(
+      /enter text|add context/i
+    ) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: "Hello again" } });
     fireEvent.keyDown(textarea, {
       key: "Enter",
@@ -64,7 +68,9 @@ describe("UploadComponent", () => {
 
   it("clears input after sending", async () => {
     render(<UploadComponent onSendMessage={mockSend} disabled={false} />);
-    const textarea = screen.getByPlaceholderText(/enter text|add context/i);
+    const textarea = screen.getByPlaceholderText(
+      /enter text|add context/i
+    ) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: "Clear me" } });
     fireEvent.keyDown(textarea, { key: "Enter", code: "Enter", charCode: 13 });
     // Wait for the async update
@@ -91,6 +97,7 @@ describe("UploadComponent", () => {
     // Simulate a failed optimistic message
     const failedMessage = {
       id: "user-123",
+      role: "user",
       sender: "user",
       content: "Test",
       imageUrls: ["blob:http://localhost/image1"],
@@ -207,17 +214,26 @@ describe("MainApp", () => {
   });
 });
 
-// Helper function to create a mock file
-const createMockFile = (name, type = "image/jpeg") => {
+/**
+ * Helper function to create a mock file.
+ * @param name - The file name
+ * @param type - The MIME type of the file
+ * @returns A mock File object
+ */
+const createMockFile = (name: string, type: string = "image/jpeg"): File => {
   return new File(["mock content"], name, { type });
 };
 
-// Helper function to create mock drag event data
-const createMockDragEvent = (files) => {
+/**
+ * Helper function to create mock drag event data.
+ * @param files - Array of files to include in the drag event
+ * @returns Mock drag event data
+ */
+const createMockDragEvent = (files: File[]) => {
   return {
     dataTransfer: {
       files,
-      items: files.map((file) => ({
+      items: files.map((file: File) => ({
         kind: "file",
         type: file.type,
         getAsFile: () => file,
@@ -229,8 +245,12 @@ const createMockDragEvent = (files) => {
   };
 };
 
-// Helper to properly simulate a file drop for react-dropzone
-const simulateFileDrop = (element, files) => {
+/**
+ * Helper to properly simulate a file drop for react-dropzone.
+ * @param element - The DOM element to simulate the drop on
+ * @param files - Array of files to drop
+ */
+const simulateFileDrop = (element: HTMLElement, files: File[]): void => {
   const dragEvent = createMockDragEvent(files);
 
   // Simulate the sequence of events that react-dropzone expects

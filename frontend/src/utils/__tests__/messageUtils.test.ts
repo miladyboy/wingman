@@ -1,50 +1,83 @@
-import { buildOptimisticUserMessage, serializeMessageHistory, extractImageUrlsFromFiles } from '../messageUtils';
+import {
+  buildOptimisticUserMessage,
+  serializeMessageHistory,
+  extractImageUrlsFromFiles,
+} from "../messageUtils";
+import type { Message } from "../messageUtils";
 
-describe('messageUtils', () => {
-  describe('buildOptimisticUserMessage', () => {
-    it('should build a user message with text and image URLs', () => {
+describe("messageUtils", () => {
+  describe("buildOptimisticUserMessage", () => {
+    it("should build optimistic user message from FormData", () => {
       const formData = new FormData();
-      formData.set('newMessageText', 'Hello world');
-      const imageUrls = ['blob:http://localhost/1', 'blob:http://localhost/2'];
-      const msg = buildOptimisticUserMessage(formData, imageUrls);
-      expect(msg.sender).toBe('user');
-      expect(msg.content).toBe('Hello world');
-      expect(msg.imageUrls).toEqual(imageUrls);
-      expect(msg.optimistic).toBe(true);
-      expect(msg.id).toMatch(/^user-/);
+      formData.append("newMessageText", "Hello world");
+      const imageUrls = ["url1", "url2"];
+
+      const result = buildOptimisticUserMessage(formData, imageUrls);
+
+      expect(result.sender).toBe("user");
+      expect(result.content).toBe("Hello world");
+      expect(result.imageUrls).toEqual(imageUrls);
+      expect(result.optimistic).toBe(true);
+      expect(result.id).toMatch(/^user-\d+$/);
     });
   });
 
-  describe('serializeMessageHistory', () => {
-    it('should serialize messages with correct roles and content', () => {
-      const messages = [
-        { sender: 'user', content: 'Hi' },
-        { sender: 'ai', content: 'Hello', image_description: 'A cat' },
+  describe("serializeMessageHistory", () => {
+    it("should serialize messages to JSON", () => {
+      const messages: Message[] = [
+        { id: "1", sender: "user", content: "Hello" },
+        {
+          id: "2",
+          sender: "assistant",
+          content: "Hi there",
+          image_description: "A nice image",
+        },
       ];
       const json = serializeMessageHistory(messages);
-      expect(JSON.parse(json)).toEqual([
-        { role: 'user', content: 'Hi' },
-        { role: 'assistant', content: 'Hello\n[Image Description: A cat]' },
-      ]);
+      const parsed = JSON.parse(json);
+
+      expect(parsed).toHaveLength(2);
+      expect(parsed[0]).toEqual({ role: "user", content: "Hello" });
+      expect(parsed[1]).toEqual({
+        role: "assistant",
+        content: "Hi there\n[Image Description: A nice image]",
+      });
     });
   });
 
-  describe('extractImageUrlsFromFiles', () => {
-    it('should return empty array if no images', () => {
-      const formData = new FormData();
-      expect(extractImageUrlsFromFiles(formData)).toEqual([]);
+  describe("extractImageUrlsFromFiles", () => {
+    beforeEach(() => {
+      // Mock URL.createObjectURL
+      global.URL.createObjectURL = jest.fn(() => "blob:mock-url");
     });
-    it('should return URLs for File instances', () => {
-      const originalCreateObjectURL = URL.createObjectURL;
-      URL.createObjectURL = jest.fn(() => 'mock-url');
-      const file1 = new File(['foo'], 'foo.png', { type: 'image/png' });
-      const file2 = new File(['bar'], 'bar.jpg', { type: 'image/jpeg' });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("should extract URLs from files in FormData", () => {
       const formData = new FormData();
-      formData.append('images', file1);
-      formData.append('images', file2);
-      const urls = extractImageUrlsFromFiles(formData);
-      expect(urls).toEqual(['mock-url', 'mock-url']);
-      URL.createObjectURL = originalCreateObjectURL;
+      const file1 = new File(["content1"], "image1.jpg", {
+        type: "image/jpeg",
+      });
+      const file2 = new File(["content2"], "image2.png", { type: "image/png" });
+
+      formData.append("images", file1);
+      formData.append("images", file2);
+
+      const result = extractImageUrlsFromFiles(formData);
+
+      expect(result).toHaveLength(2);
+      expect(result).toEqual(["blob:mock-url", "blob:mock-url"]);
+      expect(global.URL.createObjectURL).toHaveBeenCalledTimes(2);
+    });
+
+    it("should handle empty FormData", () => {
+      const formData = new FormData();
+      const result = extractImageUrlsFromFiles(formData);
+
+      expect(result).toHaveLength(0);
+      expect(global.URL.createObjectURL).not.toHaveBeenCalled();
     });
   });
-}); 
+});

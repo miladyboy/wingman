@@ -1,19 +1,28 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 /**
- * CustomCard — Componente base reutilizable para tarjetas con glassmorphism, bordes custom, hover y estilos personalizados.
- * Permite mantener consistencia visual y flexibilidad en la landing y otras secciones.
- *
- * @param {object} props
- * @param {React.ReactNode} props.children - Contenido de la tarjeta.
- * @param {string} [props.className] - Clases adicionales para personalización.
- * @param {boolean} [props.glass] - Si aplica efecto glassmorphism.
- * @param {string} [props.borderColor] - Color del borde inferior.
- * @param {boolean} [props.hoverEffect] - Si aplica efecto de hover.
- * @param {boolean} [props.compact] - Si usa padding compacto.
- * @param {object} [props.style] - Estilos inline adicionales.
- * @param {any} [props.rest] - Otros props.
+ * CustomCard component props interface.
+ */
+export interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Content of the card */
+  children: React.ReactNode;
+  /** Additional classes for customization */
+  className?: string;
+  /** Whether to apply glassmorphism effect */
+  glass?: boolean;
+  /** Color of the bottom border */
+  borderColor?: string;
+  /** Whether to apply hover effect */
+  hoverEffect?: boolean;
+  /** Whether to use compact padding */
+  compact?: boolean;
+  /** Additional inline styles */
+  style?: React.CSSProperties;
+}
+
+/**
+ * CustomCard — Reusable base component for cards with glassmorphism, custom borders, hover and custom styles.
+ * Allows maintaining visual consistency and flexibility in landing and other sections.
  */
 function CustomCard({
   children,
@@ -24,15 +33,26 @@ function CustomCard({
   compact = false,
   style = {},
   ...rest
-}) {
-  // Log para monitoreo de renderizado
+}: CustomCardProps) {
+  // Log for rendering monitoring
   React.useEffect(() => {
-    console.log("[CustomCard] Rendered", { glass, borderColor, hoverEffect, compact });
+    console.log("[CustomCard] Rendered", {
+      glass,
+      borderColor,
+      hoverEffect,
+      compact,
+    });
   }, [glass, borderColor, hoverEffect, compact]);
 
   return (
     <div
-      className={`rounded-2xl shadow-lg border ${glass ? "backdrop-blur-xl bg-white/10" : "bg-[#23284A]/80"} ${compact ? "p-6 md:py-8 md:px-10" : "p-8 md:p-12"} ${hoverEffect ? "transition-transform duration-200 hover:scale-105 hover:shadow-2xl" : ""} border-b-4 ${className}`}
+      className={`rounded-2xl shadow-lg border ${
+        glass ? "backdrop-blur-xl bg-white/10" : "bg-[#23284A]/80"
+      } ${compact ? "p-6 md:py-8 md:px-10" : "p-8 md:p-12"} ${
+        hoverEffect
+          ? "transition-transform duration-200 hover:scale-105 hover:shadow-2xl"
+          : ""
+      } border-b-4 ${className}`}
       style={{
         borderBottomColor: borderColor,
         boxShadow: glass ? "0 8px 40px 0 rgba(44, 24, 80, 0.18)" : undefined,
@@ -46,14 +66,4 @@ function CustomCard({
   );
 }
 
-CustomCard.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  glass: PropTypes.bool,
-  borderColor: PropTypes.string,
-  hoverEffect: PropTypes.bool,
-  compact: PropTypes.bool,
-  style: PropTypes.object,
-};
-
-export default CustomCard; 
+export default CustomCard;

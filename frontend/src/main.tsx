@@ -1,9 +1,9 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import './index.css'
-import App from './App'
-import CookieConsent from './components/CookieConsent'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import "./index.css";
+import App from "./App";
+import CookieConsent from "./components/CookieConsent";
 
 function Root() {
   return (
@@ -11,9 +11,14 @@ function Root() {
       <BrowserRouter>
         <App />
       </BrowserRouter>
-      <CookieConsent /> 
+      <CookieConsent />
     </StrictMode>
   );
 }
 
-createRoot(document.getElementById('root')).render(<Root />)
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+createRoot(rootElement).render(<Root />);

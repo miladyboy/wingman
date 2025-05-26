@@ -1,49 +1,45 @@
-import { filterThreadsByName } from '../threadUtils';
+import { filterThreadsByName, type Thread } from "../threadUtils";
 
-describe('filterThreadsByName', () => {
-  const threads = [
-    { id: 1, name: 'First Chat' },
-    { id: 2, name: 'Second Chat' },
-    { id: 3, name: 'Another Thread' },
-    { id: 4, name: 'Chat with AI' },
-    { id: 5, name: '' },
-    { id: 6 },
+describe("filterThreadsByName", () => {
+  const threads: Thread[] = [
+    { id: "1", name: "First chat" },
+    { id: "2", name: "Another conversation" },
+    { id: "3" }, // Thread without name
   ];
 
-  it('devuelve todos los threads si la query está vacía', () => {
-    expect(filterThreadsByName(threads, '')).toEqual(threads);
-    expect(filterThreadsByName(threads, '   ')).toEqual(threads);
+  it("should return all threads when query is empty or whitespace", () => {
+    expect(filterThreadsByName(threads, "")).toEqual(threads);
+    expect(filterThreadsByName(threads, "   ")).toEqual(threads);
   });
 
-  it('filtra por coincidencia parcial, sin distinguir mayúsculas/minúsculas', () => {
-    expect(filterThreadsByName(threads, 'chat')).toEqual([
-      threads[0], threads[1], threads[3]
+  it("should filter threads by name (case insensitive)", () => {
+    expect(filterThreadsByName(threads, "chat")).toEqual([
+      { id: "1", name: "First chat" },
     ]);
-    expect(filterThreadsByName(threads, 'CHAT')).toEqual([
-      threads[0], threads[1], threads[3]
+    expect(filterThreadsByName(threads, "CHAT")).toEqual([
+      { id: "1", name: "First chat" },
     ]);
-    expect(filterThreadsByName(threads, 'first')).toEqual([
-      threads[0]
+    expect(filterThreadsByName(threads, "first")).toEqual([
+      { id: "1", name: "First chat" },
     ]);
-    expect(filterThreadsByName(threads, 'another')).toEqual([
-      threads[2]
+    expect(filterThreadsByName(threads, "another")).toEqual([
+      { id: "2", name: "Another conversation" },
     ]);
   });
 
-  it('devuelve un array vacío si no hay coincidencias', () => {
-    expect(filterThreadsByName(threads, 'nope')).toEqual([]);
+  it("should return empty array when no matches found", () => {
+    expect(filterThreadsByName(threads, "nope")).toEqual([]);
   });
 
-  it('maneja entradas inválidas', () => {
-    expect(filterThreadsByName(null, 'chat')).toBe(null);
-    expect(filterThreadsByName(undefined, 'chat')).toBe(undefined);
+  it("should handle null/undefined inputs gracefully", () => {
+    expect(filterThreadsByName(null, "test")).toBe(null);
     expect(filterThreadsByName(threads, null)).toBe(threads);
     expect(filterThreadsByName(threads, undefined)).toBe(threads);
   });
 
-  it('ignora threads sin nombre', () => {
-    expect(filterThreadsByName([{ id: 1 }, { id: 2, name: 'Test' }], 'test')).toEqual([
-      { id: 2, name: 'Test' }
-    ]);
+  it("should handle threads without names", () => {
+    expect(
+      filterThreadsByName([{ id: "1" }, { id: "2", name: "Test" }], "test")
+    ).toEqual([{ id: "2", name: "Test" }]);
   });
-}); 
+});

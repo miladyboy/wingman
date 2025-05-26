@@ -10,11 +10,13 @@ import {
   buildOptimisticUserMessage,
   serializeMessageHistory,
   extractImageUrlsFromFiles,
+  type Message,
 } from "./utils/messageUtils";
 import {
   createConversation,
   sendMessageToBackend,
 } from "./services/messageService";
+import type { Conversation } from "./hooks/useConversations";
 import posthog from "posthog-js";
 import { getCookieConsent } from "./utils/consent";
 
@@ -35,9 +37,9 @@ function AppRouter() {
     error: messagesError,
     setMessages,
   } = useMessages(supabase, session, activeConversationId);
-  const [sendingMessage, setSendingMessage] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState(null);
-  const optimisticIdRef = useRef(null);
+  const [sendingMessage, setSendingMessage] = useState<boolean>(false);
+  const [pendingFormData, setPendingFormData] = useState<FormData | null>(null);
+  const optimisticIdRef = useRef<string | null>(null);
 
   // Reset sendingMessage if activeConversationId changes
   useEffect(() => {
@@ -65,7 +67,7 @@ function AppRouter() {
     setMessages([]);
   };
 
-  const handleSendMessage = useCallback((formData) => {
+  const handleSendMessage = useCallback((formData: FormData) => {
     setPendingFormData(formData);
     setSendingMessage(true);
   }, []);
@@ -74,22 +76,22 @@ function AppRouter() {
     if (!sendingMessage || !pendingFormData) return;
     (async () => {
       let currentConversationId = activeConversationId;
-      let newConversationData = null;
+      let newConversationData: Conversation | null = null;
       const formData = pendingFormData;
       if (currentConversationId === "new") {
         try {
           // Use the first 5 words of the user's message as the initial title, or fallback
-          const userMessage = pendingFormData.get("newMessageText");
+          const userMessage = pendingFormData.get("newMessageText") as string;
           const initialTitle = userMessage
             ? userMessage.split(/\s+/).slice(0, 5).join(" ")
             : `New Chat ${conversations.length + 1}`;
           newConversationData = await createConversation(
             supabase,
-            session.user.id,
+            session!.user.id,
             initialTitle
           );
           setConversations((prevConversations) => [
-            newConversationData,
+            newConversationData!,
             ...prevConversations,
           ]);
           setActiveConversationId(newConversationData.id);
@@ -101,7 +103,7 @@ function AppRouter() {
           return;
         }
       }
-      formData.append("conversationId", currentConversationId);
+      formData.append("conversationId", currentConversationId!);
       if (!currentConversationId || !session) {
         console.error("Please select or start a conversation first.");
         setSendingMessage(false);
@@ -147,7 +149,7 @@ function AppRouter() {
       // Start backend call
       let assistantMessageId = `ai-${Date.now()}`;
       let assistantMessageContent = "";
-      let updatedConversationTitle = null;
+      let updatedConversationTitle: string | null = null;
       try {
         const backendUrl =
           import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
@@ -167,13 +169,18 @@ function AppRouter() {
           );
         }
         // Streaming logic
-        const reader = response.body.getReader();
+        const reader = response.body!.getReader();
         const decoder = new TextDecoder("utf-8");
         let done = false;
         let buffer = "";
         setMessages((prevMessages) => [
           ...prevMessages,
-          { id: assistantMessageId, sender: "ai", content: "", imageUrls: [] },
+          {
+            id: assistantMessageId,
+            sender: "assistant",
+            content: "",
+            imageUrls: [],
+          },
         ]);
 
         // --- Read backend stream and look for improved title ---
@@ -211,7 +218,7 @@ function AppRouter() {
                     setConversations((prev) =>
                       prev.map((conv) =>
                         conv.id === currentConversationId
-                          ? { ...conv, title: updatedConversationTitle }
+                          ? { ...conv, title: updatedConversationTitle! }
                           : conv
                       )
                     );
@@ -263,7 +270,7 @@ function AppRouter() {
   }, [sendingMessage, pendingFormData]);
 
   const handleRenameThread = useCallback(
-    async (conversationId, newName) => {
+    async (conversationId: string, newName: string) => {
       const trimmedName = newName.trim();
       if (!trimmedName || !session) return;
       const originalConversations = [...conversations];
@@ -289,7 +296,7 @@ function AppRouter() {
 
   // Delete a conversation and all related data (images, messages, conversation)
   const handleDeleteConversation = useCallback(
-    async (conversationId) => {
+    async (conversationId: string) => {
       try {
         // 1. Fetch all messages for the conversation
         const { data: messagesData, error: messagesError } = await supabase
@@ -300,7 +307,7 @@ function AppRouter() {
         const messageIds = (messagesData || []).map((m) => m.id);
 
         // 2. Fetch all image records for those messages
-        let imageRecords = [];
+        let imageRecords: Array<{ id: string; storage_path: string }> = [];
         if (messageIds.length > 0) {
           const { data: imagesData, error: imagesError } = await supabase
             .from("ChatMessageImages")
@@ -368,7 +375,7 @@ function AppRouter() {
       messages={messages}
       loading={authLoading}
       loadingMessages={loadingMessages}
-      error={authError || conversationsError || messagesError}
+      error={authError?.message || conversationsError || messagesError}
       handleSendMessage={handleSendMessage}
       sendingMessage={sendingMessage}
       supabase={supabase}

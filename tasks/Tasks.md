@@ -67,6 +67,8 @@
 - [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios _prompt_
 - [ ] Ver si implementar task master asi: https://x.com/antonioc_cl/status/1919861669158650305
 - [ ] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente.
+- [ ] Add JSDocs to the entire codebase.
+- [ ] Keep consistent naming conventions for files in the codebase.
 
 # Doing
 

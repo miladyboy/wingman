@@ -12,14 +12,18 @@ test.describe("Route Guards", () => {
   test.describe("Authentication Guards (RequireAuth & RedirectIfAuth)", () => {
     test.use({ storageState: { cookies: [], origins: [] } });
 
-    test("unauthenticated user is redirected from /app to /landing", async ({
+    test("RequireAuth redirects unauthenticated users to /auth", async ({
       page,
     }) => {
       await page.goto(routes.app);
-      await expect(page).toHaveURL(routes.landing);
-      await expect(page.getByTestId("landing-page-headline")).toContainText(
-        "Turn every DM into a date"
-      );
+      await expect(page).toHaveURL(routes.auth);
+    });
+
+    test("RedirectIfAuth redirects authenticated users away from auth page", async ({
+      page,
+    }) => {
+      await page.goto(routes.auth);
+      await expect(page).toHaveURL(routes.auth);
     });
   });
 

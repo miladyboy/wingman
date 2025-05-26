@@ -73,7 +73,6 @@
 # Doing
 
 - [ ] Add more user flows to the E2E suite up to 30 tests. _tests_
-- [ ] Pasar la app a Typescript correctamente.
 
 # Done
 
@@ -88,3 +87,4 @@
 - [x] Fix drag and drop of images into the upload component.
 - [x] Setup Cursor background agents. _code-quality_
 - [x] The test suite seems flaky AF (The E2E tests)
+- [x] Pasar la app a Typescript correctamente.

@@ -49,6 +49,9 @@ export default function CookieConsent({ onConsentChange }: CookieConsentProps) {
     <>
       <div
         className="fixed bottom-0 left-0 w-full bg-black/90 text-white p-4 z-[1000] flex flex-col items-center justify-center gap-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Cookie consent banner"
         data-testid="cookie-consent-banner"
       >
         <div className="w-full max-w-[1200px] flex flex-col md:flex-row items-center justify-center gap-4">
@@ -63,6 +66,7 @@ export default function CookieConsent({ onConsentChange }: CookieConsentProps) {
             <Button
               onClick={() => handleConsent("accepted")}
               data-testid="cookie-accept"
+              aria-label="Accept cookies"
             >
               Accept
             </Button>
@@ -70,6 +74,7 @@ export default function CookieConsent({ onConsentChange }: CookieConsentProps) {
               onClick={() => handleConsent("refused")}
               variant="secondary"
               data-testid="cookie-refuse"
+              aria-label="Refuse cookies"
             >
               Refuse
             </Button>

@@ -35,9 +35,8 @@
 
 # To-Do
 
-- [ ] The test suite seems flaky AF (The E2E tests)
+- [ ] Set up CI environment. _code-quality_
 - [ ] Remove "nickname" from the profile table.
-- [ ] Add more user flows to the E2E suite up to 25-30 tests. _tests_
 - [ ] Make the E2E suite run in the three browsers. _test_
 - [ ] Create an audit / architect-mode rule that I can insert manually. _code-quality_
 - [ ] Make it so that E2E tests use a much smaller model to save on costs. _cost_
@@ -71,8 +70,8 @@
 
 # Doing
 
-- [ ] Set up CI environment. _code-quality_
-- [ ] Setup Cursor background agents. _code-quality_
+- [ ] Add more user flows to the E2E suite up to 30 tests. _tests_
+- [ ] Pasar la app a Typescript correctamente.
 
 # Done
 
@@ -85,3 +84,5 @@
 - [x] Fix so that users can send an image in the first message. _bug_
 - [x] Fix nickname generation. It adds "" to it.
 - [x] Fix drag and drop of images into the upload component.
+- [x] Setup Cursor background agents. _code-quality_
+- [x] The test suite seems flaky AF (The E2E tests)

@@ -4,13 +4,17 @@ import { Button } from "./ui/button";
 import posthog from "posthog-js";
 import { POSTHOG_KEY, POSTHOG_HOST } from "../utils/env";
 
+type CookieConsentProps = {
+  onConsentChange?: (value: "accepted" | "refused") => void;
+};
+
 /**
  * CookieConsent banner component.
  * Shows only if user has not accepted or refused cookies.
  * Hides after user makes a choice.
  * @param {{ onConsentChange?: (value: 'accepted'|'refused') => void }} props
  */
-export default function CookieConsent({ onConsentChange }) {
+export default function CookieConsent({ onConsentChange }: CookieConsentProps) {
   const [visible, setVisible] = useState(false);
   const bannerHeight = 64; // px, adjust if needed
 
@@ -26,7 +30,7 @@ export default function CookieConsent({ onConsentChange }) {
     }
   }, []);
 
-  const handleConsent = (value) => {
+  const handleConsent = (value: "accepted" | "refused") => {
     setCookieConsent(value);
     setVisible(false);
     if (value === "accepted") {

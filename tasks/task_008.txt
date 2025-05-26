@@ -1,6 +1,6 @@
 # Task ID: 8
 # Title: E2E Test: Cookie Consent Banner Verification
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: medium
 # Description: Create an end-to-end test that verifies the cookie consent banner appears on first visit, can be dismissed, and remains hidden on subsequent visits for legal compliance.

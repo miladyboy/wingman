@@ -1,11 +1,7 @@
-import * as path from "path";
-import { v4 as uuidv4 } from "uuid";
 import { Request, Response } from "express";
 import { OpenAIService } from "../services/openaiService";
 import { supabaseAdmin } from "../services/supabaseService";
 import { getUserIdFromAuthHeader } from "../utils/auth";
-import { compressImage } from "../utils/imageProcessor";
-// Import OpenAI types if available
 import type { ChatCompletionMessageParam } from "openai/resources/chat";
 import {
   getNicknamePrompt,
@@ -18,6 +14,11 @@ import {
 import { buildFullPrompt } from "../prompt-builder";
 import type { IntentMode, Stage } from "../prompt-builder/types";
 import { runCritiqueAgent } from "../prompt-builder/runCritiqueAgent";
+import { uploadFilesToStorage } from "../services/imageUploadService";
+import type {
+  UploadedFile,
+  ImageRecord,
+} from "../services/imageUploadService.ts";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey);
@@ -54,27 +55,12 @@ interface AnalyzeRequestBody {
   stage?: string;
 }
 
-interface UploadedFile {
-  originalname: string;
-  mimetype: string;
-  buffer: Buffer;
-  size: number;
-}
-
 interface MessageRecord {
   id: string;
   conversation_id: string;
   sender: string;
   content: string | null;
   image_description?: string;
-}
-
-interface ImageRecord {
-  message_id: string;
-  storage_path: string;
-  filename: string;
-  content_type: string;
-  filesize: number;
 }
 
 function parseAnalyzeRequest(req: Request): {
@@ -167,92 +153,6 @@ async function saveMessageStub(
     throw new Error(`Failed to save message stub: ${messageError.message}`);
   }
   return newMessageRecord as MessageRecord;
-}
-
-async function uploadFilesToStorage(
-  supabase: any,
-  files: UploadedFile[],
-  savedMessage: MessageRecord,
-  userId: string | null
-): Promise<{
-  imageRecords: ImageRecord[];
-  imageUrlsForOpenAI: string[];
-  imageUrlsForFrontend: string[];
-}> {
-  let imageRecords: ImageRecord[] = [];
-  let imageUrlsForOpenAI: string[] = [];
-  let imageUrlsForFrontend: string[] = [];
-  for (const file of files) {
-    const originalFileExt = path.extname(file.originalname);
-    const fileNameWithoutExt = path.basename(
-      file.originalname,
-      originalFileExt
-    );
-    const safeFileNameBase = fileNameWithoutExt.replace(/[^a-zA-Z0-9_-]/g, "_");
-
-    let processedBuffer = file.buffer;
-    let processedMimeType = file.mimetype;
-    let processedSize = file.size;
-    let processedFileExt = originalFileExt; // Start with original extension
-
-    if (file.mimetype.startsWith("image/")) {
-      try {
-        processedBuffer = await compressImage(file.buffer);
-        processedMimeType = "image/jpeg";
-        processedSize = processedBuffer.length;
-        processedFileExt = ".jpg"; // Set to .jpg if compression successful
-      } catch (compressionError) {
-        console.warn(
-          `Failed to compress image ${file.originalname}, uploading original. Error: ${compressionError}`
-        );
-        // processedBuffer, processedMimeType, processedSize, processedFileExt remain original
-      }
-    }
-
-    const uniqueFileName = `${safeFileNameBase}-${uuidv4()}${processedFileExt}`;
-    const storageDirPath = userId
-      ? `public/${userId}/${savedMessage.id}`
-      : `public/${savedMessage.id}`;
-    const storagePath = `${storageDirPath}/${uniqueFileName}`;
-
-    const { data: uploadData, error: uploadError } = await supabase!.storage
-      .from("chat-images")
-      .upload(storagePath, processedBuffer, {
-        contentType: processedMimeType,
-        cacheControl: "3600",
-      });
-
-    if (uploadError) {
-      console.error(
-        `Failed to upload ${file.originalname}: ${uploadError.message}`
-      );
-      continue;
-    }
-
-    if (!uploadData || !uploadData.path) {
-      console.error(
-        `Upload data or path is missing for ${file.originalname}. Skipping this file.`
-      );
-      continue;
-    }
-
-    const { data: urlData } = supabase!.storage
-      .from("chat-images")
-      .getPublicUrl(uploadData.path);
-    if (urlData?.publicUrl) {
-      imageUrlsForOpenAI.push(urlData.publicUrl);
-      imageUrlsForFrontend.push(urlData.publicUrl);
-    }
-
-    imageRecords.push({
-      message_id: savedMessage.id,
-      storage_path: uploadData.path,
-      filename: file.originalname,
-      content_type: processedMimeType,
-      filesize: processedSize,
-    });
-  }
-  return { imageRecords, imageUrlsForOpenAI, imageUrlsForFrontend };
 }
 
 async function saveImageRecords(

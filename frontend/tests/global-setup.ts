@@ -16,6 +16,60 @@ const EMAIL_VERIFIED_FILE = path.join(AUTH_DIR, "emailVerifiedUser.json");
 const SUBSCRIBED_FILE_PREFIX = path.join(AUTH_DIR, "subscribedUser.worker-");
 const BASE_URL = "http://localhost:5173";
 
+// Reuse existing storage state files if they are still valid to speed up test runs.
+// A state file is considered valid when:
+//   1. The file exists and is readable JSON.
+//   2. It contains at least one cookie (basic integrity check).
+//   3. The file mtime is newer than MAX_STATE_AGE_HOURS (24h by default).
+//   4. The optional env var `PLAYWRIGHT_FORCE_RECREATE` is not set to "true".
+
+const MAX_STATE_AGE_HOURS = Number(
+  process.env.PLAYWRIGHT_AUTH_MAX_AGE_HOURS || "24"
+);
+const FORCE_RECREATE = process.env.PLAYWRIGHT_FORCE_RECREATE === "true";
+
+function isStorageStateValid(filePath: string): boolean {
+  if (FORCE_RECREATE) {
+    logDebug("Force recreate flag detected, invalidating state file", {
+      filePath,
+    });
+    return false;
+  }
+
+  if (!fs.existsSync(filePath)) {
+    logDebug("State file does not exist", { filePath });
+    return false;
+  }
+
+  try {
+    const stats = fs.statSync(filePath);
+    const ageHours = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60);
+    if (ageHours > MAX_STATE_AGE_HOURS) {
+      logDebug("State file is too old", { filePath, ageHours });
+      return false;
+    }
+
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const parsed = JSON.parse(raw);
+    if (
+      !parsed ||
+      !Array.isArray(parsed.cookies) ||
+      parsed.cookies.length === 0
+    ) {
+      logDebug("State file failed integrity check", { filePath });
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    logError("Error validating state file", {
+      filePath,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return false;
+  }
+}
+
 function getWorkerCount() {
   // Playwright sets this env var for parallel runs
   const count = parseInt(process.env.PLAYWRIGHT_WORKERS || "1", 10);
@@ -184,23 +238,51 @@ async function globalSetup() {
   await ensureDir(AUTH_DIR);
 
   try {
-    // Setup global email verified user first
-    await setupEmailVerifiedUser();
-
-    // Setup subscribed users in parallel now that we've fixed the email conflicts
-    const workerCount = getWorkerCount();
-    logStep(
-      `Setting up ${workerCount} subscribed users (one per parallelIndex) in parallel`
-    );
-
-    // Process workers in parallel for faster setup
-    const subscribedUserPromises = [];
-    for (let parallelIndex = 0; parallelIndex < workerCount; parallelIndex++) {
-      subscribedUserPromises.push(setupSubscribedUser(parallelIndex));
+    // 1. Email verified user
+    if (isStorageStateValid(EMAIL_VERIFIED_FILE)) {
+      logStep("Reusing existing storage state for email verified user", {
+        path: EMAIL_VERIFIED_FILE,
+      });
+    } else {
+      logStep(
+        "No valid storage state found for email verified user – creating one"
+      );
+      await setupEmailVerifiedUser();
     }
-    await Promise.all(subscribedUserPromises);
 
-    logStep("All subscribed users setup complete");
+    // 2. Subscribed users – one per worker
+    const workerCount = getWorkerCount();
+    logStep(`Checking storage states for ${workerCount} subscribed users`);
+
+    const subscribedUserPromises: Promise<void>[] = [];
+
+    for (let parallelIndex = 0; parallelIndex < workerCount; parallelIndex++) {
+      const storageStatePath = `${SUBSCRIBED_FILE_PREFIX}${parallelIndex}.json`;
+
+      if (isStorageStateValid(storageStatePath)) {
+        logWorker(parallelIndex, "Reusing existing storage state", {
+          path: storageStatePath,
+        });
+      } else {
+        logWorker(
+          parallelIndex,
+          "No valid storage state found – creating a new subscribed user"
+        );
+        subscribedUserPromises.push(setupSubscribedUser(parallelIndex));
+      }
+    }
+
+    if (subscribedUserPromises.length) {
+      logStep(
+        `Creating ${subscribedUserPromises.length} subscribed user(s) missing storage state`
+      );
+      await Promise.all(subscribedUserPromises);
+      logStep("Subscribed users setup complete");
+    } else {
+      logStep(
+        "All subscribed users have valid storage state – no setup needed"
+      );
+    }
   } catch (error) {
     logError("Global setup failed", {
       error: error instanceof Error ? error.message : String(error),

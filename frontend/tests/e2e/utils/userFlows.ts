@@ -126,6 +126,25 @@ export async function loginUser(
 
   try {
     await page.goto(routes.auth);
+
+    // Wait for the page to load and ensure we're in login mode
+    // The Auth component should default to login mode (isRegistering = false)
+    // But let's wait for the login form to be visible
+    logDebug("Waiting for login form to be available");
+    await page.waitForSelector(selectors.loginEmail, { timeout: 10000 });
+
+    // If we see "Need an account? Register" text, we're in login mode (good)
+    // If we see "Already have an account? Sign In", we're in register mode and need to switch
+    const isInRegisterMode = await page.isVisible(
+      "text=Already have an account? Sign In"
+    );
+    if (isInRegisterMode) {
+      logDebug("Page is in register mode, switching to login mode");
+      await page.click("text=Already have an account? Sign In");
+      await page.waitForSelector(selectors.loginEmail, { timeout: 5000 });
+    }
+
+    logDebug("Filling login form", { email });
     await page.fill(selectors.loginEmail, email);
     await page.fill(selectors.loginPassword, password);
 

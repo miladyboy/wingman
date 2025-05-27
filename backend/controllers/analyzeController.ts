@@ -215,17 +215,14 @@ async function generateImageDescriptionAndNickname(
     descriptionPrompt,
     250
   );
-  console.log(
-    "[VisionAPI] Raw response from generateImageDescriptionAndNickname:",
-    descriptionAndNickname
-  );
+
   let nickname = "";
   let imageDescription = "";
   const lines = (descriptionAndNickname || "")
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
-  console.log("[VisionAPI][Parser] Split lines:", lines);
+
   // 1. Buscar línea con prefijo Nickname (cualquier casing, espacios):
   let nicknameLineIdx = lines.findIndex((line) => /^nickname\s*:/i.test(line));
   if (nicknameLineIdx !== -1) {
@@ -235,32 +232,16 @@ async function generateImageDescriptionAndNickname(
     imageDescription = lines
       .filter((_, idx) => idx !== nicknameLineIdx)
       .join("\n");
-    console.log(
-      "[VisionAPI][Parser] Nickname by prefix:",
-      nickname,
-      "| Description:",
-      imageDescription
-    );
   } else if (lines.length > 1) {
     // 2. Si la última línea es corta (menos de 8 palabras), es nickname
     const lastLine = lines[lines.length - 1];
     if (lastLine.split(" ").length <= 8) {
       nickname = stripQuotes(lastLine);
       imageDescription = lines.slice(0, -1).join("\n");
-      console.log(
-        "[VisionAPI][Parser] Nickname by last line:",
-        nickname,
-        "| Description:",
-        imageDescription
-      );
     } else {
       // Si la última línea es larga, probablemente toda la respuesta es descripción
       nickname = "";
       imageDescription = lines.join("\n");
-      console.log(
-        "[VisionAPI][Parser] All lines as description:",
-        imageDescription
-      );
     }
   } else if (lines.length === 1) {
     // 3. Solo una línea: si es larga (más de 8 palabras), es descripción
@@ -268,17 +249,9 @@ async function generateImageDescriptionAndNickname(
     if (onlyLine.split(" ").length > 8) {
       imageDescription = onlyLine;
       nickname = "";
-      console.log(
-        "[VisionAPI][Parser] Single long line as description:",
-        imageDescription
-      );
     } else {
       nickname = stripQuotes(onlyLine);
       imageDescription = "";
-      console.log(
-        "[VisionAPI][Parser] Single short line as nickname:",
-        nickname
-      );
     }
   }
   // 4. Fallbacks y validaciones
@@ -287,12 +260,6 @@ async function generateImageDescriptionAndNickname(
   if (!imageDescription) imageDescription = "Image(s) received.";
   if (!nickname || nickname.toLowerCase().includes("description"))
     nickname = "Chat Pal";
-  console.log(
-    "[VisionAPI][Parser] Final nickname:",
-    nickname,
-    "| Final description:",
-    imageDescription
-  );
   return { nickname, imageDescription };
 }
 
@@ -324,22 +291,11 @@ async function generateImageDescription(
     },
   ];
   try {
-    console.log(
-      "[DEBUG][OpenAI] Payload enviado para descripción de imagen:",
-      JSON.stringify(descriptionPromptSubsequent, null, 2)
-    );
     let generatedImageDescription = await openaiInstance.callOpenAI(
       descriptionPromptSubsequent,
       250
     );
-    console.log(
-      "[DEBUG][OpenAI] Respuesta cruda de OpenAI para descripción de imagen:",
-      generatedImageDescription
-    );
     if (!generatedImageDescription || !generatedImageDescription.trim()) {
-      console.warn(
-        "[DEBUG][OpenAI] Fallback activado: OpenAI devolvió respuesta vacía para descripción de imagen."
-      );
       return "Image(s) analyzed.";
     }
     return generatedImageDescription.trim();
@@ -448,18 +404,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         isDraft,
         stage: extractedStage,
       } = parseAnalyzeRequest(req));
-      console.log("[Analyze] Parsed request:", {
-        history,
-        newMessageText,
-        conversationId,
-        isDraft,
-        stage: extractedStage,
-        files: files.map((f) => ({
-          name: f.originalname,
-          size: f.size,
-          mimetype: f.mimetype,
-        })),
-      });
     } catch (err: any) {
       res.status(400).json({ error: err.message });
       console.error("[Analyze] Error parsing request:", err);
@@ -486,7 +430,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         conversationId,
         newMessageText
       );
-      console.log("[Analyze] Saved message stub:", savedMessage);
       // Update conversation's last_message_at to the new message's created_at
       if (savedMessage && savedMessage.id) {
         // Fetch the created_at timestamp of the new message
@@ -500,10 +443,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             .from("conversations")
             .update({ last_message_at: msgData.created_at })
             .eq("id", conversationId);
-          console.log(
-            "[Analyze] Updated conversation last_message_at:",
-            msgData.created_at
-          );
         }
       }
     } catch (dbError: any) {
@@ -526,14 +465,8 @@ export async function analyze(req: Request, res: Response): Promise<void> {
       imageRecords = uploadResult.imageRecords;
       imageUrlsForOpenAI = uploadResult.imageUrlsForOpenAI;
       imageUrlsForFrontend = uploadResult.imageUrlsForFrontend;
-      console.log("[Analyze] Uploaded images:", {
-        imageRecords,
-        imageUrlsForOpenAI,
-        imageUrlsForFrontend,
-      });
       try {
         await saveImageRecords(supabaseAdmin, imageRecords);
-        console.log("[Analyze] Saved image records to DB");
       } catch (imageDbError: any) {
         res.status(500).json({ error: imageDbError.message });
         console.error("[Analyze] Error saving image records:", imageDbError);
@@ -581,33 +514,21 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         });
       });
     }
-    console.log(
-      "[Analyze] Final user message content for OpenAI:",
-      finalUserMessageContent
-    );
     if (isInitialUserMessage && finalUserMessageContent.length > 0) {
       if (imageUrlsForOpenAI.length > 0) {
         // 1. First call: get image description
-        console.log(
-          "[OpenAI] generateImageDescriptionAndNickname prompt:",
-          JSON.stringify(finalUserMessageContent, null, 2)
-        );
         const { imageDescription } = await generateImageDescriptionAndNickname(
           finalUserMessageContent
         );
-        console.log("[OpenAI] imageDescription:", imageDescription);
         generatedImageDescription = imageDescription;
         // 2. Second call: generate nickname using user message and image description
         generatedNickname = await generateNicknameWithImageDescription(
           newMessageText,
           imageDescription
         );
-        console.log("[OpenAI] generatedNickname:", generatedNickname);
       } else {
         // No images: fallback to old nickname logic
-        console.log("[OpenAI] generateNickname prompt:", newMessageText);
         const nickname = await generateNickname(newMessageText);
-        console.log("[OpenAI] generateNickname response:", nickname);
         generatedNickname = nickname;
       }
       // --- Set conversation title to nickname if generated ---
@@ -616,26 +537,14 @@ export async function analyze(req: Request, res: Response): Promise<void> {
           .from("conversations")
           .update({ title: generatedNickname })
           .eq("id", conversationId);
-        console.log(
-          "[Supabase] Updated conversation title:",
-          generatedNickname
-        );
       }
     } else if (
       finalUserMessageContent.length > 0 &&
       imageUrlsForOpenAI.length > 0
     ) {
       // 1. First call: get image description
-      console.log(
-        "[OpenAI] generateImageDescription prompt:",
-        JSON.stringify(finalUserMessageContent, null, 2)
-      );
       const imageDescription = await generateImageDescription(
         finalUserMessageContent
-      );
-      console.log(
-        "[OpenAI] generateImageDescription response:",
-        imageDescription
       );
       generatedNickname = null;
       generatedImageDescription = imageDescription;
@@ -644,7 +553,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         newMessageText,
         imageDescription
       );
-      console.log("[OpenAI] generatedNickname:", generatedNickname);
     }
     if (savedMessage && generatedImageDescription) {
       await updateMessageWithImageDescription(
@@ -653,10 +561,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         generatedImageDescription
       );
       savedMessage.image_description = generatedImageDescription;
-      console.log(
-        "[Supabase] Updated message with image description:",
-        generatedImageDescription
-      );
     }
 
     // --- Use the extracted stage instead of inferring it ---
@@ -696,10 +600,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
     const messages: ChatCompletionMessageParam[] = [
       { role: "user", content: fullPrompt },
     ];
-    console.log(
-      "[Analyze] Final OpenAI prompt for main AI response:",
-      messages
-    );
 
     // --- Stream OpenAI response to client ---
     res.setHeader("Content-Type", "text/event-stream");
@@ -733,10 +633,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
           conversationTitle: generatedNickname || undefined,
         })}\n\n`
       );
-      console.log(
-        "[OpenAI] streamChatCompletion full response:",
-        aiResponseBuffer
-      );
 
       // --- Critique Agent: revisar y corregir la respuesta antes de guardar/enviar ---
       const promptInput = {
@@ -754,7 +650,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         aiResponseBuffer.trim(),
         openaiClient.getOpenAIClient()
       );
-      console.log("[CritiqueAgent] Critique:", critique);
 
       // Save the final (critiqued) AI message to the database
       if (savedMessage && finalReply) {
@@ -764,10 +659,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             sender: "ai",
             content: finalReply,
           });
-          console.log(
-            "[Supabase] Saved AI message to DB (critiqued):",
-            finalReply
-          );
         } catch (saveErr) {
           // Log but do not interrupt the client
           console.error("Failed to save AI message:", saveErr);

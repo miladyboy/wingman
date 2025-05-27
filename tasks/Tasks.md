@@ -67,13 +67,13 @@
 - [ ] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente.
 - [ ] Add accessibility rules to cursor and apply to the app.
 - [ ] Remove all spanish from the repo.
+- [ ] Add more user flows to the E2E suite up to 30 tests. _tests_
+- [ ] Add JSDocs to the entire codebase.
+- [ ] Keep consistent naming conventions for files in the codebase.
 
 # Doing
 
 - [ ] Refactor analyzecontroller.ts pq tiene 500 lineas
-- [ ] Add more user flows to the E2E suite up to 30 tests. _tests_
-- [ ] Add JSDocs to the entire codebase.
-- [ ] Keep consistent naming conventions for files in the codebase.
 
 # Done
 

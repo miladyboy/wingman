@@ -1,17 +1,11 @@
-import { analyze } from '../analyzeController';
+import { analyze } from "../analyzeController";
 
-// Mock getUserIdFromAuthHeader to always return null
-jest.mock('../analyzeController', () => {
-  const original = jest.requireActual('../analyzeController');
-  return {
-    ...original,
-    getUserIdFromAuthHeader: jest.fn().mockResolvedValue(null),
-  };
-});
-
-describe('analyze controller - authentication', () => {
-  it('returns 401 if user is not authenticated', async () => {
-    const req = { headers: { authorization: undefined } } as any;
+describe("analyze controller - authentication", () => {
+  it("returns 401 if user is not authenticated", async () => {
+    const req = {
+      headers: { authorization: undefined },
+      auth: undefined,
+    } as any;
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -24,4 +18,4 @@ describe('analyze controller - authentication', () => {
       expect.objectContaining({ error: expect.stringMatching(/unauthorized/i) })
     );
   });
-}); 
+});

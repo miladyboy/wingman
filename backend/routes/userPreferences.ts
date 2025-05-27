@@ -1,9 +1,13 @@
-import express from 'express';
-import { getUserPreferences, updateUserPreferences } from '../controllers/userPreferencesController';
+import express from "express";
+import {
+  getUserPreferences,
+  updateUserPreferences,
+} from "../controllers/userPreferencesController";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = express.Router();
 
-router.get('/', getUserPreferences);
-router.post('/', updateUserPreferences);
+router.get("/", requireAuth, getUserPreferences);
+router.post("/", requireAuth, updateUserPreferences);
 
-export default router; 
+export default router;

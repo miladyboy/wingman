@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { OpenAIService } from "../services/openaiService";
 import { supabaseAdmin } from "../services/supabaseService";
-import { getUserIdFromAuthHeader } from "../utils/auth";
 import type { ChatCompletionMessageParam } from "openai/resources/chat";
 import {
   getNicknamePrompt,
@@ -408,11 +407,8 @@ async function generateNicknameWithImageDescription(
 
 export async function analyze(req: Request, res: Response): Promise<void> {
   try {
-    // --- Extract Auth Token ---
-    const userId = await getUserIdFromAuthHeader(
-      req.headers.authorization,
-      supabaseAdmin
-    );
+    // --- Auth Payload from middleware ---
+    const userId = req.auth?.userId;
     if (!userId) {
       res
         .status(401)
@@ -830,7 +826,6 @@ export async function analyze(req: Request, res: Response): Promise<void> {
 export {
   parseAnalyzeRequest,
   generateNickname,
-  getUserIdFromAuthHeader,
   saveMessageStub,
   uploadFilesToStorage,
   saveImageRecords,

@@ -3,6 +3,6 @@ import { googleOAuthUrl } from "../controllers/authController";
 
 const router = express.Router();
 
-router.get("/google", googleOAuthUrl);
+router.get("/oauth/google", googleOAuthUrl);
 
 export default router;

@@ -2,18 +2,28 @@ import { Request, Response } from "express";
 import { StripeService } from "../services/stripeService";
 import { supabaseAdmin } from "../services/supabaseService";
 
-// Helper to extract user from request using Supabase JWT
-async function getUserFromRequest(req: Request): Promise<any | null> {
+/**
+ * Helper to extract user profile from request using authenticated user ID.
+ *
+ * Note: Authentication is handled by requireAuth middleware,
+ * so req.auth.userId is guaranteed to be present.
+ *
+ * @param req Express request with authenticated user
+ * @returns User profile from database
+ * @throws Error if Supabase query fails or user profile doesn't exist
+ */
+async function getUserFromRequest(req: Request): Promise<any> {
   if (!supabaseAdmin) throw new Error("Supabase not configured");
-  const userId = req.auth?.userId;
-  if (!userId) return null;
+
   const { data: user, error } = await supabaseAdmin
     .from("profiles")
     .select("*")
-    .eq("id", userId)
+    .eq("id", req.auth!.userId)
     .single();
+
   if (error) throw new Error("Supabase query error");
-  if (!user) return null;
+  if (!user) throw new Error("User profile not found");
+
   return user;
 }
 
@@ -27,7 +37,6 @@ export function makeStripeController(stripeService: StripeService) {
     createCheckoutSession: async (req: Request, res: Response) => {
       try {
         const user = await getUserFromRequest(req);
-        if (!user) return res.status(401).json({ error: "Unauthorized" });
 
         // Check if user has a Stripe customer ID in Supabase
         let customerId = user.stripe_customer_id;
@@ -50,14 +59,6 @@ export function makeStripeController(stripeService: StripeService) {
         );
         return res.json({ url });
       } catch (err: any) {
-        if (
-          err.message === "Supabase not configured" ||
-          err.message === "Supabase query error"
-        ) {
-          return res
-            .status(500)
-            .json({ error: "Failed to create checkout session" });
-        }
         console.error("Error creating Stripe Checkout Session:", err);
         return res
           .status(500)
@@ -73,7 +74,6 @@ export function makeStripeController(stripeService: StripeService) {
     getSubscriptionStatus: async (req: Request, res: Response) => {
       try {
         const user = await getUserFromRequest(req);
-        if (!user) return res.status(401).json({ error: "Unauthorized" });
 
         // Query the profiles table for is_paid
         const { data, error } = await supabaseAdmin!
@@ -89,14 +89,6 @@ export function makeStripeController(stripeService: StripeService) {
         }
         return res.json({ active: !!data?.is_paid });
       } catch (err: any) {
-        if (
-          err.message === "Supabase not configured" ||
-          err.message === "Supabase query error"
-        ) {
-          return res
-            .status(500)
-            .json({ error: "Failed to check subscription status" });
-        }
         console.error("Error checking subscription status:", err);
         return res
           .status(500)
@@ -112,7 +104,6 @@ export function makeStripeController(stripeService: StripeService) {
     cancelSubscription: async (req: Request, res: Response) => {
       try {
         const user = await getUserFromRequest(req);
-        if (!user) return res.status(401).json({ error: "Unauthorized" });
         const customerId = user.stripe_customer_id;
         if (!customerId)
           return res.status(400).json({ error: "No Stripe customer ID" });
@@ -133,14 +124,6 @@ export function makeStripeController(stripeService: StripeService) {
         // Signal frontend to log the user out
         return res.json({ success: true, logout: true });
       } catch (err: any) {
-        if (
-          err.message === "Supabase not configured" ||
-          err.message === "Supabase query error"
-        ) {
-          return res
-            .status(500)
-            .json({ error: "Failed to cancel subscription" });
-        }
         console.error("Error cancelling subscription:", err);
         return res.status(500).json({ error: "Failed to cancel subscription" });
       }

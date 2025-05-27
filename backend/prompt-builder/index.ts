@@ -20,7 +20,7 @@ export function buildFullPrompt(input: PromptInput): string {
     .filter(Boolean)
     .join("\n\n")
     .trim();
-  console.log("[PromptBuilder] Built full prompt:", fullPrompt);
+
   return fullPrompt;
 }
 

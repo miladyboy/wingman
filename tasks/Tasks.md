@@ -21,7 +21,6 @@
 - [ ] Add somehow localization to the prompts. For example in spanish not using the initial question or exclamation sign. Maybe run a small local model and from that dinamically add a specific language prompt. _ux_
 - [ ] Only show cookies banner to users from the EU and relevant jurisdictions _legal_
 - [ ] Hacer un modulo de post-processing del mensaje del user antes de mandarlo como prompt (para que openai no joda)
-- [ ] Refactor analyzecontroller.ts pq tiene 500 lineas
 - [ ] Agregar https://www.promptfoo.dev/docs/intro/ para mejorar la seguridad de los prompts.
 
 # Next features
@@ -65,15 +64,16 @@
 - [ ] Make the buckets private to avoid data issues. _legal_
 - [ ] Mejorar critique agent prompt _prompt_
 - [ ] Implementar sistema de loging de chats y mejora con feedback/rating de usuarios _prompt_
-- [ ] Ver si implementar task master asi: https://x.com/antonioc_cl/status/1919861669158650305
 - [ ] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente.
-- [ ] Add JSDocs to the entire codebase.
-- [ ] Keep consistent naming conventions for files in the codebase.
 - [ ] Add accessibility rules to cursor and apply to the app.
+- [ ] Remove all spanish from the repo.
 
 # Doing
 
+- [ ] Refactor analyzecontroller.ts pq tiene 500 lineas
 - [ ] Add more user flows to the E2E suite up to 30 tests. _tests_
+- [ ] Add JSDocs to the entire codebase.
+- [ ] Keep consistent naming conventions for files in the codebase.
 
 # Done
 

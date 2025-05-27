@@ -14,14 +14,17 @@ function wantsJson(req: Request): boolean {
  * @param req - Express request object
  * @param res - Express response object containing the OAuth URL or error message
  * @returns Promise that resolves when the response is sent
- * @throws Will return 500 status if Supabase client is not initialized or OAuth URL generation fails
+ * @throws Will return 500 status if Supabase client is not initialized, OAuth URL generation fails, or FRONTEND_URL is not defined.
  */
 export async function googleOAuthUrl(
   req: Request,
   res: Response
 ): Promise<void> {
   try {
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (!frontendUrl) {
+      throw new Error("FRONTEND_URL is not defined in environment variables.");
+    }
     const redirectTo = `${frontendUrl}/auth`;
     const url = await generateOAuthUrl("google", redirectTo);
 

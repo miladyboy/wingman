@@ -1,8 +1,9 @@
 // Common types for prompt building
 
+import type { SimpPreference } from "../types/user";
+
 export type IntentMode = "NewSuggestions" | "RefineDraft";
 export type Stage = "Opening" | "Continue" | "ReEngage";
-export type SimpPreference = "auto" | "low" | "neutral" | "high";
 
 export interface PromptInput {
   intent: IntentMode;

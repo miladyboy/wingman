@@ -14,10 +14,9 @@ import { buildFullPrompt } from "../prompt-builder";
 import type { IntentMode, Stage } from "../prompt-builder/types";
 import { runCritiqueAgent } from "../prompt-builder/runCritiqueAgent";
 import { uploadFilesToStorage } from "../services/imageUploadService";
-import type {
-  UploadedFile,
-  ImageRecord,
-} from "../services/imageUploadService.ts";
+import { getPreferences, UserPrefs } from "../services/userService";
+import type { SimpPreference } from "../types/user";
+import { UploadedFile, ImageRecord } from "../services/imageUploadService";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey);
@@ -419,47 +418,18 @@ export async function analyze(req: Request, res: Response): Promise<void> {
     // --- Fetch User Preferences ---
     let userPreferences = "";
     let preferredCountry = "auto";
-    let simpPreference: "auto" | "low" | "neutral" | "high" = "auto";
-    if (supabaseAdmin) {
-      try {
-        const { data: prefData, error: prefError } = await supabaseAdmin
-          .from("profiles")
-          .select("preferences, preferred_country, simp_preference")
-          .eq("id", userId)
-          .single();
-        if (!prefError && prefData) {
-          if (typeof prefData.preferences === "string") {
-            try {
-              const parsed = JSON.parse(prefData.preferences);
-              if (parsed && typeof parsed === "object" && parsed.text) {
-                userPreferences = parsed.text;
-              } else {
-                userPreferences = prefData.preferences;
-              }
-            } catch {
-              userPreferences = prefData.preferences;
-            }
-          }
-          if (typeof prefData.preferred_country === "string") {
-            preferredCountry = prefData.preferred_country;
-          }
-          if (
-            typeof prefData.simp_preference === "string" &&
-            ["auto", "low", "neutral", "high"].includes(
-              prefData.simp_preference
-            )
-          ) {
-            simpPreference = prefData.simp_preference as
-              | "auto"
-              | "low"
-              | "neutral"
-              | "high";
-          }
-        }
-      } catch (prefFetchErr) {
-        // Log but do not block the request
-        console.warn("Failed to fetch user preferences:", prefFetchErr);
-      }
+    let simpPreference: SimpPreference = "auto";
+    try {
+      const prefs: UserPrefs = await getPreferences(userId);
+      userPreferences = prefs.text;
+      preferredCountry = prefs.preferredCountry;
+      simpPreference = prefs.simpPreference;
+    } catch (prefErr) {
+      // Log but do not block the request
+      console.warn(
+        "Failed to fetch user preferences via userService:",
+        prefErr
+      );
     }
 
     // --- Extract Text and Files ---

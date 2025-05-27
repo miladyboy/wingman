@@ -118,3 +118,54 @@ export async function createNewChat(
 
   return { chatTitle: chatTitle ?? "", threadId, message };
 }
+
+/**
+ * Helper: Renames an existing chat thread via the UI sidebar and waits until the new
+ * title is visible. This mirrors how a real user performs the rename flow:
+ * 1. Hover the chat item so the rename button appears.
+ * 2. Click the rename button to reveal the input.
+ * 3. Type the new name and confirm with Enter.
+ * 4. Await the UI update ensuring the new name is rendered.
+ *
+ * @param page - Playwright Page object for browser automation
+ * @param threadId - The thread identifier (data-thread-id attribute value)
+ * @param newName - The new title to set for the chat thread
+ * @returns Promise that resolves when the rename operation is complete
+ */
+export async function renameChat(
+  page: Page,
+  threadId: string,
+  newName: string
+): Promise<void> {
+  const chatItem = page.locator(
+    `[data-testid="chat-item"][data-thread-id="${threadId}"]`
+  );
+
+  // 1. Hover to reveal action buttons
+  await chatItem.hover();
+
+  // 2. Click the rename (pencil) button
+  const renameButton = chatItem.getByTestId("rename-chat-button");
+  await renameButton.click();
+
+  // 3. Fill the input and confirm with Enter
+  const renameInput = page.getByTestId("rename-chat-input");
+  await expect(renameInput).toBeVisible();
+  await renameInput.fill(newName);
+  await renameInput.press("Enter");
+
+  // 4. Verify that the chat title has been updated in the DOM
+  await expect(chatItem.getByTestId("chat-item-name")).toHaveText(newName);
+}
+
+/**
+ * Helper: Returns an array of chat titles currently visible in the sidebar.
+ * Trims whitespace from each title to make assertions easier.
+ *
+ * @param page - Playwright Page object for browser automation
+ * @returns Promise resolving to an array of visible sidebar thread titles
+ */
+export async function getVisibleThreadTitles(page: Page): Promise<string[]> {
+  const titles = await page.getByTestId("chat-item-name").allTextContents();
+  return titles.map((t) => t.trim());
+}

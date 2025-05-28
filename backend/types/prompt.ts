@@ -1,6 +1,4 @@
-// Common types for prompt building
-
-import type { SimpPreference } from "../types/user";
+import type { SimpPreference } from "./user";
 
 export type IntentMode = "NewSuggestions" | "RefineDraft";
 export type Stage = "Opening" | "Continue" | "ReEngage";

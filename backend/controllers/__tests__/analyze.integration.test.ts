@@ -6,8 +6,8 @@ const mockSupabase = {
   eq: jest.fn().mockReturnThis(),
   single: jest.fn().mockResolvedValue({
     data: {
-      preferences: "Likes cats",
-      preferred_language: "en",
+      text: "Likes cats",
+      preferred_country: "en",
       simp_preference: "high",
     },
     error: null,
@@ -143,9 +143,11 @@ describe("analyze endpoint integration", () => {
     expect(firstCallArgs).toBeDefined();
     const messagesArg = firstCallArgs[0];
     expect(Array.isArray(messagesArg)).toBe(true);
-    // messagesArg[0].content is the full prompt built by buildFullPrompt
-    expect(messagesArg[0].content).toEqual(
-      expect.stringContaining("Likes cats")
-    );
+
+    // The messages array structure is: [system, optional_few_shot, user]
+    // User preferences should be in the user message (last element)
+    const userMessage = messagesArg[messagesArg.length - 1];
+    expect(userMessage.role).toBe("user");
+    expect(userMessage.content).toEqual(expect.stringContaining("Likes cats"));
   });
 });

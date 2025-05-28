@@ -2,21 +2,18 @@ import { Request, Response } from "express";
 import { OpenAIService } from "../services/openaiService";
 import { supabaseAdmin } from "../services/supabaseService";
 import type { ChatCompletionMessageParam } from "openai/resources/chat";
-import {
-  getNicknamePrompt,
-  getImageDescriptionAndNicknamePrompt,
-} from "../prompts/nicknamePrompts";
+import { getImageDescriptionAndNicknamePrompt } from "../prompts/nicknamePrompts";
 import {
   getFallbackImageAnalysisPrompt,
   getImageDescriptionPrompt,
 } from "../prompts/userPrompt";
-import { buildFullPrompt } from "../prompt-builder";
-import type { IntentMode, Stage } from "../prompt-builder/types";
-import { runCritiqueAgent } from "../prompt-builder/runCritiqueAgent";
+import type { IntentMode, Stage } from "../types/prompt";
+import { runCritiqueAgent } from "../services/critiqueService";
 import { uploadFilesToStorage } from "../services/imageUploadService";
 import { getPreferences, UserPrefs } from "../services/userService";
 import type { SimpPreference } from "../types/user";
 import { UploadedFile, ImageRecord } from "../services/imageUploadService";
+import { PromptService } from "../services/promptService";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey);
@@ -173,10 +170,8 @@ async function generateNickname(
   newMessageText: string,
   openaiInstance: OpenAIService = openaiClient
 ): Promise<string> {
-  // Get the nickname prompt as a structured message
-  const nicknamePromptMessage = getNicknamePrompt(newMessageText);
-  // Create the messages array with just the user message
-  const nicknamePrompt: ChatCompletionMessageParam[] = [nicknamePromptMessage];
+  const nicknamePrompt: ChatCompletionMessageParam[] =
+    PromptService.buildNicknamePrompt(newMessageText);
 
   const result = await openaiInstance.callOpenAI(nicknamePrompt, 20);
   const nickname = stripQuotes(result.trim());
@@ -350,10 +345,9 @@ async function generateNicknameWithImageDescription(
   imageDescription: string,
   openaiInstance: OpenAIService = openaiClient
 ): Promise<string> {
-  const prompt = `Based on the following message and image description, invent a short, playful, SFW nickname for the subject described.\nMessage: "${userMessage}"\nImage Description: "${imageDescription}"\nNickname:`;
-  const nicknamePrompt: ChatCompletionMessageParam[] = [
-    { role: "user", content: prompt },
-  ];
+  const nicknamePrompt: ChatCompletionMessageParam[] =
+    PromptService.buildNicknamePrompt(userMessage, imageDescription);
+
   const result = await openaiInstance.callOpenAI(nicknamePrompt, 20);
   const nickname = stripQuotes(result.trim());
   if (!nickname) return "Chat Pal";
@@ -585,21 +579,17 @@ export async function analyze(req: Request, res: Response): Promise<void> {
     const intent: IntentMode = isDraft ? "RefineDraft" : "NewSuggestions";
 
     // Build the full prompt string
-    const fullPrompt = buildFullPrompt({
-      intent,
-      stage,
-      userPreferences,
-      chatHistory: historyString,
-      latestMessage: newMessageText,
-      imageDescriptions: imageDescriptionsArr,
-      preferredCountry,
-      simpPreference,
-    });
-
-    // OpenAI expects an array of message objects, not a single string
-    const messages: ChatCompletionMessageParam[] = [
-      { role: "user", content: fullPrompt },
-    ];
+    const messages: ChatCompletionMessageParam[] =
+      PromptService.buildMainPrompt({
+        intent,
+        stage,
+        userPreferences,
+        chatHistory: historyString,
+        latestMessage: newMessageText,
+        imageDescriptions: imageDescriptionsArr,
+        preferredCountry,
+        simpPreference,
+      });
 
     // --- Stream OpenAI response to client ---
     res.setHeader("Content-Type", "text/event-stream");

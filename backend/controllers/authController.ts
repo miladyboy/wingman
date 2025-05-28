@@ -1,12 +1,6 @@
 import { Request, Response } from "express";
 import { generateOAuthUrl } from "../services/authService";
 
-// Accept header helper – checks if client prefers JSON.
-function wantsJson(req: Request): boolean {
-  const accept = req.headers.accept || "";
-  return accept.includes("application/json");
-}
-
 /**
  * Generates a Google OAuth URL for user authentication.
  * Creates a Supabase OAuth sign-in URL that redirects to the frontend auth page after authentication.
@@ -28,17 +22,11 @@ export async function googleOAuthUrl(
     const redirectTo = `${frontendUrl}/auth`;
     const url = await generateOAuthUrl("google", redirectTo);
 
-    if (wantsJson(req)) {
-      res.json({ url });
-      return;
-    }
-    res.redirect(302, url);
-    return;
+    res.json({ url });
   } catch (err: any) {
     console.error("[googleOAuthUrl] Failed to generate OAuth URL:", err);
     res
       .status(500)
       .json({ error: err?.message || "Failed to generate OAuth URL" });
-    return;
   }
 }

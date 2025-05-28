@@ -6,6 +6,7 @@
     "test": "jest",
     "start": "node dist/server.js",
     "dev": "ts-node-dev server.ts",
+    "dev:test": "NODE_ENV=test OPENAI_MODEL=gpt-4.1-nano ts-node-dev server.ts",
     "build": "tsc"
   },
   "keywords": [],

@@ -1,6 +1,6 @@
-import OpenAI from 'openai';
-import type { ResponseTextDeltaEvent } from 'openai/resources/responses/responses';
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+import OpenAI from "openai";
+import type { ResponseTextDeltaEvent } from "openai/resources/responses/responses";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 /**
  * Service for streaming and non-streaming OpenAI responses.
@@ -17,7 +17,17 @@ class OpenAIService {
    * @param defaultModel Default model name (optional)
    * @param openaiClient Optional injected OpenAI client (for testing)
    */
-  constructor(apiKey: string, defaultModel: string = 'gpt-4o', openaiClient?: OpenAI) {
+  constructor(
+    apiKey: string,
+    defaultModel: string = "gpt-4o",
+    openaiClient?: OpenAI
+  ) {
+    console.log(
+      "Creating OpenAI client with model:",
+      defaultModel,
+      "environment is",
+      process.env.NODE_ENV
+    );
     this.openai = openaiClient || new OpenAI({ apiKey });
     this.defaultModel = defaultModel;
   }
@@ -43,15 +53,15 @@ class OpenAIService {
     model?: string
   ): Promise<void> {
     try {
-      // The OpenAI Responses API accepts an array of messages 
+      // The OpenAI Responses API accepts an array of messages
       // but TypeScript definitions are strict, so we use type assertion
       const stream = this.openai.responses.stream({
         model: model || this.defaultModel,
         input: messages as any,
       });
-      
+
       for await (const event of stream) {
-        if (event.type === 'response.output_text.delta') {
+        if (event.type === "response.output_text.delta") {
           onData((event as ResponseTextDeltaEvent).delta);
         }
         // Optionally, handle 'response.output_text.done' if you want to signal completion
@@ -75,15 +85,17 @@ class OpenAIService {
     model?: string
   ): Promise<string> {
     try {
+      console.log("Calling OpenAI with model:", model || this.defaultModel);
+
       const response = await this.openai.responses.create({
         model: model || this.defaultModel,
         input: messages as any,
       });
-      
-      if (!response || typeof response.output_text !== 'string') {
-        throw new Error('OpenAI API returned invalid or no content.');
+
+      if (!response || typeof response.output_text !== "string") {
+        throw new Error("OpenAI API returned invalid or no content.");
       }
-      
+
       return response.output_text;
     } catch (err: any) {
       throw new Error(`OpenAI API Error: ${err.message || err}`);
@@ -91,4 +103,4 @@ class OpenAIService {
   }
 }
 
-export { OpenAIService }; 
+export { OpenAIService };

@@ -73,13 +73,14 @@
 - [ ] Add 2FA to all Supabase and Cloud accounts _security_
 - [ ] Consistently solve and test the loading dots issue.
 - [ ] Make the buckets private to avoid data issues. _legal_
+- [ ] Fix the authentication issue with old tokens. _bug_
+- [ ] The test for some reason doesn't work when you run it with
 
 # Doing
 
-- [ ] Make the tests use a smaller model to save on costs.
-
 # Done
 
+- [x] Make the tests use a smaller model to save on costs.
 - [x] Mandar data que pide Stripe. _growth_
 - [x] Add E2E test that user can cancel their subscription _e2e_
 - [x] Give feedback about the new subscription page

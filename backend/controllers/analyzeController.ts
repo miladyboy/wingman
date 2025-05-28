@@ -16,7 +16,7 @@ import { UploadedFile, ImageRecord } from "../services/imageUploadService";
 import { PromptService } from "../services/promptService";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
-const openaiClient = new OpenAIService(openaiApiKey);
+const openaiClient = new OpenAIService(openaiApiKey, process.env.OPENAI_MODEL);
 
 /**
  * Strips surrounding quotes from a string if present.

@@ -1,16 +1,16 @@
 const mockCallOpenAI_for_generateImageDescription = jest.fn();
 
-jest.mock('../../services/openaiService', () => {
-    return {
-        OpenAIService: jest.fn().mockImplementation(() => {
-            return { callOpenAI: mockCallOpenAI_for_generateImageDescription };
-        }),
-    };
+jest.mock("../../services/openaiService", () => {
+  return {
+    OpenAIService: jest.fn().mockImplementation(() => {
+      return { callOpenAI: mockCallOpenAI_for_generateImageDescription };
+    }),
+  };
 });
 
-import { generateImageDescription } from '../analyzeController';
-import { OpenAIService } from '../../services/openaiService';
-import { getImageDescriptionPrompt } from '../../prompts/userPrompt';
+import { generateImageDescription } from "../analyzeController";
+import { OpenAIService } from "../../services/openaiService";
+import { getImageDescriptionPrompt } from "../../prompts/userPrompt";
 
 // Mock OpenAIService (can share mock setup if in same context or re-mock)
 // const mockCallOpenAI_for_generateImageDescription = jest.fn(); // Moved up
@@ -26,55 +26,80 @@ import { getImageDescriptionPrompt } from '../../prompts/userPrompt';
 //     };
 // });
 
-const mockOpenAIServiceInstance_for_generateImageDescription = new OpenAIService('dummy-key-desc');
+const testModel = process.env.NODE_ENV === "test" ? "gpt-4.1-nano" : "gpt-4o";
+const mockOpenAIServiceInstance_for_generateImageDescription =
+  new OpenAIService("dummy-key-desc", testModel);
 
-describe('generateImageDescription', () => {
-    beforeEach(() => {
-        mockCallOpenAI_for_generateImageDescription.mockClear();
-    });
+describe("generateImageDescription", () => {
+  beforeEach(() => {
+    mockCallOpenAI_for_generateImageDescription.mockClear();
+  });
 
-    const sampleFinalUserMessageContent = [
-        { type: 'input_image', image_url: 'http://example.com/image1.jpg' },
-        { type: 'input_text', text: 'Image for description.' },
+  const sampleFinalUserMessageContent = [
+    { type: "input_image", image_url: "http://example.com/image1.jpg" },
+    { type: "input_text", text: "Image for description." },
+  ];
+
+  it("should call OpenAI with the correct prompt and return the description", async () => {
+    const openAIResponse = "A detailed description of the image content.";
+    mockCallOpenAI_for_generateImageDescription.mockResolvedValue(
+      openAIResponse
+    );
+
+    const result = await generateImageDescription(
+      sampleFinalUserMessageContent,
+      mockOpenAIServiceInstance_for_generateImageDescription
+    );
+
+    expect(mockCallOpenAI_for_generateImageDescription).toHaveBeenCalledTimes(
+      1
+    );
+    const expectedPromptArgument = [
+      {
+        role: "user",
+        content: [
+          { type: "input_text", text: getImageDescriptionPrompt().content },
+          { type: "input_image", image_url: "http://example.com/image1.jpg" },
+          { type: "input_text", text: "Image for description." },
+        ],
+      },
     ];
+    expect(mockCallOpenAI_for_generateImageDescription).toHaveBeenCalledWith(
+      expectedPromptArgument,
+      250
+    );
+    expect(result).toBe(openAIResponse.trim());
+  });
 
-    it('should call OpenAI with the correct prompt and return the description', async () => {
-        const openAIResponse = 'A detailed description of the image content.';
-        mockCallOpenAI_for_generateImageDescription.mockResolvedValue(openAIResponse);
+  it("should return a default description if OpenAI response is empty", async () => {
+    mockCallOpenAI_for_generateImageDescription.mockResolvedValue("   "); // Empty or whitespace response
+    const result = await generateImageDescription(
+      sampleFinalUserMessageContent,
+      mockOpenAIServiceInstance_for_generateImageDescription
+    );
+    expect(result).toBe("Image(s) analyzed.");
+  });
 
-        const result = await generateImageDescription(sampleFinalUserMessageContent, mockOpenAIServiceInstance_for_generateImageDescription);
+  it("should return an error message if OpenAI call fails", async () => {
+    mockCallOpenAI_for_generateImageDescription.mockRejectedValue(
+      new Error("OpenAI API Error")
+    );
+    const result = await generateImageDescription(
+      sampleFinalUserMessageContent,
+      mockOpenAIServiceInstance_for_generateImageDescription
+    );
+    expect(result).toBe("Error analyzing image(s).");
+  });
 
-        expect(mockCallOpenAI_for_generateImageDescription).toHaveBeenCalledTimes(1);
-        const expectedPromptArgument = [
-            {
-                role: 'user',
-                content: [
-                    { type: 'input_text', text: getImageDescriptionPrompt().content },
-                    { type: 'input_image', image_url: 'http://example.com/image1.jpg' },
-                    { type: 'input_text', text: 'Image for description.' },
-                ],
-            },
-        ];
-        expect(mockCallOpenAI_for_generateImageDescription).toHaveBeenCalledWith(expectedPromptArgument, 250);
-        expect(result).toBe(openAIResponse.trim());
-    });
-
-    it('should return a default description if OpenAI response is empty', async () => {
-        mockCallOpenAI_for_generateImageDescription.mockResolvedValue('   '); // Empty or whitespace response
-        const result = await generateImageDescription(sampleFinalUserMessageContent, mockOpenAIServiceInstance_for_generateImageDescription);
-        expect(result).toBe('Image(s) analyzed.');
-    });
-
-    it('should return an error message if OpenAI call fails', async () => {
-        mockCallOpenAI_for_generateImageDescription.mockRejectedValue(new Error('OpenAI API Error'));
-        const result = await generateImageDescription(sampleFinalUserMessageContent, mockOpenAIServiceInstance_for_generateImageDescription);
-        expect(result).toBe('Error analyzing image(s).');
-    });
-
-    it('should trim whitespace from the OpenAI response', async () => {
-        const openAIResponse = '  A description with leading/trailing spaces.  ';
-        mockCallOpenAI_for_generateImageDescription.mockResolvedValue(openAIResponse);
-        const result = await generateImageDescription(sampleFinalUserMessageContent, mockOpenAIServiceInstance_for_generateImageDescription);
-        expect(result).toBe('A description with leading/trailing spaces.');
-    });
-}); 
+  it("should trim whitespace from the OpenAI response", async () => {
+    const openAIResponse = "  A description with leading/trailing spaces.  ";
+    mockCallOpenAI_for_generateImageDescription.mockResolvedValue(
+      openAIResponse
+    );
+    const result = await generateImageDescription(
+      sampleFinalUserMessageContent,
+      mockOpenAIServiceInstance_for_generateImageDescription
+    );
+    expect(result).toBe("A description with leading/trailing spaces.");
+  });
+});

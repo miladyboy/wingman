@@ -84,10 +84,12 @@ npm run dev
 The app uses Stripe Checkout for subscription payments. The integration is designed for robust subscription management:
 
 - **Stripe Customer ID Storage:**
+
   - When a user completes a Stripe Checkout session, the backend webhook handler stores the Stripe customer ID (`stripe_customer_id`) in the user's profile in the database (Supabase), along with marking the user as paid (`is_paid: true`).
   - This ensures every user who pays has their Stripe customer ID persisted for future subscription management.
 
 - **Subscription Cancellation:**
+
   - When a user requests to cancel their subscription, the backend uses the stored `stripe_customer_id` to identify and cancel the correct Stripe subscription via the Stripe API.
   - If the customer ID is missing, cancellation will not proceed and an error is returned.
 
@@ -110,4 +112,59 @@ MIT
 
 ## Disclaimer
 
-This project is intended for entertainment purposes only. Always use your own judgment when interacting with others online. 
+This project is intended for entertainment purposes only. Always use your own judgment when interacting with others online.
+
+## Testing
+
+### Unit Tests
+
+Run unit tests for the backend:
+
+```bash
+npm test --prefix backend
+```
+
+Run unit tests for the frontend:
+
+```bash
+npm test --prefix frontend
+```
+
+### End-to-End (E2E) Tests
+
+E2E tests require both frontend and backend to be running. The backend must be started in test mode to use the correct OpenAI model (`gpt-4.1-nano` instead of `gpt-4o`).
+
+#### Option 1: Use the automated script (recommended)
+
+```bash
+# Run E2E tests headless
+npm run test:e2e
+
+# Run E2E tests with browser UI (for debugging)
+npm run test:e2e:headed
+```
+
+#### Option 2: Manual setup
+
+1. Start the backend in test mode:
+
+   ```bash
+   NODE_ENV=test npm run dev --prefix backend
+   ```
+
+2. Start the frontend in another terminal:
+
+   ```bash
+   npm run dev --prefix frontend
+   ```
+
+3. Run the E2E tests in a third terminal:
+   ```bash
+   npm run test:e2e --prefix frontend
+   ```
+
+**Important:** Always use `NODE_ENV=test` when starting the backend for E2E tests. This ensures:
+
+- OpenAI calls use the test model (`gpt-4.1-nano`) instead of production model (`gpt-4o`)
+- Lower API costs during testing
+- Consistent test behavior

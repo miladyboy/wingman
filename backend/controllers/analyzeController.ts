@@ -15,32 +15,11 @@ import { getPreferences, UserPrefs } from "../services/userService";
 import type { SimpPreference } from "../types/user";
 import { UploadedFile, ImageRecord } from "../services/imageUploadService";
 import { PromptService } from "../services/promptService";
+import { stripQuotes } from "../utils/text";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey, process.env.OPENAI_MODEL);
 
-/**
- * Strips surrounding quotes from a string if present.
- * Handles both single and double quotes.
- * @param text The text to strip quotes from
- * @returns The text without surrounding quotes
- */
-function stripQuotes(text: string): string {
-  if (!text) return text;
-  const trimmed = text.trim();
-
-  // Remove surrounding double quotes
-  if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) {
-    return trimmed.slice(1, -1);
-  }
-
-  // Remove surrounding single quotes
-  if (trimmed.startsWith("'") && trimmed.endsWith("'") && trimmed.length >= 2) {
-    return trimmed.slice(1, -1);
-  }
-
-  return trimmed;
-}
 
 // Type definitions
 interface AnalyzeRequestBody {

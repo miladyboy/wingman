@@ -10,37 +10,17 @@ import {
 import type { IntentMode, Stage } from "../types/prompt";
 import { runCritiqueAgent } from "../services/critiqueService";
 import { uploadFilesToStorage } from "../services/imageUploadService";
+import { toOpenAIContent } from "../utils/openaiHelpers";
 import { getPreferences, UserPrefs } from "../services/userService";
 import type { SimpPreference } from "../types/user";
 import { UploadedFile, ImageRecord } from "../services/imageUploadService";
 import { PromptService } from "../services/promptService";
 import { inferStage, isValidStage } from "../utils/stage";
+import { stripQuotes } from "../utils/text";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey, process.env.OPENAI_MODEL);
 
-/**
- * Strips surrounding quotes from a string if present.
- * Handles both single and double quotes.
- * @param text The text to strip quotes from
- * @returns The text without surrounding quotes
- */
-function stripQuotes(text: string): string {
-  if (!text) return text;
-  const trimmed = text.trim();
-
-  // Remove surrounding double quotes
-  if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) {
-    return trimmed.slice(1, -1);
-  }
-
-  // Remove surrounding single quotes
-  if (trimmed.startsWith("'") && trimmed.endsWith("'") && trimmed.length >= 2) {
-    return trimmed.slice(1, -1);
-  }
-
-  return trimmed;
-}
 
 // Type definitions
 interface AnalyzeRequestBody {
@@ -166,17 +146,8 @@ async function generateImageDescriptionAndNickname(
   finalUserMessageContent: any[],
   openaiInstance: OpenAIService = openaiClient
 ): Promise<{ nickname: string; imageDescription: string }> {
-  // Revert to Node SDK-supported types for OpenAI Vision API
-  const descriptionPromptContent = finalUserMessageContent.map((item) => {
-    if (item.type === "text") {
-      return { type: "input_text", text: item.text };
-    } else if (item.type === "image_url") {
-      return { type: "input_image", image_url: item.image_url.url };
-    } else if (item.type === "input_text" || item.type === "input_image") {
-      return item;
-    }
-    return item;
-  });
+  // Normalise content for the OpenAI SDK
+  const descriptionPromptContent = toOpenAIContent(finalUserMessageContent);
   const prompt = getImageDescriptionAndNicknamePrompt();
   const promptText =
     typeof prompt.content === "string"
@@ -245,17 +216,8 @@ async function generateImageDescription(
   finalUserMessageContent: any[],
   openaiInstance: OpenAIService = openaiClient
 ): Promise<string> {
-  // Revert to Node SDK-supported types for OpenAI Vision API
-  const descPromptContentSubsequent = finalUserMessageContent.map((item) => {
-    if (item.type === "text") {
-      return { type: "input_text", text: item.text };
-    } else if (item.type === "image_url") {
-      return { type: "input_image", image_url: item.image_url.url };
-    } else if (item.type === "input_text" || item.type === "input_image") {
-      return item;
-    }
-    return item;
-  });
+  // Normalise content for the OpenAI SDK
+  const descPromptContentSubsequent = toOpenAIContent(finalUserMessageContent);
   const prompt = getImageDescriptionPrompt();
   const promptText =
     typeof prompt.content === "string"

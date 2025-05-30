@@ -1,6 +1,7 @@
 import express, { Express } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import helmet from "helmet";
 import analyzeRoutes from "./routes/analyze";
 // import inviteRoutes from './routes/invite';
 import paymentsRoutes from "./routes/payments";
@@ -13,7 +14,10 @@ dotenv.config();
 
 const app: Express = express();
 
-// Register Stripe webhook route FIRST to preserve raw body for signature verification
+// Apply security-related HTTP headers
+app.use(helmet());
+
+// Register Stripe webhook route early to preserve raw body for signature verification
 app.use("/api/stripe", stripeWebhookRoutes);
 
 // CORS middleware

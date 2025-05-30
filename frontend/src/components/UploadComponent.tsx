@@ -1,62 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { Textarea, Button, PillToggle } from "@/components/ui";
 import { Paperclip } from "lucide-react";
 import { Send } from "lucide-react";
+import useFileUpload from "@/hooks/useFileUpload";
 
-/**
- * PillToggle component props interface.
- */
-interface PillToggleProps {
-  active: boolean;
-  onClick: (value: boolean) => void;
-  disabled: boolean;
-  children: React.ReactNode;
-}
-
-/**
- * PillToggle inline component for toggle buttons.
- */
-function PillToggle({ active, onClick, disabled, children }: PillToggleProps) {
-  return (
-    <button
-      type="button"
-      role="button"
-      aria-pressed={active}
-      disabled={disabled}
-      tabIndex={0}
-      onClick={() => !disabled && onClick(!active)}
-      className={`
-        px-4 py-1 rounded-full font-medium transition
-        ${
-          active
-            ? "bg-primary text-white shadow"
-            : "bg-muted text-foreground border border-border"
-        }
-        ${
-          disabled
-            ? "opacity-60 cursor-not-allowed"
-            : "cursor-pointer hover:shadow-md"
-        }
-        focus:outline-none focus:ring-2 focus:ring-primary/60
-      `}
-      style={{ minWidth: 120 }}
-    >
-      {children}
-    </button>
-  );
-}
-
-/**
- * Image preview interface.
- */
-interface ImagePreview {
-  url: string;
-  id: string;
-  name: string;
-}
 
 /**
  * UploadComponent props interface.
@@ -71,39 +20,13 @@ interface UploadComponentProps {
  */
 const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
   const [text, setText] = useState<string>("");
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+  const { selectedFiles, imagePreviews, addFiles, removeImage, clear } =
+    useFileUpload();
   const formRef = useRef<HTMLFormElement>(null);
   const [isDraft, setIsDraft] = useState<boolean>(false);
   const [preferredCountry] = useState<string>("");
 
-  useEffect(() => {
-    const currentPreviewUrls = imagePreviews.map((p) => p.url);
-    return () => {
-      imagePreviews.forEach((preview) => {
-        if (!currentPreviewUrls.includes(preview.url)) {
-          URL.revokeObjectURL(preview.url);
-        }
-      });
-      if (imagePreviews.length > 0 && !currentPreviewUrls.length) {
-        imagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
-      }
-    };
-  }, [imagePreviews]);
-
-  const addFiles = useCallback((files: File[]) => {
-    if (!files.length) return;
-    const newFiles: File[] = [];
-    const newPreviews: ImagePreview[] = [];
-    files.forEach((file, index) => {
-      const previewId = `${Date.now()}-${Math.random()}-${index}`;
-      const previewUrl = URL.createObjectURL(file);
-      newFiles.push(file);
-      newPreviews.push({ url: previewUrl, id: previewId, name: file.name });
-    });
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-    setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
-  }, []);
+  // File management handled by useFileUpload hook
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -121,24 +44,7 @@ const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
   });
 
   const handleRemoveImage = (previewIdToRemove: string) => {
-    setImagePreviews((prevPreviews) => {
-      const previewToRemove = prevPreviews.find(
-        (p) => p.id === previewIdToRemove
-      );
-      if (previewToRemove) {
-        URL.revokeObjectURL(previewToRemove.url);
-      }
-      return prevPreviews.filter((p) => p.id !== previewIdToRemove);
-    });
-
-    setSelectedFiles((prevFiles) => {
-      const previewToRemove = imagePreviews.find(
-        (p) => p.id === previewIdToRemove
-      );
-      return prevFiles.filter(
-        (file) => !(previewToRemove && file.name === previewToRemove.name)
-      );
-    });
+    removeImage(previewIdToRemove);
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -194,9 +100,7 @@ const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
     onSendMessage(formData);
     setText("");
     setIsDraft(false);
-    imagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
-    setSelectedFiles([]);
-    setImagePreviews([]);
+    clear();
   };
 
   return (

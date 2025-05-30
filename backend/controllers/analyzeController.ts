@@ -14,6 +14,7 @@ import { getPreferences, UserPrefs } from "../services/userService";
 import type { SimpPreference } from "../types/user";
 import { UploadedFile, ImageRecord } from "../services/imageUploadService";
 import { PromptService } from "../services/promptService";
+import { inferStage, isValidStage } from "../utils/stage";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
 const openaiClient = new OpenAIService(openaiApiKey, process.env.OPENAI_MODEL);
@@ -87,13 +88,11 @@ function parseAnalyzeRequest(req: Request): {
   // If stage is provided, validate it; otherwise infer it
   let finalStage: Stage;
   if (typeof stage !== "undefined") {
-    // Validate that stage is a valid Stage value
-    if (!["Opening", "Continue", "ReEngage"].includes(stage)) {
+    if (!isValidStage(stage)) {
       throw new Error("stage must be one of: Opening, Continue, ReEngage");
     }
     finalStage = stage as Stage;
   } else {
-    // Infer stage from history and draft status
     finalStage = inferStage(history, parsedIsDraft);
   }
 
@@ -106,22 +105,6 @@ function parseAnalyzeRequest(req: Request): {
     isDraft: parsedIsDraft,
     stage: finalStage,
   };
-}
-
-/**
- * Infers the conversation stage based on history and draft status.
- * - If no history, it's an Opening.
- * - If isDraft, assume Continue.
- * - If last message is from user, assume ReEngage.
- * - Otherwise, Continue.
- */
-function inferStage(history: any[], isDraft: boolean): Stage {
-  if (isDraft) return "Continue";
-  if (!history || history.length === 0) return "Opening";
-  const lastMsg = history[history.length - 1];
-  if (lastMsg && (lastMsg.sender === "user" || lastMsg.role === "user"))
-    return "ReEngage";
-  return "Continue";
 }
 
 async function saveMessageStub(

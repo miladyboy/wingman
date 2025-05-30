@@ -223,6 +223,16 @@ function AppRouter() {
                       )
                     );
                   }
+                  if (payload.done) {
+                    done = true;
+                    optimisticImageUrls.forEach((url) =>
+                      URL.revokeObjectURL(url)
+                    );
+                    setSendingMessage(false);
+                    setPendingFormData(null);
+                    reader.cancel().catch(() => {});
+                    break;
+                  }
                 } catch {
                   /* ignore JSON parse errors in SSE stream */
                 }

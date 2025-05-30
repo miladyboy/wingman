@@ -4,13 +4,18 @@
 export type CookieConsentValue = "accepted" | "refused";
 
 /**
+ * Local storage key used to persist cookie consent
+ */
+export const COOKIE_CONSENT_KEY = "cookie_consent";
+
+/**
  * Sets the user's cookie consent value in localStorage.
  *
  * @param value - The consent value to store
  */
 export function setCookieConsent(value: CookieConsentValue): void {
   if (typeof window !== "undefined") {
-    localStorage.setItem("cookie_consent", value);
+    localStorage.setItem(COOKIE_CONSENT_KEY, value);
   }
 }
 
@@ -22,7 +27,7 @@ export function setCookieConsent(value: CookieConsentValue): void {
  */
 export function getCookieConsent(): CookieConsentValue | null {
   if (typeof window === "undefined") return null;
-  const value = localStorage.getItem("cookie_consent");
+  const value = localStorage.getItem(COOKIE_CONSENT_KEY);
   if (value === "accepted" || value === "refused") return value;
   return null;
 }
@@ -32,6 +37,14 @@ export function getCookieConsent(): CookieConsentValue | null {
  */
 export function clearCookieConsent(): void {
   if (typeof window !== "undefined") {
-    localStorage.removeItem("cookie_consent");
+    localStorage.removeItem(COOKIE_CONSENT_KEY);
   }
+}
+
+/**
+ * Checks if a cookie consent value is stored.
+ */
+export function isCookieConsentSet(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(COOKIE_CONSENT_KEY) !== null;
 }

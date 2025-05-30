@@ -14,7 +14,6 @@
 - [ ] Manage true test isolation for the E2E tests.
 - [ ] Maybe I should create the user just after the email is verified. To prevent DB spam.
 - [ ] Hacer mas solido el flow de confirmacion de emails. Para que puedan re-pedir el mail de confirmacion.
-- [ ] Improve security of the images by keeping them either encrypted or in a private bucket. Figure out how to work it out with OpenAI.
 - [ ] Fix the manifest.json and everything so that it works as a PWA
 - [ ] Implement google vision to extract the girls names. OpenAI screams.
 - [ ] Add success screen or toast component after they successfully pay their subscription.
@@ -61,25 +60,25 @@
 - [ ] Keep consistent naming conventions for files in the codebase.
 - [ ] Review the tests. To what extent are they tests.
 - [ ] Hacer que background agents puedan correr tests y usar git.
+- [ ] Disminuir costos en todos los calls de OpenAI.
+- [ ] Apply improvements of security review.
+- [ ] Practice using the app and improve prompt engineering. _ux_
+- [ ] Improve prompt system to reduce complexity and redundancy. _code-quality_
+- [ ] We always get "Failed to fetch user preferences via userService: Error: relation "public.preferences" does not exist" _bug_
+- [ ] Make a reusable component for ChatMessage
 
 # MVP Refactor
 
-- [ ] Practice using the app and improve prompt engineering. _ux_
-- [ ] Do a security review _security_
-- [ ] Improve prompt system to reduce complexity and redundancy. _code-quality_
-- [ ] Potential bug, if I send a message and a wait a while in the window. The AI reply dissapears. _bug_
-- [ ] We always get "Failed to fetch user preferences via userService: Error: relation "public.preferences" does not exist" _bug_
-- [ ] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente. _bug_
+- [ ] Implement security and privacy improvements.
 - [ ] Add 2FA to all Supabase and Cloud accounts _security_
-- [ ] Consistently solve and test the loading dots issue.
 - [ ] Make the buckets private to avoid data issues. _legal_
-- [ ] Fix the authentication issue with old tokens. _bug_
-- [ ] The test for some reason doesn't work when you run it with
+- [ ] Consistently solve and test the loading dots issue. _bug_
 
 # Doing
 
 # Done
 
+- [x] Fix the authentication issue with old tokens. _bug_
 - [x] Make the tests use a smaller model to save on costs.
 - [x] Mandar data que pide Stripe. _growth_
 - [x] Add E2E test that user can cancel their subscription _e2e_
@@ -101,3 +100,7 @@
 - [x] Add more user flows to the E2E suite up to 30 tests. _tests_
 - [x] Add E2E tests for multi-step conversations.
 - [x] Recargar la cuenta de OpenAI
+- [x] Potential bug, if I send a message and a wait a while in the window. The AI reply dissapears. _bug_
+- [x] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente. _bug_
+- [x] Do a security review _security_
+- [x] Agregar Helmet para proteger el server.

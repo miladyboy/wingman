@@ -20,8 +20,13 @@ import { inferStage, isValidStage } from "../utils/stage";
 import { stripQuotes } from "../utils/text";
 
 const openaiApiKey = process.env.OPENAI_API_KEY as string;
-const openaiClient = new OpenAIService(openaiApiKey, process.env.OPENAI_MODEL);
 
+if (!openaiApiKey) {
+  console.error("ERROR: OPENAI_API_KEY environment variable is not set");
+  throw new Error("OpenAI API key is required but not configured");
+}
+
+const openaiClient = new OpenAIService(openaiApiKey, process.env.OPENAI_MODEL);
 
 // Type definitions
 interface AnalyzeRequestBody {
@@ -408,10 +413,12 @@ export async function analyze(req: Request, res: Response): Promise<void> {
             );
           }
         }
-        const dataUrl = `data:${processedType};base64,${processedBuffer.toString(
-          "base64"
-        )}`;
-        base64ImagesForOpenAI.push({ dataUrl });
+        if (processedType.startsWith("image/")) {
+          const dataUrl = `data:${processedType};base64,${processedBuffer.toString(
+            "base64"
+          )}`;
+          base64ImagesForOpenAI.push({ dataUrl });
+        }
       }
     }
 
@@ -506,19 +513,33 @@ export async function analyze(req: Request, res: Response): Promise<void> {
 
     // --- Now store the uploaded files in the private bucket ---
     if (files.length > 0 && savedMessage) {
-      const uploadResult = await uploadFilesToStorage(
-        supabaseAdmin,
-        files,
-        savedMessage,
-        userId
-      );
-      imageRecords = uploadResult.imageRecords;
       try {
-        await saveImageRecords(supabaseAdmin, imageRecords);
-      } catch (imageDbError: any) {
-        res.status(500).json({ error: imageDbError.message });
-        console.error("[Analyze] Error saving image records:", imageDbError);
-        return;
+        const uploadResult = await uploadFilesToStorage(
+          supabaseAdmin,
+          files,
+          savedMessage,
+          userId
+        );
+        imageRecords = uploadResult.imageRecords;
+        try {
+          await saveImageRecords(supabaseAdmin, imageRecords);
+        } catch (imageDbError: any) {
+          res.status(500).json({ error: imageDbError.message });
+          console.error("[Analyze] Error saving image records:", imageDbError);
+          return;
+        }
+      } catch (uploadError: any) {
+        console.error(
+          `[Analyze] Error uploading files to storage - userId: ${userId}, conversationId: ${conversationId}, files: ${files.length}`,
+          uploadError
+        );
+        // Continue processing but log the upload failure
+        // The user can still receive the AI response even if file upload fails
+        console.warn(
+          `[Analyze] Continuing with analysis despite upload failure for conversation ${conversationId}`
+        );
+        // Set empty imageRecords array since upload failed
+        imageRecords = [];
       }
     }
 

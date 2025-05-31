@@ -22,12 +22,6 @@ class OpenAIService {
     defaultModel: string = "gpt-4o",
     openaiClient?: OpenAI
   ) {
-    console.log(
-      "Creating OpenAI client with model:",
-      defaultModel,
-      "environment is",
-      process.env.NODE_ENV
-    );
     this.openai = openaiClient || new OpenAI({ apiKey });
     this.defaultModel = defaultModel;
   }
@@ -67,7 +61,27 @@ class OpenAIService {
         // Optionally, handle 'response.output_text.done' if you want to signal completion
       }
     } catch (err: any) {
-      throw new Error(`OpenAI API Error (stream): ${err.message || err}`);
+      // Provide more descriptive error messages for common issues
+      if (err.status === 401) {
+        throw new Error(
+          `OpenAI API Error (stream): Invalid API key. Check your OPENAI_API_KEY environment variable.`
+        );
+      } else if (err.status === 429) {
+        throw new Error(
+          `OpenAI API Error (stream): ${
+            err.message ||
+            "Rate limit exceeded or quota exhausted. Check your OpenAI billing and usage limits."
+          }`
+        );
+      } else if (err.status === 404) {
+        throw new Error(
+          `OpenAI API Error (stream): Model '${
+            model || this.defaultModel
+          }' not found or not accessible with your API key.`
+        );
+      } else {
+        throw new Error(`OpenAI API Error (stream): ${err.message || err}`);
+      }
     }
   }
 
@@ -98,7 +112,27 @@ class OpenAIService {
 
       return response.output_text;
     } catch (err: any) {
-      throw new Error(`OpenAI API Error: ${err.message || err}`);
+      // Provide more descriptive error messages for common issues
+      if (err.status === 401) {
+        throw new Error(
+          `OpenAI API Error: Invalid API key. Check your OPENAI_API_KEY environment variable.`
+        );
+      } else if (err.status === 429) {
+        throw new Error(
+          `OpenAI API Error: ${
+            err.message ||
+            "Rate limit exceeded or quota exhausted. Check your OpenAI billing and usage limits."
+          }`
+        );
+      } else if (err.status === 404) {
+        throw new Error(
+          `OpenAI API Error: Model '${
+            model || this.defaultModel
+          }' not found or not accessible with your API key.`
+        );
+      } else {
+        throw new Error(`OpenAI API Error: ${err.message || err}`);
+      }
     }
   }
 }

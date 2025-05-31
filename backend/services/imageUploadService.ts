@@ -24,8 +24,16 @@ export interface ImageRecord {
 }
 
 /**
- * Handles compressing (when applicable) and uploading user-provided files to Supabase Storage.
- * Returns the DB records that must be inserted once upload succeeds.
+ * Compresses image files when possible and uploads an array of user-provided files to Supabase Storage, returning database records for successful uploads.
+ *
+ * Each file is processed to ensure safe filenames and, if it is an image, is compressed to JPEG format. Files are stored in a directory structure organized by user and message ID. Only successfully uploaded files are included in the returned records.
+ *
+ * @param files - The files to upload, typically received via multipart/form-data.
+ * @param savedMessage - The message object containing the ID used for storage organization.
+ * @param userId - The user ID for directory grouping, or null if not available.
+ * @returns An object containing an array of {@link ImageRecord} entries for each successfully uploaded file.
+ *
+ * @remark Files that fail to upload or compress are skipped; the function continues processing remaining files.
  */
 export async function uploadFilesToStorage(
   supabase: any,

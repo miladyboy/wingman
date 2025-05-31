@@ -300,6 +300,15 @@ async function generateNicknameWithImageDescription(
   return nickname;
 }
 
+/**
+ * Handles chat message analysis requests, integrating user input, uploaded images, and conversation history with OpenAI and Supabase.
+ *
+ * Authenticates the user, parses and validates the request, saves the user message stub, processes and compresses uploaded images for AI analysis, and generates image descriptions and conversation nicknames using OpenAI. Updates the conversation title and message records as needed, uploads files to storage, and saves image metadata. Constructs a prompt based on user preferences, chat history, and message content, then streams the AI-generated response to the client using Server-Sent Events (SSE). After streaming, runs a critique agent to review and refine the AI response before saving it to the database.
+ *
+ * Responds with appropriate HTTP status codes and error messages for authentication, validation, database, or processing failures.
+ *
+ * @remark This handler streams responses using SSE and may send partial data before the final AI message is saved.
+ */
 export async function analyze(req: Request, res: Response): Promise<void> {
   try {
     // --- Auth Payload from middleware ---

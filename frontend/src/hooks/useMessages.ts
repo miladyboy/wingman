@@ -49,12 +49,14 @@ function reconcileMessages(
 }
 
 /**
- * Custom hook to manage messages state and fetching from Supabase.
+ * React hook for managing chat messages state and fetching messages from Supabase for a specific conversation.
  *
- * @param supabase - The Supabase client instance
- * @param session - The current user session
- * @param activeConversationId - The currently active conversation ID
- * @returns Object containing messages state and management functions
+ * Fetches messages for the given conversation, including generating signed URLs for any associated images, and manages loading and error states. Provides functions to manually fetch messages and update the messages state.
+ *
+ * @param supabase - Supabase client instance.
+ * @param session - Current user session, or null if not authenticated.
+ * @param activeConversationId - ID of the currently active conversation, or null if none is selected.
+ * @returns An object containing the current messages array, loading state, error message, a function to fetch messages, and a setter for the messages state.
  */
 export default function useMessages(
   supabase: SupabaseClient,

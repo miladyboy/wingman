@@ -25,8 +25,7 @@ export interface ImageRecord {
 
 /**
  * Handles compressing (when applicable) and uploading user-provided files to Supabase Storage.
- * It returns both the DB records that need to be inserted and the public URLs that can be
- * consumed by OpenAI (for Vision API) and by the front-end.
+ * Returns the DB records that must be inserted once upload succeeds.
  */
 export async function uploadFilesToStorage(
   supabase: any,
@@ -35,12 +34,8 @@ export async function uploadFilesToStorage(
   userId: string | null
 ): Promise<{
   imageRecords: ImageRecord[];
-  imageUrlsForOpenAI: string[];
-  imageUrlsForFrontend: string[];
 }> {
   const imageRecords: ImageRecord[] = [];
-  const imageUrlsForOpenAI: string[] = [];
-  const imageUrlsForFrontend: string[] = [];
 
   for (const file of files) {
     const originalFileExt = path.extname(file.originalname);
@@ -74,8 +69,8 @@ export async function uploadFilesToStorage(
     // Build a unique filename/path so that collisions are impossible and files are grouped per-message
     const uniqueFileName = `${safeFileNameBase}-${uuidv4()}${processedFileExt}`;
     const storageDirPath = userId
-      ? `public/${userId}/${savedMessage.id}`
-      : `public/${savedMessage.id}`;
+      ? `${userId}/${savedMessage.id}`
+      : `${savedMessage.id}`;
     const storagePath = `${storageDirPath}/${uniqueFileName}`;
 
     const { data: uploadData, error: uploadError } = await supabase!.storage
@@ -100,15 +95,7 @@ export async function uploadFilesToStorage(
       continue;
     }
 
-    // Obtain a public URL so it can be consumed by downstream services/UI
-    const { data: urlData } = supabase!.storage
-      .from("chat-images")
-      .getPublicUrl(uploadData.path);
-    if (urlData?.publicUrl) {
-      imageUrlsForOpenAI.push(urlData.publicUrl);
-      imageUrlsForFrontend.push(urlData.publicUrl);
-    }
-
+    // File successfully uploaded; prepare DB record
     imageRecords.push({
       message_id: savedMessage.id,
       storage_path: uploadData.path,
@@ -118,5 +105,5 @@ export async function uploadFilesToStorage(
     });
   }
 
-  return { imageRecords, imageUrlsForOpenAI, imageUrlsForFrontend };
+  return { imageRecords };
 }

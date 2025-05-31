@@ -93,28 +93,18 @@ describe("uploadFilesToStorage", () => {
   it("should upload files, compress images, and return correct records and URLs", async () => {
     mockUploadFn
       .mockResolvedValueOnce({
-        data: { path: "public/user-abc/message-123/testImage-test-uuid.jpg" },
+        data: { path: "user-abc/message-123/testImage-test-uuid.jpg" },
         error: null,
       })
       .mockResolvedValueOnce({
         data: {
-          path: "public/user-abc/message-123/another-image-test-uuid.jpg",
+          path: "user-abc/message-123/another-image-test-uuid.jpg",
         },
         error: null,
       })
       .mockResolvedValueOnce({
-        data: { path: "public/user-abc/message-123/document-test-uuid.pdf" },
+        data: { path: "user-abc/message-123/document-test-uuid.pdf" },
         error: null,
-      });
-    mockGetPublicUrlFn
-      .mockReturnValueOnce({
-        data: { publicUrl: "http://s.com/testImage-test-uuid.jpg" },
-      })
-      .mockReturnValueOnce({
-        data: { publicUrl: "http://s.com/another-image-test-uuid.jpg" },
-      })
-      .mockReturnValueOnce({
-        data: { publicUrl: "http://s.com/document-test-uuid.pdf" },
       });
     const result = await uploadFilesToStorage(
       supabaseAdmin,
@@ -126,19 +116,19 @@ describe("uploadFilesToStorage", () => {
     expect(mockUploadFn).toHaveBeenCalledTimes(3);
     expect(mockUploadFn).toHaveBeenNthCalledWith(
       1,
-      "public/user-abc/message-123/testImage-test-uuid.jpg",
+      "user-abc/message-123/testImage-test-uuid.jpg",
       Buffer.from("compressed-testPNG"),
       { contentType: "image/jpeg", cacheControl: "3600" }
     );
     expect(mockUploadFn).toHaveBeenNthCalledWith(
       2,
-      "public/user-abc/message-123/another-image-test-uuid.jpg",
+      "user-abc/message-123/another-image-test-uuid.jpg",
       Buffer.from("compressed-testJPG"),
       { contentType: "image/jpeg", cacheControl: "3600" }
     );
     expect(mockUploadFn).toHaveBeenNthCalledWith(
       3,
-      "public/user-abc/message-123/document-test-uuid.pdf",
+      "user-abc/message-123/document-test-uuid.pdf",
       mockFilesBase[2].buffer,
       { contentType: "application/pdf", cacheControl: "3600" }
     );
@@ -157,11 +147,8 @@ describe("uploadFilesToStorage", () => {
       size: 8,
     };
     mockUploadFn.mockResolvedValueOnce({
-      data: { path: "public/user-abc/message-123/imageToFail-test-uuid.png" },
+      data: { path: "user-abc/message-123/imageToFail-test-uuid.png" },
       error: null,
-    });
-    mockGetPublicUrlFn.mockReturnValueOnce({
-      data: { publicUrl: "http://s.com/imageToFail-test-uuid.png" },
     });
     const consoleWarnSpy = jest
       .spyOn(console, "warn")
@@ -173,7 +160,7 @@ describe("uploadFilesToStorage", () => {
       mockUserId
     );
     expect(mockUploadFn).toHaveBeenCalledWith(
-      "public/user-abc/message-123/imageToFail-test-uuid.png",
+      "user-abc/message-123/imageToFail-test-uuid.png",
       imageToFail.buffer,
       { contentType: "image/png", cacheControl: "3600" }
     );
@@ -193,11 +180,8 @@ describe("uploadFilesToStorage", () => {
     };
     // Expecting .jpg because it's an image and compressImage mock will run
     mockUploadFn.mockResolvedValueOnce({
-      data: { path: "public/user-abc/message-123/te_t_Im_ge_-test-uuid.jpg" },
+      data: { path: "user-abc/message-123/te_t_Im_ge_-test-uuid.jpg" },
       error: null,
-    });
-    mockGetPublicUrlFn.mockReturnValueOnce({
-      data: { publicUrl: "http://s.com/te_t_Im_ge_-test-uuid.jpg" },
     });
 
     await uploadFilesToStorage(
@@ -209,7 +193,7 @@ describe("uploadFilesToStorage", () => {
 
     expect(mockedCompressImage).toHaveBeenCalledWith(specialImageFile.buffer);
     expect(mockUploadFn).toHaveBeenCalledWith(
-      "public/user-abc/message-123/te_t_Im_ge_-test-uuid.jpg", // Path should be .jpg
+      "user-abc/message-123/te_t_Im_ge_-test-uuid.jpg", // Path should be .jpg
       Buffer.from("compressed-specialPNG"), // Buffer should be the compressed one
       { contentType: "image/jpeg", cacheControl: "3600" } // ContentType should be image/jpeg
     );
@@ -260,14 +244,14 @@ describe("uploadFilesToStorage", () => {
       // 1. failCompress.png (compression fails, original uploaded with .png ext)
       .mockResolvedValueOnce({
         data: {
-          path: "public/user-abc/message-123/failCompress-test-uuid.png",
+          path: "user-abc/message-123/failCompress-test-uuid.png",
         },
         error: null,
       })
       // 2. succeedCompress.jpg (compression succeeds, uploaded with .jpg ext)
       .mockResolvedValueOnce({
         data: {
-          path: "public/user-abc/message-123/succeedCompress-test-uuid.jpg",
+          path: "user-abc/message-123/succeedCompress-test-uuid.jpg",
         },
         error: null,
       })
@@ -279,22 +263,11 @@ describe("uploadFilesToStorage", () => {
       // 4. finalSuccess.gif (compression succeeds, .jpg ext)
       .mockResolvedValueOnce({
         data: {
-          path: "public/user-abc/message-123/finalSuccess-test-uuid.jpg",
+          path: "user-abc/message-123/finalSuccess-test-uuid.jpg",
         },
         error: null,
       });
 
-    mockGetPublicUrlFn
-      .mockReturnValueOnce({
-        data: { publicUrl: "http://s.com/failCompress-test-uuid.png" },
-      }) // For failCompress.png
-      .mockReturnValueOnce({
-        data: { publicUrl: "http://s.com/succeedCompress-test-uuid.jpg" },
-      }) // For succeedCompress.jpg
-      // No getPublicUrl for uploadFail.pdf as upload failed
-      .mockReturnValueOnce({
-        data: { publicUrl: "http://s.com/finalSuccess-test-uuid.jpg" },
-      }); // For finalSuccess.gif
 
     const consoleWarnSpy = jest
       .spyOn(console, "warn")
@@ -316,25 +289,25 @@ describe("uploadFilesToStorage", () => {
     // Check calls to mockUploadFn
     expect(mockUploadFn).toHaveBeenNthCalledWith(
       1,
-      "public/user-abc/message-123/failCompress-test-uuid.png",
+      "user-abc/message-123/failCompress-test-uuid.png",
       filesForPartialFailure[0].buffer,
       { contentType: "image/png", cacheControl: "3600" }
     );
     expect(mockUploadFn).toHaveBeenNthCalledWith(
       2,
-      "public/user-abc/message-123/succeedCompress-test-uuid.jpg",
+      "user-abc/message-123/succeedCompress-test-uuid.jpg",
       Buffer.from("compressed-succeedCompressJPG"),
       { contentType: "image/jpeg", cacheControl: "3600" }
     );
     expect(mockUploadFn).toHaveBeenNthCalledWith(
       3,
-      "public/user-abc/message-123/uploadFail-test-uuid.pdf",
+      "user-abc/message-123/uploadFail-test-uuid.pdf",
       filesForPartialFailure[2].buffer,
       { contentType: "application/pdf", cacheControl: "3600" }
     );
     expect(mockUploadFn).toHaveBeenNthCalledWith(
       4,
-      "public/user-abc/message-123/finalSuccess-test-uuid.jpg",
+      "user-abc/message-123/finalSuccess-test-uuid.jpg",
       Buffer.from("compressed-finalSuccessGIF"),
       { contentType: "image/jpeg", cacheControl: "3600" }
     );
@@ -347,12 +320,6 @@ describe("uploadFilesToStorage", () => {
     expect(result.imageRecords[2].filename).toBe("finalSuccess.gif");
     expect(result.imageRecords[2].content_type).toBe("image/jpeg");
 
-    expect(result.imageUrlsForOpenAI).toHaveLength(3);
-    expect(result.imageUrlsForOpenAI).toEqual([
-      "http://s.com/failCompress-test-uuid.png",
-      "http://s.com/succeedCompress-test-uuid.jpg",
-      "http://s.com/finalSuccess-test-uuid.jpg",
-    ]);
 
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining("Failed to compress image failCompress.png")
@@ -374,11 +341,8 @@ describe("uploadFilesToStorage", () => {
       size: 7,
     };
     mockUploadFn.mockResolvedValueOnce({
-      data: { path: "public/message-123/onlyImage-test-uuid.jpg" },
+      data: { path: "message-123/onlyImage-test-uuid.jpg" },
       error: null,
-    });
-    mockGetPublicUrlFn.mockReturnValueOnce({
-      data: { publicUrl: "http://s.com/onlyImage-test-uuid.jpg" },
     });
     const result = await uploadFilesToStorage(
       supabaseAdmin,
@@ -387,14 +351,14 @@ describe("uploadFilesToStorage", () => {
       null
     );
     expect(mockUploadFn).toHaveBeenCalledWith(
-      "public/message-123/onlyImage-test-uuid.jpg",
+      "message-123/onlyImage-test-uuid.jpg",
       Buffer.from("compressed-soloJPG"),
       { contentType: "image/jpeg", cacheControl: "3600" }
     );
     expect(result.imageRecords[0].content_type).toBe("image/jpeg");
   });
 
-  it("should handle cases where getPublicUrl does not return a publicUrl", async () => {
+  it("should handle cases where upload succeeds but URL is not returned", async () => {
     const imageFileToTest = {
       originalname: "noUrl.png",
       mimetype: "image/png",
@@ -402,11 +366,8 @@ describe("uploadFilesToStorage", () => {
       size: 8,
     };
     mockUploadFn.mockResolvedValueOnce({
-      data: { path: "public/user-abc/message-123/noUrl-test-uuid.jpg" },
+      data: { path: "user-abc/message-123/noUrl-test-uuid.jpg" },
       error: null,
-    });
-    mockGetPublicUrlFn.mockReturnValueOnce({
-      data: { publicUrl: null as any },
     });
     const result = await uploadFilesToStorage(
       supabaseAdmin,
@@ -414,7 +375,6 @@ describe("uploadFilesToStorage", () => {
       mockSavedMessage,
       mockUserId
     );
-    expect(result.imageUrlsForOpenAI).toEqual([]);
     expect(result.imageRecords[0].content_type).toBe("image/jpeg"); // Still compressed
   });
 

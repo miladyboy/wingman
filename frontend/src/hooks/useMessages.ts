@@ -91,14 +91,16 @@ export default function useMessages(
         .eq("conversation_id", activeConversationId)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      const { supabaseUrl } = await import("../services/supabaseClient");
-      const bucketUrl = `${supabaseUrl}/storage/v1/object/public/chat-images/`;
-      const serverMessages = (data || []).map(
-        (msg: any): Message => ({
-          ...msg,
-          imageUrls: (msg.ChatMessageImages || []).map(
-            (img: any) => bucketUrl + img.storage_path
-          ),
+      const serverMessages = await Promise.all(
+        (data || []).map(async (msg: any): Promise<Message> => {
+          const imageUrls: string[] = [];
+          for (const img of msg.ChatMessageImages || []) {
+            const { data: signed } = await supabase.storage
+              .from("chat-images")
+              .createSignedUrl(img.storage_path, 3600);
+            if (signed?.signedUrl) imageUrls.push(signed.signedUrl);
+          }
+          return { ...msg, imageUrls };
         })
       );
       setMessages((prevMessages) => {

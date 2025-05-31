@@ -8,7 +8,6 @@
 - [ ] Implement a free trial for the Stripe membership.
 - [ ] When uploading Tinder photos, extract and save tags/info from the description and profile.
 - [ ] Build a React Native app for mobile. **(Hard)**
-- [ ] Upload user chats to mimic their style. **(Mid)**
 - [ ] Hacer un tear down de la DB que elimine todos los users de prueba?
 - [ ] The UI should be reactive and update when you do things in other devices.
 - [ ] Manage true test isolation for the E2E tests.
@@ -25,6 +24,7 @@
 
 # Next features
 
+- [ ] Upload user chats to mimic their style. **(Mid)**
 - [ ] Tener una feature "modo aprendizaje" que te explica porque hace sentido cada mensaje para ir aprendiendo _pro feature_
 - [ ] Feature para one click resumen de cada piba y su historial _pro feature_
 - [ ] Feature para usar @ para citar otros chats y relacionar chats sabiendo que son la misma piba _pro feature_
@@ -36,7 +36,6 @@
 
 - [ ] Set up CI environment. _code-quality_
 - [ ] Create an audit / architect-mode rule that I can insert manually. _code-quality_
-- [ ] Make it so that E2E tests use a much smaller model to save on costs. _cost_
 - [ ] Add prettier so that we keep consistent styling. Add prettier to husky? _code-quality_
 - [ ] Get to a good number of test coverage in the backend. _code-quality_
 - [ ] Understand, refactor and improve the frontend. _code-quality_
@@ -66,15 +65,14 @@
 - [ ] Improve prompt system to reduce complexity and redundancy. _code-quality_
 - [ ] We always get "Failed to fetch user preferences via userService: Error: relation "public.preferences" does not exist" _bug_
 - [ ] Make a reusable component for ChatMessage
-
-# MVP Refactor
-
 - [ ] Implement security and privacy improvements.
 - [ ] Add 2FA to all Supabase and Cloud accounts _security_
-- [ ] Make the buckets private to avoid data issues. _legal_
+- [ ] Have full encryption of data at rest. The user decrypts it. _privacy_
 - [ ] Consistently solve and test the loading dots issue. _bug_
 
 # Doing
+
+- [ ] Make the buckets private to avoid data issues. _legal_
 
 # Done
 
@@ -104,3 +102,4 @@
 - [x] Tarda mas tiempo de lo normal en devolver el poder al usuario para escribir un mensaje, despues de haber respondido el agente. _bug_
 - [x] Do a security review _security_
 - [x] Agregar Helmet para proteger el server.
+- [x] Make it so that E2E tests use a much smaller model to save on costs. _cost_

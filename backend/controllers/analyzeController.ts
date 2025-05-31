@@ -14,6 +14,7 @@ import { toOpenAIContent } from "../utils/openaiHelpers";
 import { getPreferences, UserPrefs } from "../services/userService";
 import type { SimpPreference } from "../types/user";
 import { UploadedFile, ImageRecord } from "../services/imageUploadService";
+import { compressImage } from "../utils/imageProcessor";
 import { PromptService } from "../services/promptService";
 import { inferStage, isValidStage } from "../utils/stage";
 import { stripQuotes } from "../utils/text";
@@ -359,8 +360,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
 
     let savedMessage: MessageRecord | null = null;
     let imageRecords: ImageRecord[] = [];
-    let imageUrlsForOpenAI: string[] = [];
-    let imageUrlsForFrontend: string[] = [];
+    let base64ImagesForOpenAI: { dataUrl: string }[] = [];
 
     // --- Save the Message Stub (without AI response yet) ---
     try {
@@ -393,23 +393,25 @@ export async function analyze(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // --- Upload Files to Supabase Storage & Prepare Records ---
-    if (files.length > 0 && savedMessage) {
-      const uploadResult = await uploadFilesToStorage(
-        supabaseAdmin,
-        files,
-        savedMessage,
-        userId
-      );
-      imageRecords = uploadResult.imageRecords;
-      imageUrlsForOpenAI = uploadResult.imageUrlsForOpenAI;
-      imageUrlsForFrontend = uploadResult.imageUrlsForFrontend;
-      try {
-        await saveImageRecords(supabaseAdmin, imageRecords);
-      } catch (imageDbError: any) {
-        res.status(500).json({ error: imageDbError.message });
-        console.error("[Analyze] Error saving image records:", imageDbError);
-        return;
+    // --- Prepare images for OpenAI (compress & base64) ---
+    if (files.length > 0) {
+      for (const file of files) {
+        let processedBuffer = file.buffer;
+        let processedType = file.mimetype;
+        if (file.mimetype.startsWith("image/")) {
+          try {
+            processedBuffer = await compressImage(file.buffer);
+            processedType = "image/jpeg";
+          } catch (compressionError) {
+            console.warn(
+              `Failed to compress image ${file.originalname}: ${compressionError}`
+            );
+          }
+        }
+        const dataUrl = `data:${processedType};base64,${processedBuffer.toString(
+          "base64"
+        )}`;
+        base64ImagesForOpenAI.push({ dataUrl });
       }
     }
 
@@ -423,7 +425,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
     let promptText = newMessageText;
     if (
       (!newMessageText || newMessageText.trim() === "") &&
-      imageUrlsForOpenAI.length > 0
+      base64ImagesForOpenAI.length > 0
     ) {
       const fallbackPrompt = getFallbackImageAnalysisPrompt();
       promptText =
@@ -433,28 +435,28 @@ export async function analyze(req: Request, res: Response): Promise<void> {
     }
     // Only add the user message if there are NO images; otherwise, skip it for Vision API
     if (
-      imageUrlsForOpenAI.length === 0 &&
+      base64ImagesForOpenAI.length === 0 &&
       promptText &&
       promptText.trim() !== ""
     ) {
       finalUserMessageContent.push({ type: "input_text", text: promptText });
     }
-    if (imageUrlsForOpenAI.length > 0) {
+    if (base64ImagesForOpenAI.length > 0) {
       if (finalUserMessageContent.length === 0) {
         finalUserMessageContent.push({
           type: "input_text",
           text: "[Image(s) provided]",
         });
       }
-      imageUrlsForOpenAI.forEach((url) => {
+      base64ImagesForOpenAI.forEach((img) => {
         finalUserMessageContent.push({
           type: "input_image",
-          image_url: url,
+          image_url: img.dataUrl,
         });
       });
     }
     if (isInitialUserMessage && finalUserMessageContent.length > 0) {
-      if (imageUrlsForOpenAI.length > 0) {
+      if (base64ImagesForOpenAI.length > 0) {
         // 1. First call: get image description
         const { imageDescription } = await generateImageDescriptionAndNickname(
           finalUserMessageContent
@@ -479,7 +481,7 @@ export async function analyze(req: Request, res: Response): Promise<void> {
       }
     } else if (
       finalUserMessageContent.length > 0 &&
-      imageUrlsForOpenAI.length > 0
+      base64ImagesForOpenAI.length > 0
     ) {
       // 1. First call: get image description
       const imageDescription = await generateImageDescription(
@@ -500,6 +502,24 @@ export async function analyze(req: Request, res: Response): Promise<void> {
         generatedImageDescription
       );
       savedMessage.image_description = generatedImageDescription;
+    }
+
+    // --- Now store the uploaded files in the private bucket ---
+    if (files.length > 0 && savedMessage) {
+      const uploadResult = await uploadFilesToStorage(
+        supabaseAdmin,
+        files,
+        savedMessage,
+        userId
+      );
+      imageRecords = uploadResult.imageRecords;
+      try {
+        await saveImageRecords(supabaseAdmin, imageRecords);
+      } catch (imageDbError: any) {
+        res.status(500).json({ error: imageDbError.message });
+        console.error("[Analyze] Error saving image records:", imageDbError);
+        return;
+      }
     }
 
     // --- Use the extracted stage instead of inferring it ---

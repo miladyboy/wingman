@@ -207,7 +207,7 @@ export default function MainApp({
         </Sheet>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
         {/* Mobile Header */}
         <div className="md:hidden bg-card p-2 border-b border-border shadow-sm flex justify-between items-center sticky top-0 z-20">
           <Button
@@ -215,11 +215,10 @@ export default function MainApp({
             size="icon"
             onClick={() => setIsSidebarOpen(true)}
             data-testid="mobile-menu-button"
-            className="flex-shrink-0"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-6 w-6" />
           </Button>
-          <h2 className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center max-w-[200px]">
+          <h2 className="text-lg font-semibold text-foreground truncate px-2">
             {activeConversation ? activeConversation.title : "New Chat"}
           </h2>
           {/* Profile button (mobile) - ahora UserProfileMenu */}
@@ -231,7 +230,7 @@ export default function MainApp({
             avatarUrl={profile?.avatarUrl || null}
             buttonTestId="profile-menu-button-drawer"
             menuTestId="profile-menu-dropdown-mobile"
-            className="flex-shrink-0"
+            className=""
           />
         </div>
 
@@ -253,7 +252,7 @@ export default function MainApp({
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 space-y-3 sm:space-y-4 bg-background">
+        <div className="flex-1 flex flex-col bg-background min-h-0">
           {showEmptyState ? (
             <ChatEmptyState />
           ) : activeConversationId ? (
@@ -267,7 +266,7 @@ export default function MainApp({
               }))}
             />
           ) : (
-            <div className="text-center text-muted-foreground pt-10">
+            <div className="flex-1 flex items-center justify-center text-center text-muted-foreground">
               Select a conversation or start a new one.
             </div>
           )}
@@ -289,7 +288,7 @@ export default function MainApp({
                 lastAgentMsg.content.trim().length > 0;
               if (agentHasContent) return null;
               return (
-                <div className="flex justify-start">
+                <div className="flex justify-start p-4">
                   <div className="max-w-lg lg:max-w-xl px-4 py-3 text-foreground">
                     <LoadingDots />
                   </div>
@@ -298,7 +297,7 @@ export default function MainApp({
             })()}
           {error && (
             <div
-              className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded relative mb-4"
+              className="bg-destructive/10 border border-destructive text-destructive mx-4 mb-4 px-4 py-3 rounded"
               role="alert"
             >
               <strong className="font-bold">Error: </strong>
@@ -308,7 +307,7 @@ export default function MainApp({
         </div>
 
         {(showEmptyState || activeConversationId) && (
-          <div className="p-2 sm:p-3 md:p-4 border-t border-border bg-card">
+          <div className="p-2 md:p-4 border-t border-border bg-card flex-shrink-0">
             <UploadComponent
               onSendMessage={handleSendMessage}
               disabled={sendingMessage}

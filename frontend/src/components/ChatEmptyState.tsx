@@ -5,16 +5,16 @@
 export default function ChatEmptyState() {
   return (
     <div
-      className="flex flex-col items-center justify-center h-full min-h-[250px] sm:min-h-[300px] text-center text-muted-foreground px-4 py-6 sm:pt-10"
+      className="flex-1 flex flex-col items-center justify-center h-full min-h-[300px] text-center text-muted-foreground pt-10"
       data-testid="chat-empty-state"
     >
       <h2
-        className="text-2xl sm:text-3xl font-bold mb-4 text-foreground opacity-0 animate-fade-in"
+        className="text-3xl font-bold mb-4 text-foreground opacity-0 animate-fade-in"
         style={{ transition: "opacity 1s ease" }}
       >
         Your wingman is ready
       </h2>
-      <div className="space-y-2 text-base sm:text-lg max-w-md">
+      <div className="space-y-2 text-lg">
         <div>💬 Upload a screenshot or paste your convo.</div>
         <div>📸 Image, text, or both, whatever works best.</div>
         <div>

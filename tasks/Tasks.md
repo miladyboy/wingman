@@ -68,10 +68,11 @@
 - [ ] Add 2FA to all Supabase and Cloud accounts _security_
 - [ ] Have full encryption of data at rest. The user decrypts it. _privacy_
 - [ ] Consistently solve and test the loading dots issue. _bug_
+- [ ] Practice using the app and improve prompt engineering and overall UX _ux_
 
 # Doing
 
-- [ ] Practice using the app and improve prompt engineering and overall UX _ux_
+- [ ] Arreglar mobile
 
 # Done
 

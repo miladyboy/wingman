@@ -25,7 +25,7 @@ export function PillToggle({
       tabIndex={0}
       onClick={() => !disabled && onClick(!active)}
       className={`
-        px-3 py-1 text-sm sm:px-4 sm:text-base rounded-full font-medium transition
+        px-4 py-1 rounded-full font-medium transition
         ${
           active
             ? "bg-primary text-white shadow"
@@ -38,6 +38,7 @@ export function PillToggle({
         }
         focus:outline-none focus:ring-2 focus:ring-primary/60
       `}
+      style={{ minWidth: 120 }}
     >
       {children}
     </button>

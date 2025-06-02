@@ -105,17 +105,13 @@ const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
   return (
     <div
       {...getRootProps()}
-      className={`p-2 sm:p-3 md:p-4 bg-card rounded-lg border border-border transition-all duration-200 ${
+      className={`p-2 md:p-4 bg-card rounded-lg border border-border transition-all duration-200 ${
         isDragActive
           ? "border-primary bg-primary/10 border-2 border-dashed"
           : ""
       }`}
     >
-      <input
-        {...getInputProps()}
-        data-testid="chat-file-input"
-        style={{ display: "none" }}
-      />
+      <input {...getInputProps()} data-testid="chat-file-input" />
       {isDragActive && (
         <div className="absolute inset-0 flex items-center justify-center bg-primary/5 rounded-lg pointer-events-none z-10">
           <p className="text-primary font-medium">Drop images here...</p>
@@ -126,18 +122,18 @@ const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
         onSubmit={handleSubmit}
         className="flex flex-col gap-2 relative"
       >
-        <div className="flex items-center gap-1 sm:gap-2 mt-2">
+        <div className="flex items-center gap-2 mt-2">
           <Button
             type="button"
             onClick={open}
             size="icon"
             variant="ghost"
-            className="flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10"
+            className="mr-1"
             aria-label="Attach image(s)"
             disabled={disabled}
             data-testid="attach-image-button"
           >
-            <Paperclip className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Paperclip className="w-5 h-5" />
           </Button>
           <PillToggle active={isDraft} onClick={setIsDraft} disabled={disabled}>
             📝 Rewrite Draft
@@ -148,7 +144,7 @@ const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
             {imagePreviews.map((preview) => (
               <div
                 key={preview.id}
-                className="relative group w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border border-border rounded overflow-hidden"
+                className="relative group w-20 h-20 md:w-24 md:h-24 border border-border rounded overflow-hidden"
               >
                 <img
                   src={preview.url}
@@ -182,9 +178,9 @@ const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
                 ? "Add context or ask a question..."
                 : "Enter text or upload an image..."
             }
-            rows={2}
+            rows={3}
             disabled={disabled}
-            className="flex-1 bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 px-2 py-1.5 sm:px-3 sm:py-2 text-sm md:text-base min-h-[44px] sm:min-h-[50px] md:min-h-[60px] resize-none"
+            className="w-full bg-input text-foreground border-none focus:ring-2 focus:ring-primary/60 focus:border-primary/80 px-2 py-1 md:px-3 md:py-2 text-sm md:text-base min-h-[50px] md:min-h-[60px]"
             data-testid="chat-input"
           />
           <Button
@@ -194,9 +190,8 @@ const UploadComponent = ({ onSendMessage, disabled }: UploadComponentProps) => {
             aria-label="Send"
             disabled={disabled || (selectedFiles.length === 0 && !text.trim())}
             data-testid="send-message-button"
-            className="flex-shrink-0 h-10 w-10 sm:h-11 sm:w-11"
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-6 h-6" />
           </Button>
         </div>
       </form>

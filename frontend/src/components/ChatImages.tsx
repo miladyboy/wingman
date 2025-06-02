@@ -28,7 +28,7 @@ export default function ChatImages({
             <img
               src={url}
               alt={`Uploaded image ${idx + 1}`}
-              className="max-w-[150px] max-h-[150px] sm:max-w-[200px] sm:max-h-[200px] rounded object-cover border border-border hover:opacity-90 transition-opacity"
+              className="max-w-[120px] max-h-[120px] sm:max-w-[150px] sm:max-h-[150px] md:max-w-[200px] md:max-h-[200px] rounded object-cover border border-border hover:opacity-90 transition-opacity"
               style={failed ? { filter: "grayscale(1)", opacity: 0.5 } : {}}
               onLoad={() => onImageLoad && onImageLoad(idx)}
               data-testid="chat-message-image"

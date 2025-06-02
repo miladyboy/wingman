@@ -61,7 +61,6 @@
 - [ ] Hacer que background agents puedan correr tests y usar git.
 - [ ] Disminuir costos en todos los calls de OpenAI.
 - [ ] Apply improvements of security review.
-- [ ] Practice using the app and improve prompt engineering. _ux_
 - [ ] Improve prompt system to reduce complexity and redundancy. _code-quality_
 - [ ] We always get "Failed to fetch user preferences via userService: Error: relation "public.preferences" does not exist" _bug_
 - [ ] Make a reusable component for ChatMessage
@@ -72,10 +71,11 @@
 
 # Doing
 
-- [ ] Make the buckets private to avoid data issues. _legal_
+- [ ] Practice using the app and improve prompt engineering and overall UX _ux_
 
 # Done
 
+- [x] Make the buckets private to avoid data issues. _legal_
 - [x] Fix the authentication issue with old tokens. _bug_
 - [x] Make the tests use a smaller model to save on costs.
 - [x] Mandar data que pide Stripe. _growth_

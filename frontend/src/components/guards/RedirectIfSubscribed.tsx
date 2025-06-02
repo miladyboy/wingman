@@ -13,12 +13,24 @@ interface RedirectIfSubscribedProps {
 /**
  * Guard that redirects authenticated, subscribed users from /subscribe to /app.
  * Usage: <RedirectIfSubscribed><SubscribePage /></RedirectIfSubscribed>
+ *
+ * TEMPORARY: Since subscription check is disabled due to Stripe issues,
+ * all authenticated users are redirected to /app instead of /subscribe.
  */
 export default function RedirectIfSubscribed({
   children,
 }: RedirectIfSubscribedProps) {
-  const { loading, active } = useRequireSubscription();
-  if (loading) return null; // Optionally, render a spinner
-  if (active) return <Navigate to="/app" replace />;
+  // TEMPORARY: Redirect all authenticated users to /app since subscription is disabled
+  // TODO: Re-enable subscription check once Stripe issues are resolved
+  const { session } = useAuthSession();
+  if (session) {
+    return <Navigate to="/app" replace />;
+  }
+
+  // Original logic (commented out temporarily)
+  // const { loading, active } = useRequireSubscription();
+  // if (loading) return null; // Optionally, render a spinner
+  // if (active) return <Navigate to="/app" replace />;
+
   return children;
 }

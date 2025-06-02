@@ -10,7 +10,12 @@ export interface PillToggleProps {
   children: React.ReactNode;
 }
 
-export function PillToggle({ active, onClick, disabled, children }: PillToggleProps) {
+export function PillToggle({
+  active,
+  onClick,
+  disabled,
+  children,
+}: PillToggleProps) {
   return (
     <button
       type="button"
@@ -20,12 +25,19 @@ export function PillToggle({ active, onClick, disabled, children }: PillTogglePr
       tabIndex={0}
       onClick={() => !disabled && onClick(!active)}
       className={`
-        px-4 py-1 rounded-full font-medium transition
-        ${active ? "bg-primary text-white shadow" : "bg-muted text-foreground border border-border"}
-        ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:shadow-md"}
+        px-3 py-1 text-sm sm:px-4 sm:text-base rounded-full font-medium transition
+        ${
+          active
+            ? "bg-primary text-white shadow"
+            : "bg-muted text-foreground border border-border"
+        }
+        ${
+          disabled
+            ? "opacity-60 cursor-not-allowed"
+            : "cursor-pointer hover:shadow-md"
+        }
         focus:outline-none focus:ring-2 focus:ring-primary/60
       `}
-      style={{ minWidth: 120 }}
     >
       {children}
     </button>

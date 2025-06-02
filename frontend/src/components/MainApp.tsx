@@ -125,7 +125,7 @@ export default function MainApp({
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen h-[100dvh] bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden md:flex md:flex-shrink-0">
         <Sidebar
@@ -215,10 +215,11 @@ export default function MainApp({
             size="icon"
             onClick={() => setIsSidebarOpen(true)}
             data-testid="mobile-menu-button"
+            className="flex-shrink-0"
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-5 w-5" />
           </Button>
-          <h2 className="text-lg font-semibold text-foreground truncate px-2">
+          <h2 className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center max-w-[200px]">
             {activeConversation ? activeConversation.title : "New Chat"}
           </h2>
           {/* Profile button (mobile) - ahora UserProfileMenu */}
@@ -230,7 +231,7 @@ export default function MainApp({
             avatarUrl={profile?.avatarUrl || null}
             buttonTestId="profile-menu-button-drawer"
             menuTestId="profile-menu-dropdown-mobile"
-            className=""
+            className="flex-shrink-0"
           />
         </div>
 
@@ -252,7 +253,7 @@ export default function MainApp({
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
+        <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 space-y-3 sm:space-y-4 bg-background">
           {showEmptyState ? (
             <ChatEmptyState />
           ) : activeConversationId ? (
@@ -307,7 +308,7 @@ export default function MainApp({
         </div>
 
         {(showEmptyState || activeConversationId) && (
-          <div className="p-2 md:p-4 border-t border-border bg-card">
+          <div className="p-2 sm:p-3 md:p-4 border-t border-border bg-card">
             <UploadComponent
               onSendMessage={handleSendMessage}
               disabled={sendingMessage}

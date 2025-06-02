@@ -1,4 +1,4 @@
-import type { ChatCompletionUserMessageParam } from 'openai/resources/chat/completions';
+import type { ChatCompletionUserMessageParam } from "openai/resources/chat/completions";
 
 type UserPromptParams = {
   history?: string;
@@ -13,7 +13,13 @@ type UserPromptParams = {
  * @param params Parameters for constructing the user message
  * @returns A structured user role message for OpenAI API
  */
-function userPrompt({ history, message, imageDescription, preferences, nickname }: UserPromptParams): ChatCompletionUserMessageParam {
+function userPrompt({
+  history,
+  message,
+  imageDescription,
+  preferences,
+  nickname,
+}: UserPromptParams): ChatCompletionUserMessageParam {
   let content = "";
 
   if (preferences) {
@@ -33,8 +39,8 @@ function userPrompt({ history, message, imageDescription, preferences, nickname 
   }
 
   return {
-    role: 'user',
-    content: content.trim()
+    role: "user",
+    content: content.trim(),
   };
 }
 
@@ -46,8 +52,8 @@ export default userPrompt;
  */
 export function getFallbackImageAnalysisPrompt(): ChatCompletionUserMessageParam {
   return {
-    role: 'user',
-    content: 'Please analyze these images and give me your advice.'
+    role: "user",
+    content: "Please analyze these images and give me your advice.",
   };
 }
 
@@ -57,7 +63,7 @@ export function getFallbackImageAnalysisPrompt(): ChatCompletionUserMessageParam
  */
 export function getImageDescriptionPrompt(): ChatCompletionUserMessageParam {
   return {
-    role: 'user',
+    role: "user",
     content: `=== Image Analysis ===
 
 INSTRUCTIONS
@@ -76,6 +82,6 @@ INSTRUCTIONS
 • Never attempt to identify the person by real name, and never mention any inability to identify.
 
 3. OUTPUT FORMAT
-<Rich multi‑sentence description>`
+<Rich multi‑sentence description>`,
   };
-} 
+}

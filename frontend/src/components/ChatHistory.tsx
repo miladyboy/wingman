@@ -59,7 +59,7 @@ function ChatHistory({ history }: ChatHistoryProps) {
   }, [imagesLoaded, imagesToLoad]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
+    <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 space-y-3 sm:space-y-4 bg-background">
       {/* Map over history using new structure */}
       {history.map((message, index) => {
         // Use 'sender' or 'role' based on your data structure
@@ -75,13 +75,13 @@ function ChatHistory({ history }: ChatHistoryProps) {
           >
             {isUser ? (
               <Card
-                className={`max-w-lg lg:max-w-xl shadow-md break-words border border-border ml-auto bg-primary text-primary-foreground`}
+                className={`max-w-[90%] sm:max-w-lg lg:max-w-xl shadow-md break-words border border-border ml-auto bg-primary text-primary-foreground`}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   {/* Display content directly */}
                   {message.content && (
                     <div
-                      className="whitespace-pre-wrap"
+                      className="whitespace-pre-wrap text-sm sm:text-base"
                       data-testid="chat-message-content"
                     >
                       {message.content}
@@ -107,13 +107,13 @@ function ChatHistory({ history }: ChatHistoryProps) {
             ) : (
               <Card
                 className={
-                  "max-w-lg lg:max-w-xl shadow-md break-words border border-border mr-auto bg-card text-card-foreground"
+                  "max-w-[90%] sm:max-w-lg lg:max-w-xl shadow-md break-words border border-border mr-auto bg-card text-card-foreground"
                 }
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   {message.content && (
                     <div
-                      className="whitespace-pre-wrap"
+                      className="whitespace-pre-wrap text-sm sm:text-base"
                       data-testid="chat-message-content"
                     >
                       {message.content}

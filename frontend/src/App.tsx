@@ -146,10 +146,22 @@ function AppRouter() {
 
       const historyJson = serializeMessageHistory(messages);
       formData.append("historyJson", historyJson);
-      // Start backend call
+
+      // Prepare assistant placeholder message early so loading dots show immediately
       let assistantMessageId = `ai-${Date.now()}`;
       let assistantMessageContent = "";
       let updatedConversationTitle: string | null = null;
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: assistantMessageId,
+          sender: "assistant",
+          content: "",
+          imageUrls: [],
+        },
+      ]);
+
+      // Start backend call
       try {
         const backendUrl =
           import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
@@ -173,15 +185,6 @@ function AppRouter() {
         const decoder = new TextDecoder("utf-8");
         let done = false;
         let buffer = "";
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            id: assistantMessageId,
-            sender: "assistant",
-            content: "",
-            imageUrls: [],
-          },
-        ]);
 
         // --- Read backend stream and look for improved title ---
         while (!done) {
